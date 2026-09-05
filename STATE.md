@@ -7,7 +7,7 @@ column says what a receipt is presently worth, not merely what was claimed for i
 reason a receipt has stopped standing is below, and `python scripts/ieantn.py status`
 adds the environment detail.
 
-42 node version(s), 74 conclusion(s).  3 state nothing yet.
+43 node version(s), 78 conclusion(s).  3 state nothing yet.
 
 ## Evidence
 
@@ -17,7 +17,7 @@ adds the environment detail.
 | `bridged` | 1 |
 | `lean-comparator` | 18 |
 | `literature` | 36 |
-| `none-yet` | 4 |
+| `none-yet` | 8 |
 | `numerical` | 14 |
 
 ## Nodes
@@ -93,6 +93,10 @@ adds the environment detail.
 | `PlattTrudgian.v1` | active | `rh_up_to` | literature | 0 | - |
 | `PlattTrudgian2021.v1` | stub | `theorem_1_classical` | literature | 3 | - |
 | `PlattTrudgian2021.v1` | stub | `theorem_1_numerical` | literature | 3 | - |
+| `PrimeInterval.v1` | awaiting-verification | `theta_characterisation` | none-yet | 0 | #53 |
+| `PrimeInterval.v1` | awaiting-verification | `eTheta_criterion` | none-yet | 0 | #53 |
+| `PrimeInterval.v1` | awaiting-verification | `numericalBound_hasPrimeInInterval` | none-yet | 0 | #53 |
+| `PrimeInterval.v1` | awaiting-verification | `classicalBound_hasPrimeInInterval` | none-yet | 0 | #53 |
 | `RosserSchoenfeld.v1` | stub | `zero_free_region` | literature | 0 | - |
 | `RosserSchoenfeld.v1` | stub | `zero_free_region_classical` | bridged | 0 | - |
 | `Trudgian2011.v1` | stub | `integral_S_bound` | literature | 0 | - |

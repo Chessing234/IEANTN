@@ -88,6 +88,7 @@ graph LR
   NPlatt2017_v1["<b>Platt2017.v1</b><br/>1 claim<br/><i>weakest: computation</i>"]
   NPlattTrudgian_v1["<b>PlattTrudgian.v1</b><br/>1 claim<br/><i>weakest: cited</i>"]
   NPlattTrudgian2021_v1["<b>PlattTrudgian2021.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
+  NPrimeInterval_v1["<b>PrimeInterval.v1</b><br/>4 claims<br/><i>weakest: unjustified</i>"]
   NRosserSchoenfeld_v1["<b>RosserSchoenfeld.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
   NTrudgian2011_v1["<b>Trudgian2011.v1</b><br/>1 claim<br/><i>weakest: cited</i>"]
   NWedeniwski_v1["<b>Wedeniwski.v1</b><br/>1 claim<br/><i>weakest: asserted</i>"]
@@ -144,7 +145,7 @@ graph LR
   style NRosserSchoenfeld_v1 stroke-dasharray: 2 3;
   style NTrudgian2011_v1 stroke-dasharray: 2 3;
   style NWedeniwski_v1 stroke-dasharray: 2 3;
-  class NBrown1967_v1,NButhe_v2,NChengGraham2004_v1,NContourIntegration_v1,NGammaAsymptotics_v1,NMTY_v1 none_yet;
+  class NBrown1967_v1,NButhe_v2,NChengGraham2004_v1,NContourIntegration_v1,NGammaAsymptotics_v1,NMTY_v1,NPrimeInterval_v1 none_yet;
   class NWedeniwski_v1 asserted;
   class NBKLNW_v1,NButhe_v1,NButhe2016_v1,NCH2_v1,NDudekPlatt_v1,NDusart2018_v1,NFKS_v1,NHiary2016_v1,NKLN_v1,NKadiri2005_v1,NMT_v1,NPlattTrudgian_v1,NPlattTrudgian2021_v1,NRosserSchoenfeld_v1,NTrudgian2011_v1,NZeroCount_v1 literature;
   class NButheNumerics_v1,NDudekPlattNumerics_v1,NDudekPlattNumerics_v2,NFKBJ_v1,NFKS2Numerics_v1,NLowZeroes_v1,NPlatt2015_v1,NPlatt2017_v1 numerical;
@@ -182,6 +183,7 @@ graph LR
   click NPlatt2017_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/Platt2017-v1.md" _blank
   click NPlattTrudgian_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PlattTrudgian-v1.md" _blank
   click NPlattTrudgian2021_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PlattTrudgian2021-v1.md" _blank
+  click NPrimeInterval_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PrimeInterval-v1.md" _blank
   click NRosserSchoenfeld_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/RosserSchoenfeld-v1.md" _blank
   click NTrudgian2011_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/Trudgian2011-v1.md" _blank
   click NWedeniwski_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/Wedeniwski-v1.md" _blank
@@ -337,6 +339,12 @@ graph LR
     PlattTrudgian2021_v1_theorem_1_classical["<b>theorem_1_classical</b><br/><i>cited</i>"]
     PlattTrudgian2021_v1_theorem_1_numerical["<b>theorem_1_numerical</b><br/><i>cited</i>"]
   end
+  subgraph sgPrimeInterval_v1["PrimeInterval.v1"]
+    PrimeInterval_v1_classicalBound_hasPrimeInInterval["<b>classicalBound_hasPrimeInInterval</b><br/><i>unjustified</i>"]
+    PrimeInterval_v1_eTheta_criterion["<b>eTheta_criterion</b><br/><i>unjustified</i>"]
+    PrimeInterval_v1_numericalBound_hasPrimeInInterval["<b>numericalBound_hasPrimeInInterval</b><br/><i>unjustified</i>"]
+    PrimeInterval_v1_theta_characterisation["<b>theta_characterisation</b><br/><i>unjustified</i>"]
+  end
   subgraph sgRosserSchoenfeld_v1["RosserSchoenfeld.v1"]
     RosserSchoenfeld_v1_zero_free_region["<b>zero_free_region</b><br/><i>cited</i>"]
     RosserSchoenfeld_v1_zero_free_region_classical["<b>zero_free_region_classical</b><br/><i>bridged</i>"]
@@ -491,7 +499,7 @@ graph LR
   class RosserSchoenfeld_v1_zero_free_region_classical bridged;
   class CH2_v2_proposition_2_4_lower,CH2_v2_proposition_2_4_upper,CH2_v3_extremal_majorant,CH2_v3_extremal_minorant,CH2_v4_contour_shift,CH2_v4_contour_shift_holomorphic,DudekPlatt_v2_ramanujan_inequality_3915,DudekPlatt_v3_criterion,FKS2_v1_corollary_14,FKS2_v1_corollary_22,FKS2_v1_corollary_23,FKS2_v1_corollary_26,FKS2_v2_proposition_13,FKS2_v2_theorem_3,Lcm_v1_lcmUpto_not_highlyAbundant,Lcm_v2_lcmUpto_not_highlyAbundant_of_primeGap,ZeroFreeHeight_v1_classical_region_descends,ZetaLogDeriv_v1_logDeriv_functional_equation lean_comparator;
   class BKLNW_v1_corollary_5_1,BKLNW_v1_table8_psi_bound,BKLNW_v1_table8_psi_bound_above,BKLNW_v1_theta_error_le_one,Buthe_v1_theorem_2_li_gt_pi,Buthe_v1_theorem_2_li_minus_pi,Buthe_v1_theorem_2_li_minus_riemann_pi,Buthe_v1_theorem_2_psi,Buthe_v1_theorem_2_theta,Buthe_v1_theorem_2_theta_lower,Buthe2016_v1_theorem_2_li_minus_pi,Buthe2016_v1_theorem_2_li_minus_riemann_pi,Buthe2016_v1_theorem_2_psi,Buthe2016_v1_theorem_2_theta,CH2_v1_corollary_1_2_lambda_sum,CH2_v1_corollary_1_2_psi,CH2_v1_corollary_1_3_lambda_sum,CH2_v1_corollary_1_3_psi,DudekPlatt_v1_largest_counterexample_on_rh,DudekPlatt_v1_ramanujan_inequality,Dusart2018_v1_proposition_5_4,FKS_v1_psi_bound_all_x,FKS_v1_psi_classical_bound,Hiary2016_v1_zeta_half_line_bound,KLN_v1_subconvexity_bound,KLN_v1_zero_density,Kadiri2005_v1_zero_free_region,MT_v1_zero_free_region,MT_v1_zero_free_region_sharpened,PlattTrudgian_v1_rh_up_to,PlattTrudgian2021_v1_theorem_1_classical,PlattTrudgian2021_v1_theorem_1_numerical,RosserSchoenfeld_v1_zero_free_region,Trudgian2011_v1_integral_S_bound,ZeroCount_v1_rvm_error_bound,ZeroCount_v1_rvm_error_small literature;
-  class Buthe_v2_lemma_3_bounds,Buthe_v2_lemma_3_positivity,ContourIntegration_v1_residue_theorem_rectangle,GammaAsymptotics_v1_digamma_sub_log_isBigO none_yet;
+  class Buthe_v2_lemma_3_bounds,Buthe_v2_lemma_3_positivity,ContourIntegration_v1_residue_theorem_rectangle,GammaAsymptotics_v1_digamma_sub_log_isBigO,PrimeInterval_v1_classicalBound_hasPrimeInInterval,PrimeInterval_v1_eTheta_criterion,PrimeInterval_v1_numericalBound_hasPrimeInInterval,PrimeInterval_v1_theta_characterisation none_yet;
   class ButheNumerics_v1_lemma_3_constant_gt_at_10,ButheNumerics_v1_lemma_3_constant_nonpos,ButheNumerics_v1_li_minus_pi_below_1e7,DudekPlattNumerics_v1_pi_two_sided_paper,DudekPlattNumerics_v2_pi_two_sided_pnt,FKBJ_v1_rh_up_to,FKS2Numerics_v1_corollary_22_mid_range,FKS2Numerics_v1_corollary_23_mid_range,FKS2Numerics_v1_nu_asymp_e30_le,FKS2Numerics_v1_table6_row2_floor,FKS2Numerics_v1_theta_asymp_ge_one_below_e30,LowZeroes_v1_sum_inv_ordinates_below_2e4,Platt2015_v1_rh_up_to,Platt2017_v1_rh_up_to numerical;
   click BKLNW_v1_corollary_5_1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/BKLNW-v1.md#corollary_5_1" _blank
   click BKLNW_v1_table8_psi_bound href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/BKLNW-v1.md#table8_psi_bound" _blank
@@ -559,6 +567,10 @@ graph LR
   click PlattTrudgian_v1_rh_up_to href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PlattTrudgian-v1.md#rh_up_to" _blank
   click PlattTrudgian2021_v1_theorem_1_classical href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PlattTrudgian2021-v1.md#theorem_1_classical" _blank
   click PlattTrudgian2021_v1_theorem_1_numerical href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PlattTrudgian2021-v1.md#theorem_1_numerical" _blank
+  click PrimeInterval_v1_classicalBound_hasPrimeInInterval href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PrimeInterval-v1.md#classicalBound_hasPrimeInInterval" _blank
+  click PrimeInterval_v1_eTheta_criterion href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PrimeInterval-v1.md#eTheta_criterion" _blank
+  click PrimeInterval_v1_numericalBound_hasPrimeInInterval href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PrimeInterval-v1.md#numericalBound_hasPrimeInInterval" _blank
+  click PrimeInterval_v1_theta_characterisation href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/PrimeInterval-v1.md#theta_characterisation" _blank
   click RosserSchoenfeld_v1_zero_free_region href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/RosserSchoenfeld-v1.md#zero_free_region" _blank
   click RosserSchoenfeld_v1_zero_free_region_classical href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/RosserSchoenfeld-v1.md#zero_free_region_classical" _blank
   click Trudgian2011_v1_integral_S_bound href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/Trudgian2011-v1.md#integral_S_bound" _blank
@@ -774,6 +786,14 @@ A line is one claim, indented under whatever assumes it.
     - [`Platt2017.v1.rh_up_to`](docs/nodes/Platt2017-v1.md#rh_up_to) — computation — *sources known, not all drawable*
       - [`Trudgian2011.v1.integral_S_bound`](docs/nodes/Trudgian2011-v1.md#integral_S_bound) — cited — *sources not traced*
 
+- [`PrimeInterval.v1.classicalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#classicalBound_hasPrimeInInterval) — unjustified
+
+- [`PrimeInterval.v1.eTheta_criterion`](docs/nodes/PrimeInterval-v1.md#eTheta_criterion) — unjustified
+
+- [`PrimeInterval.v1.numericalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#numericalBound_hasPrimeInInterval) — unjustified
+
+- [`PrimeInterval.v1.theta_characterisation`](docs/nodes/PrimeInterval-v1.md#theta_characterisation) — unjustified
+
 - [`RosserSchoenfeld.v1.zero_free_region`](docs/nodes/RosserSchoenfeld-v1.md#zero_free_region) — cited — *sources not traced*
 
 - [`ZeroCount.v1.rvm_error_bound`](docs/nodes/ZeroCount-v1.md#rvm_error_bound) — cited
@@ -845,6 +865,10 @@ rather than maintained.
 | [`FKS.v1.psi_bound_all_x`](docs/nodes/FKS-v1.md#psi_bound_all_x) | cited | 0 | traced |
 | [`LowZeroes.v1.sum_inv_ordinates_below_2e4`](docs/nodes/LowZeroes-v1.md#sum_inv_ordinates_below_2e4) | computation | 0 | none |
 | [`PlattTrudgian2021.v1.theorem_1_classical`](docs/nodes/PlattTrudgian2021-v1.md#theorem_1_classical) | cited | 0 | traced |
+| [`PrimeInterval.v1.classicalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#classicalBound_hasPrimeInInterval) | unjustified | 0 | none |
+| [`PrimeInterval.v1.eTheta_criterion`](docs/nodes/PrimeInterval-v1.md#eTheta_criterion) | unjustified | 0 | none |
+| [`PrimeInterval.v1.numericalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#numericalBound_hasPrimeInInterval) | unjustified | 0 | none |
+| [`PrimeInterval.v1.theta_characterisation`](docs/nodes/PrimeInterval-v1.md#theta_characterisation) | unjustified | 0 | none |
 | [`RosserSchoenfeld.v1.zero_free_region`](docs/nodes/RosserSchoenfeld-v1.md#zero_free_region) | cited | 0 | **not yet traced** |
 | [`ZeroCount.v1.rvm_error_bound`](docs/nodes/ZeroCount-v1.md#rvm_error_bound) | cited | 0 | none |
 | [`ZeroCount.v1.rvm_error_small`](docs/nodes/ZeroCount-v1.md#rvm_error_small) | cited | 0 | none |
