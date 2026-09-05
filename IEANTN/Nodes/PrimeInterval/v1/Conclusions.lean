@@ -8,14 +8,16 @@ import IEANTN.Vocabulary
 /-!
 # Node `PrimeInterval`
 
-A **pipeline** node: the shared argument by which a bound on the normalised error term `Eθ`
-converts into a prime in a short interval. It imports nothing and consumes nothing that is
-paper-specific, so a Lean proof is its whole justification — it is downstream-only, feeding on
+A **pipeline** node for issue #53: the shared argument by which a bound on the normalised error
+term `Eθ` converts into a prime in a short interval. It imports nothing and consumes nothing that
+is paper-specific, so a Lean proof is its whole justification — it is downstream-only, feeding on
 whatever node states an `Eθ` bound (e.g. `FKS2`) rather than reproving one itself.
 
-Source: `PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean` states the same shapes against
-Vocabulary character-for-character identical to this repository's; used as inspiration, the
-proofs are not ported.
+Source: `PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean`, used as inspiration, not ported.
+`HasPrimeInInterval` is character-for-character the same as PNT+'s. `HasClassicalBound` is the
+same definition with Vocabulary's extra `E` parameter; `Eθ` and `admissibleBound` match PNT+'s
+formulae and argument order. `HasNumericalBound` takes a constant `ε : ℝ`, whereas PNT+'s
+`Eθ.numericalBound` takes `ε : ℝ → ℝ` and uses `ε x₀`.
 -/
 
 namespace PrimeInterval.v1
@@ -63,9 +65,9 @@ short interval — the network's first case of one node's output feeding another
 The side conditions are load-bearing, not decoration. `x ≥ exp (R * (2 * B / C) ^ 2)` is the point
 past which `admissibleBound A B C R` is decreasing in `x` (its numerator's polynomial growth is
 overtaken by the exponential decay); dropping it makes the conversion to a numerical bound at `x`
-invalid, not merely harder to prove. `0 < A, 0 < B, 0 < C, 0 < R` avoid `Real.rpow`'s junk values
-at a non-positive base, since `admissibleBound` involves `(log x / R) ^ B` and
-`(log x / R) ^ (1/2)`. -/
+invalid, not merely harder to prove. `0 < A, 0 < B, 0 < C, 0 < R` are the positivity hypotheses of
+that monotonicity argument; `0 < R` also keeps `log x / R` positive once `x` is past the
+exponential threshold, so the `Real.rpow` bases are not negative. -/
 def classicalBound_hasPrimeInInterval : Prop :=
   ∀ x₀ x h A B C R : ℝ,
     IEANTN.HasClassicalBound IEANTN.Eθ A B C R x₀ →

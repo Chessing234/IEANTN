@@ -14,8 +14,8 @@
 
 ## The source
 
-- **PrimeInInterval.lean** — Alex Kontorovich, et al.. PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean  
-  _275 lines, 7 results, 0 sorry in that repository; used as inspiration for the statement shapes and proof strategy, not ported. IEANTN's Vocabulary predicates it uses (HasPrimeInInterval, HasClassicalBound, HasNumericalBound, Eθ, admissibleBound) are character-for-character the same as that file's, per issue #53._
+- **PrimeInInterval.lean** — Alex Kontorovich. PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean  
+  _275 lines, 7 results, 0 sorry in PrimeNumberTheoremAnd; used as inspiration for the statement shapes and proof strategy, not ported. Per issue #53, HasPrimeInInterval is character-for-character the same as PNT+'s, and HasClassicalBound is the same definition as Eθ.classicalBound with Vocabulary's extra E parameter. HasNumericalBound is not: it takes a constant ε : ℝ, whereas PNT+'s Eθ.numericalBound takes ε : ℝ → ℝ and uses ε x₀. admissibleBound matches PNT+'s admissible_bound in formula and argument order._
 
 ## Conclusions
 
@@ -39,7 +39,7 @@ def theta_characterisation : Prop :=
 |---|---|
 | Lean name | `PrimeInterval.v1.theta_characterisation` |
 | Challenge | `PrimeInterval.v1.challenge_theta_characterisation` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L33) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L35) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -71,7 +71,7 @@ def eTheta_criterion : Prop :=
 |---|---|
 | Lean name | `PrimeInterval.v1.eTheta_criterion` |
 | Challenge | `PrimeInterval.v1.challenge_eTheta_criterion` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L44) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L46) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -102,7 +102,7 @@ def numericalBound_hasPrimeInInterval : Prop :=
 |---|---|
 | Lean name | `PrimeInterval.v1.numericalBound_hasPrimeInInterval` |
 | Challenge | `PrimeInterval.v1.challenge_numericalBound_hasPrimeInInterval` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L55) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L57) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -122,9 +122,9 @@ short interval — the network's first case of one node's output feeding another
 The side conditions are load-bearing, not decoration. `x ≥ exp (R * (2 * B / C) ^ 2)` is the point
 past which `admissibleBound A B C R` is decreasing in `x` (its numerator's polynomial growth is
 overtaken by the exponential decay); dropping it makes the conversion to a numerical bound at `x`
-invalid, not merely harder to prove. `0 < A, 0 < B, 0 < C, 0 < R` avoid `Real.rpow`'s junk values
-at a non-positive base, since `admissibleBound` involves `(log x / R) ^ B` and
-`(log x / R) ^ (1/2)`.
+invalid, not merely harder to prove. `0 < A, 0 < B, 0 < C, 0 < R` are the positivity hypotheses of
+that monotonicity argument; `0 < R` also keeps `log x / R` positive once `x` is past the
+exponential threshold, so the `Real.rpow` bases are not negative.
 
 ```lean
 def classicalBound_hasPrimeInInterval : Prop :=
@@ -138,7 +138,7 @@ def classicalBound_hasPrimeInInterval : Prop :=
 |---|---|
 | Lean name | `PrimeInterval.v1.classicalBound_hasPrimeInInterval` |
 | Challenge | `PrimeInterval.v1.challenge_classicalBound_hasPrimeInInterval` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L69) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L71) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |

@@ -24,10 +24,9 @@ example (h : PrimeInterval.v1.eTheta_criterion)
   h 100 1 (by norm_num) (by norm_num) hE
 
 example (h : PrimeInterval.v1.numericalBound_hasPrimeInInterval)
-    (hε : IEANTN.HasNumericalBound IEANTN.Eθ 0.001 100)
-    (hbound : (2 * 100 + 1 : ℝ) * 0.001 < 1) :
+    (hε : IEANTN.HasNumericalBound IEANTN.Eθ 0.001 100) :
     IEANTN.HasPrimeInInterval 100 1 :=
-  h 100 100 1 0.001 hε (by norm_num) le_rfl (by norm_num) hbound
+  h 100 100 1 0.001 hε (by norm_num) le_rfl (by norm_num) (by norm_num)
 
 example (h : PrimeInterval.v1.classicalBound_hasPrimeInInterval)
     (hC : IEANTN.HasClassicalBound IEANTN.Eθ 1 1 1 1 (Real.exp 4))

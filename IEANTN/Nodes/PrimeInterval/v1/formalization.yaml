@@ -102,15 +102,17 @@ conclusions:
     remaining_holes: 0
 sources:
 - title: "PrimeInInterval.lean"
-  authors: ["Alex Kontorovich", "et al."]
+  authors: ["Alex Kontorovich"]
   type: "other"
   id: "PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean"
   relationship: adapts
   note: >-
-    275 lines, 7 results, 0 sorry in that repository; used as inspiration for the statement
-    shapes and proof strategy, not ported. IEANTN's Vocabulary predicates it uses
-    (HasPrimeInInterval, HasClassicalBound, HasNumericalBound, Eθ, admissibleBound) are
-    character-for-character the same as that file's, per issue #53.
+    275 lines, 7 results, 0 sorry in PrimeNumberTheoremAnd; used as inspiration for the
+    statement shapes and proof strategy, not ported. Per issue #53, HasPrimeInInterval is
+    character-for-character the same as PNT+'s, and HasClassicalBound is the same definition
+    as Eθ.classicalBound with Vocabulary's extra E parameter. HasNumericalBound is not:
+    it takes a constant ε : ℝ, whereas PNT+'s Eθ.numericalBound takes ε : ℝ → ℝ and uses
+    ε x₀. admissibleBound matches PNT+'s admissible_bound in formula and argument order.
 
 automation:
   methods:
