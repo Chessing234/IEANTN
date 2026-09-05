@@ -8,7 +8,7 @@
 |---|---|
 | Kind | pipeline |
 | Status | awaiting-verification |
-| Maintainers | TODO |
+| Maintainers | Sebastian Rodrigo |
 | Licence | Apache-2.0 |
 | Review | self-assessed |
 

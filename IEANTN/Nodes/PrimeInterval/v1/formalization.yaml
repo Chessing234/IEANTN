@@ -17,9 +17,9 @@ project:
     consume an Eθ bound however it was itself justified. Every conclusion imports nothing: all
     inputs arrive as hypotheses, so it is the network's first extension downstream of a node such
     as FKS2 rather than a leaf.
-  authors: ["IEANTN contributors"]
+  authors: ["Sebastian Rodrigo"]
   license: "Apache-2.0"
-  responsible_maintainers: ["TODO"]
+  responsible_maintainers: ["Sebastian Rodrigo"]
 
 repository:
   role: substantive-development
@@ -122,7 +122,7 @@ automation:
 
 review:
   status: self-assessed
-  reviewers: ["TODO"]
+  reviewers: []
 
 limitations:
 - >-

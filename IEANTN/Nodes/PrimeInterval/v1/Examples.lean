@@ -28,11 +28,18 @@ example (h : PrimeInterval.v1.numericalBound_hasPrimeInInterval)
     IEANTN.HasPrimeInInterval 100 1 :=
   h 100 100 1 0.001 hε (by norm_num) le_rfl (by norm_num) (by norm_num)
 
-example (h : PrimeInterval.v1.classicalBound_hasPrimeInInterval)
-    (hC : IEANTN.HasClassicalBound IEANTN.Eθ 1 1 1 1 (Real.exp 4))
-    (hb : (2 * Real.exp 4 + 1) * IEANTN.admissibleBound 1 1 1 1 (Real.exp 4) < 1) :
-    IEANTN.HasPrimeInInterval (Real.exp 4) 1 :=
-  h (Real.exp 4) (Real.exp 4) 1 1 1 1 1 hC (by norm_num) (by norm_num) (by norm_num) (by norm_num)
-    (by norm_num) le_rfl (by norm_num) hb
+/-- The classical-bound pipeline at the parameters `FKS2.v2.proposition_13` produces
+(`A = 121.0961`, `B = 3/2`, `C = 2`, `R = 5.5666305`, `x₀ = exp 30`). The admissibility
+inequality `hb` stays a hypothesis: at any concrete `x` it is a transcendental evaluation
+(`Real.rpow`, `Real.exp`) that `norm_num` cannot decide, so no numeral is asserted here. What
+the example checks is that the binders line up. -/
+example (h : PrimeInterval.v1.classicalBound_hasPrimeInInterval) (x : ℝ)
+    (hC : IEANTN.HasClassicalBound IEANTN.Eθ 121.0961 (3 / 2) 2 5.5666305 (Real.exp 30))
+    (hx : Real.exp 30 ≤ x)
+    (hx' : x ≥ Real.exp (5.5666305 * (2 * (3 / 2) / 2) ^ 2))
+    (hb : (2 * x + 1) * IEANTN.admissibleBound 121.0961 (3 / 2) 2 5.5666305 x < 1) :
+    IEANTN.HasPrimeInInterval x 1 :=
+  h (Real.exp 30) x 1 121.0961 (3 / 2) 2 5.5666305 hC (by norm_num) (by norm_num) (by norm_num)
+    (by norm_num) (by norm_num) hx hx' hb
 
 end PrimeInterval.v1.Examples
