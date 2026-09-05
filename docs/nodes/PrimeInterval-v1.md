@@ -40,6 +40,7 @@ def theta_characterisation : Prop :=
 | Lean name | `PrimeInterval.v1.theta_characterisation` |
 | Challenge | `PrimeInterval.v1.challenge_theta_characterisation` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L33) |
+| Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
@@ -71,6 +72,7 @@ def eTheta_criterion : Prop :=
 | Lean name | `PrimeInterval.v1.eTheta_criterion` |
 | Challenge | `PrimeInterval.v1.challenge_eTheta_criterion` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L44) |
+| Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
@@ -101,6 +103,7 @@ def numericalBound_hasPrimeInInterval : Prop :=
 | Lean name | `PrimeInterval.v1.numericalBound_hasPrimeInInterval` |
 | Challenge | `PrimeInterval.v1.challenge_numericalBound_hasPrimeInInterval` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L55) |
+| Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
@@ -136,6 +139,7 @@ def classicalBound_hasPrimeInInterval : Prop :=
 | Lean name | `PrimeInterval.v1.classicalBound_hasPrimeInInterval` |
 | Challenge | `PrimeInterval.v1.challenge_classicalBound_hasPrimeInInterval` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L69) |
+| Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
 | Assumes | nothing recorded |

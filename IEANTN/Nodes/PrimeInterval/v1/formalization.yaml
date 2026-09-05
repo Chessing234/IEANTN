@@ -29,85 +29,101 @@ classification:
   msc2020: ["11N05", "11N56"]
 
 conclusions:
-  - id: theta_characterisation
-    issue: 53
-    declaration: PrimeInterval.v1.theta_characterisation
-    challenge: PrimeInterval.v1.challenge_theta_characterisation
-    imports: []
-    imports_status: none
-    justifications:
-      - id: solution
-        kind: none-yet
-        note: >-
-          Solutions/PrimeInterval.v1/ proves this; see progress there for status.
-    designated: solution
-
-  - id: eTheta_criterion
-    issue: 53
-    declaration: PrimeInterval.v1.eTheta_criterion
-    challenge: PrimeInterval.v1.challenge_eTheta_criterion
-    imports: []
-    imports_status: none
-    justifications:
-      - id: solution
-        kind: none-yet
-        note: >-
-          Solutions/PrimeInterval.v1/ proves this from theta_characterisation.
-    designated: solution
-
-  - id: numericalBound_hasPrimeInInterval
-    issue: 53
-    declaration: PrimeInterval.v1.numericalBound_hasPrimeInInterval
-    challenge: PrimeInterval.v1.challenge_numericalBound_hasPrimeInInterval
-    imports: []
-    imports_status: none
-    justifications:
-      - id: solution
-        kind: none-yet
-        note: >-
-          Solutions/PrimeInterval.v1/ proves this from eTheta_criterion. Included per the issue's
-          default (Vocabulary carries IEANTN.HasNumericalBound already).
-    designated: solution
-
-  - id: classicalBound_hasPrimeInInterval
-    issue: 53
-    declaration: PrimeInterval.v1.classicalBound_hasPrimeInInterval
-    challenge: PrimeInterval.v1.challenge_classicalBound_hasPrimeInInterval
-    imports: []
-    imports_status: none
-    justifications:
-      - id: solution
-        kind: none-yet
-        note: >-
-          Solutions/PrimeInterval.v1/ proves this by showing admissibleBound is AntitoneOn
-          [exp (R (2B/C)^2), ∞) and reducing to numericalBound_hasPrimeInInterval. This is the
-          conclusion FKS2.v2.proposition_13 is meant to feed.
-    designated: solution
-
-sources:
-  - title: "PrimeInInterval.lean"
-    authors: ["Alex Kontorovich", "et al."]
-    type: "other"
-    id: "PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean"
-    relationship: adapts
+- id: theta_characterisation
+  issue: 53
+  declaration: PrimeInterval.v1.theta_characterisation
+  challenge: PrimeInterval.v1.challenge_theta_characterisation
+  imports: []
+  imports_status: none
+  justifications:
+  - id: solution
+    kind: none-yet
     note: >-
-      275 lines, 7 results, 0 sorry in that repository; used as inspiration for the statement
-      shapes and proof strategy, not ported. IEANTN's Vocabulary predicates it uses
-      (HasPrimeInInterval, HasClassicalBound, HasNumericalBound, Eθ, admissibleBound) are
-      character-for-character the same as that file's, per issue #53.
+      Solutions/PrimeInterval.v1/ proves this; see progress there for status.
+  designated: solution
+
+  progress:
+    solution: Solutions/PrimeInterval.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: eTheta_criterion
+  issue: 53
+  declaration: PrimeInterval.v1.eTheta_criterion
+  challenge: PrimeInterval.v1.challenge_eTheta_criterion
+  imports: []
+  imports_status: none
+  justifications:
+  - id: solution
+    kind: none-yet
+    note: >-
+      Solutions/PrimeInterval.v1/ proves this from theta_characterisation.
+  designated: solution
+
+  progress:
+    solution: Solutions/PrimeInterval.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: numericalBound_hasPrimeInInterval
+  issue: 53
+  declaration: PrimeInterval.v1.numericalBound_hasPrimeInInterval
+  challenge: PrimeInterval.v1.challenge_numericalBound_hasPrimeInInterval
+  imports: []
+  imports_status: none
+  justifications:
+  - id: solution
+    kind: none-yet
+    note: >-
+      Solutions/PrimeInterval.v1/ proves this from eTheta_criterion. Included per the issue's
+      default (Vocabulary carries IEANTN.HasNumericalBound already).
+  designated: solution
+
+  progress:
+    solution: Solutions/PrimeInterval.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: classicalBound_hasPrimeInInterval
+  issue: 53
+  declaration: PrimeInterval.v1.classicalBound_hasPrimeInInterval
+  challenge: PrimeInterval.v1.challenge_classicalBound_hasPrimeInInterval
+  imports: []
+  imports_status: none
+  justifications:
+  - id: solution
+    kind: none-yet
+    note: >-
+      Solutions/PrimeInterval.v1/ proves this by showing admissibleBound is AntitoneOn
+      [exp (R (2B/C)^2), ∞) and reducing to numericalBound_hasPrimeInInterval. This is the
+      conclusion FKS2.v2.proposition_13 is meant to feed.
+  designated: solution
+
+  progress:
+    solution: Solutions/PrimeInterval.v1/
+    state: in-progress
+    remaining_holes: 0
+sources:
+- title: "PrimeInInterval.lean"
+  authors: ["Alex Kontorovich", "et al."]
+  type: "other"
+  id: "PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean"
+  relationship: adapts
+  note: >-
+    275 lines, 7 results, 0 sorry in that repository; used as inspiration for the statement
+    shapes and proof strategy, not ported. IEANTN's Vocabulary predicates it uses
+    (HasPrimeInInterval, HasClassicalBound, HasNumericalBound, Eθ, admissibleBound) are
+    character-for-character the same as that file's, per issue #53.
 
 automation:
   methods:
-    - method: ai-assisted
-      role: >-
-        Statement drafting and Lean proof development, reviewed by the contributor before commit.
+  - method: ai-assisted
+    role: >-
+      Statement drafting and Lean proof development, reviewed by the contributor before commit.
 
 review:
   status: self-assessed
   reviewers: ["TODO"]
 
 limitations:
-  - >-
-    Excludes the prime_gap_record route the issue also surveys: IEANTN's Vocabulary does not yet
-    have a prime-gap-record predicate, so it is left for a follow-up node rather than stated here
-    against an ad hoc local definition.
+- >-
+  Excludes the prime_gap_record route the issue also surveys: IEANTN's Vocabulary does not yet
+  have a prime-gap-record predicate, so it is left for a follow-up node rather than stated here
+  against an ad hoc local definition.
