@@ -14,9 +14,10 @@ is paper-specific, so a Lean proof is its whole justification — it is downstre
 whatever node states an `Eθ` bound (e.g. `FKS2`) rather than reproving one itself.
 
 Source: `PrimeNumberTheoremAnd/IEANTN/PrimeInInterval.lean`, used as inspiration, not ported.
-`HasPrimeInInterval` is character-for-character the same as PNT+'s. `HasClassicalBound` is the
-same definition with Vocabulary's extra `E` parameter; `Eθ` and `admissibleBound` match PNT+'s
-formulae and argument order. `HasNumericalBound` takes a constant `ε : ℝ`, whereas PNT+'s
+PNT+'s `HasPrimeInInterval` has the same proposition and endpoint convention. Specialising
+`IEANTN.HasClassicalBound` to `IEANTN.Eθ` gives the same inequality shape as PNT+'s
+`Eθ.classicalBound`; `Eθ` and `admissibleBound` use the same formulae and argument order. The
+numerical-bound APIs differ: `IEANTN.HasNumericalBound` takes a constant `ε : ℝ`, whereas PNT+'s
 `Eθ.numericalBound` takes `ε : ℝ → ℝ` and uses `ε x₀`.
 -/
 
@@ -51,23 +52,23 @@ def eTheta_criterion : Prop :=
 `(2x + h) * ε < h`, there is a prime in `(x, x + h]`.
 
 Immediate from `eTheta_criterion` once both `Eθ x` and `Eθ (x + h)` are bounded by the same `ε`,
-which is exactly what `IEANTN.HasNumericalBound` gives once `x ≥ x₀`. This is the shape a classical
-bound degenerates into once `x` is past the point where `admissibleBound` stops decreasing —
-`classicalBound_hasPrimeInInterval` below is the composition of that degeneration with this. -/
+which is exactly what `IEANTN.HasNumericalBound` gives once `x ≥ x₀`. Once `x` is at or beyond the
+threshold where `admissibleBound` reaches its maximum and becomes antitone, the classical route
+below freezes that bound at `x` to obtain this constant-bound hypothesis. -/
 def numericalBound_hasPrimeInInterval : Prop :=
   ∀ x₀ x h ε : ℝ, IEANTN.HasNumericalBound IEANTN.Eθ ε x₀ → 0 < h → x₀ ≤ x → 0 < x →
     (2 * x + h) * ε < h → IEANTN.HasPrimeInInterval x h
 
-/-- The classical-bound route, and the point of the node: `FKS2.v2.proposition_13` produces
-exactly a `IEANTN.HasClassicalBound Eθ A B C R x₀`, and this consumes it to certify a prime in a
-short interval — the network's first case of one node's output feeding another downstream of it.
+/-- The classical-bound route, and the point of the node: `FKS2.v2.proposition_13` can produce
+an `IEANTN.HasClassicalBound Eθ A B C R x₀`, and this consumes such a bound to certify a prime in a
+short interval. This is the downstream composition the node is intended to expose.
 
-The side conditions are load-bearing, not decoration. `x ≥ exp (R * (2 * B / C) ^ 2)` is the point
-past which `admissibleBound A B C R` is decreasing in `x` (its numerator's polynomial growth is
-overtaken by the exponential decay); dropping it makes the conversion to a numerical bound at `x`
-invalid, not merely harder to prove. `0 < A, 0 < B, 0 < C, 0 < R` are the positivity hypotheses of
-that monotonicity argument; `0 < R` also keeps `log x / R` positive once `x` is past the
-exponential threshold, so the `Real.rpow` bases are not negative. -/
+The side conditions are load-bearing, not decoration. `x ≥ exp (R * (2 * B / C) ^ 2)` places `x`
+at or beyond the maximum of `admissibleBound A B C R`; on that ray the bound is antitone because
+its polynomial factor is overtaken by the exponential decay. Dropping the threshold makes the
+conversion to a numerical bound at `x` invalid, not merely harder to prove. `0 < A, 0 < B, 0 < C,
+0 < R` are the positivity hypotheses of that monotonicity argument; `0 < R` also keeps `log x / R`
+positive once `x` is past the exponential threshold, so the `Real.rpow` bases are not negative. -/
 def classicalBound_hasPrimeInInterval : Prop :=
   ∀ x₀ x h A B C R : ℝ,
     IEANTN.HasClassicalBound IEANTN.Eθ A B C R x₀ →

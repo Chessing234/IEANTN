@@ -15,8 +15,8 @@ project:
     in a short interval (x, x + h]. States the θ characterisation of a prime in a short interval,
     the Eθ criterion it is proved through, and the numerical- and classical-bound routes that
     consume an Eθ bound however it was itself justified. Every conclusion imports nothing: all
-    inputs arrive as hypotheses, so it is the network's first extension downstream of a node such
-    as FKS2 rather than a leaf.
+    inputs arrive as hypotheses, so the node can sit downstream of a bound-producing node such as
+    FKS2 without importing or reproving that node's proof.
   authors: ["Sebastian Rodrigo"]
   license: "Apache-2.0"
   responsible_maintainers: ["Sebastian Rodrigo"]
@@ -108,11 +108,11 @@ sources:
   relationship: adapts
   note: >-
     275 lines, 7 results, 0 sorry in PrimeNumberTheoremAnd; used as inspiration for the
-    statement shapes and proof strategy, not ported. Per issue #53, HasPrimeInInterval is
-    character-for-character the same as PNT+'s, and HasClassicalBound is the same definition
-    as Eθ.classicalBound with Vocabulary's extra E parameter. HasNumericalBound is not:
-    it takes a constant ε : ℝ, whereas PNT+'s Eθ.numericalBound takes ε : ℝ → ℝ and uses
-    ε x₀. admissibleBound matches PNT+'s admissible_bound in formula and argument order.
+    statement shapes and proof strategy, not ported. PNT+'s HasPrimeInInterval has the same
+    proposition and endpoint convention. Specialising IEANTN.HasClassicalBound to Eθ gives the
+    same inequality shape as PNT+'s Eθ.classicalBound; Eθ and admissibleBound use the same
+    formulae and argument order. The numerical-bound APIs differ: IEANTN.HasNumericalBound takes
+    a constant ε : ℝ, whereas PNT+'s Eθ.numericalBound takes ε : ℝ → ℝ and uses ε x₀.
 
 automation:
   methods:

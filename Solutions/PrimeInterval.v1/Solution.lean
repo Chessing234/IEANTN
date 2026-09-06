@@ -104,7 +104,8 @@ theorem numericalBound_hasPrimeInInterval (x₀ x h ε : ℝ)
   have hsum : x * IEANTN.Eθ x + (x + h) * IEANTN.Eθ (x + h) ≤ (2 * x + h) * ε := by nlinarith
   exact eTheta_criterion x h hx hh (lt_of_le_of_lt hsum hε)
 
-/-- `admissibleBound` is antitone past the point where it stops decreasing. -/
+/-- For positive parameters, `admissibleBound` is antitone on the ray beginning at
+`exp (R * (2 * B / C) ^ 2)`, where the bound reaches its maximum. -/
 theorem admissibleBound_mono
     (A B C R : ℝ) (hA : 0 < A) (hB : 0 < B) (hC : 0 < C) (hR : 0 < R) :
     AntitoneOn (IEANTN.admissibleBound A B C R) (Set.Ici (Real.exp (R * (2 * B / C) ^ 2))) := by
