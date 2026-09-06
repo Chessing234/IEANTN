@@ -126,8 +126,31 @@ stages:
       branch that had needed analyticity and z != 1. HasSimplePolesOn A now holds on ALL of C,
       including s = 1, since meromorphicOrderAt_logDeriv_eq_neg_one covers poles as well as zeros
       and zeta's pole there is simple.
-      NOT STARTED: the two IsBoundedNoPolesOn hypotheses, on the ladder and the contour. Those are
-      growth bounds on zeta'/zeta and belong with Appendix A, not here.
+      THE TWO IsBoundedNoPolesOn HYPOTHESES ARE HALF DONE, and the halves are very unequal. Each
+      asks for two things at once on l.Rboundary union l.admissible_contour union l.L: no poles
+      there, and boundedness there.
+      THE POLE HALF IS DONE, and it is where the ladder's abscissas get chosen. Mathlib knows that
+      each -2(n+1) IS a zero of zeta (riemannZeta_neg_two_mul_nat_add_one) and that there are none
+      with Re s >= 1, but NOT that the trivial zeros are the only ones on the left -- which is
+      exactly what a ladder needs, since it puts its columns out there. That gap is now closed by
+      riemannZeta_ne_zero_of_re_neg, proved from the functional equation alone: writing s = 1 - w
+      with Re w > 1, every factor of riemannZeta_one_sub except cos(pi w/2) is nonzero for free, so
+      a zero forces w = 2k+1, i.e. s = -2k. The abscissas are then sigmaZeta n = 1 - 2n, odd and so
+      threading between the even trivial zeros, with riemannZeta_ne_zero_on_column proving each
+      column past the first misses them. Both are sorry-free on the three permitted axioms.
+      Worth noting the reuse: that proof is riemannZeta_one_sub plus Gamma_ne_zero plus
+      cos_eq_zero_iff, the same three lemmas as ZetaLogDeriv.v1's solution. Not a coincidence --
+      both are the functional equation carrying a fact from the convergent half-plane leftwards.
+      THE BOUNDEDNESS HALF IS NOT STARTED and is the substantial one. It needs
+      ||zeta'/zeta|| = O(log|s|) on the columns and the contour, which is where GammaAsymptotics.v1
+      (still none-yet) and ZetaLogDeriv.v1 (green) are meant to earn their keep, together with
+      boundedness on Re s >= 2 from the Dirichlet series.
+      ONE THING TO KNOW BEFORE STARTING IT: x0 > 1 is not optional, though prop_5_2's signature
+      only asks 1 <= x0. On the column at Re s = 1 - 2n the function zeta'/zeta grows like
+      log|s|, so sup over the WHOLE ladder -- a union over all n -- is infinite at x0 = 1. What
+      makes the hypothesis true is the x0^s factor decaying like x0^(1-2n). The second hypothesis
+      is worse, carrying l.zOf s = (s-1)/(i T) as well, so it needs that decay to beat a further
+      factor of |s|.
       Mathlib friction worth knowing: `DifferentiableAt` unfolds to an Exists, so
       `(differentiableAt_riemannZeta hz).analyticAt` resolves to `Exists.analyticAt` and fails
       confusingly -- go through DifferentiableOn.analyticAt. And there is no meromorphicOrderAt_neg,

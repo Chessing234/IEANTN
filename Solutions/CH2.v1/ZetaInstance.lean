@@ -143,4 +143,89 @@ lemma meromorphicOn_A : MeromorphicOn A Set.univ := by
   intro z hz
   exact (meromorphicOn_riemannZeta.logDeriv z hz).neg
 
+/-! ### Towards the two `IsBoundedNoPolesOn` hypotheses
+
+`prop_5_2`'s remaining two hypotheses each ask for two separate things on
+`l.Rboundary ∪ l.admissible_contour ∪ l.L` — that the function is bounded there, and that it has
+no poles there. This section does the second half, which is where the ladder's abscissas are
+actually chosen; the first half is a growth estimate and is not here. See `progress.yaml`.
+
+The pole half reduces to knowing where `ζ` vanishes, because `A = -ζ'/ζ` has a pole exactly at a
+zero or pole of `ζ` and is analytic elsewhere. On the ladder columns, which sit far to the left,
+that needs a fact Mathlib does not have. -/
+
+/-- **The only zeros of `ζ` in the left half-plane are the trivial ones.**
+
+Mathlib has `riemannZeta_neg_two_mul_nat_add_one`, that each `-2(n+1)` *is* a zero, and
+`riemannZeta_ne_zero_of_one_le_re` for `1 ≤ Re s`, but nothing that says the trivial zeros are the
+only ones out there. A ladder argument needs exactly that: it places its vertical columns at
+negative abscissas and has to know they meet no zeros.
+
+The proof is the functional equation and nothing else. Writing `s = 1 - w` with `Re w > 1`,
+`riemannZeta_one_sub` expresses `ζ(s)` as a product of `2`, `(2π)^{-w}`, `Γ(w)`, `cos(πw/2)` and
+`ζ(w)`. Every factor but the cosine is nonzero for free — `Γ` never vanishes, and `ζ(w) ≠ 0`
+because `Re w > 1` — so `ζ(s) = 0` forces `cos(πw/2) = 0`, hence `w = 2k+1` and `s = -2k`, and
+`Re s < 0` makes `k` positive. That is the trivial zeros exactly.
+
+Worth noting for anyone extending this: the same three Mathlib lemmas power
+`ZetaLogDeriv.v1`'s solution, which is not a coincidence — both are the functional equation used
+to move a fact from the convergent half-plane to the left one. -/
+theorem riemannZeta_ne_zero_of_re_neg {s : ℂ} (hs : s.re < 0)
+    (h : ∀ n : ℕ, s ≠ -2 * (n + 1)) : riemannZeta s ≠ 0 := by
+  have hpi : (Real.pi : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  obtain ⟨w, rfl⟩ : ∃ w : ℂ, s = 1 - w := ⟨1 - s, by ring⟩
+  have hw : 1 < w.re := by simp only [Complex.sub_re, Complex.one_re] at hs; linarith
+  have hwn : ∀ n : ℕ, w ≠ -n := by
+    intro n hn
+    rw [hn] at hw
+    simp only [Complex.neg_re, Complex.natCast_re] at hw
+    have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
+  have hw1 : w ≠ 1 := by intro hn; rw [hn] at hw; simp at hw
+  have hcos : Complex.cos ((Real.pi : ℂ) * w / 2) ≠ 0 := by
+    rw [Ne, Complex.cos_eq_zero_iff]
+    rintro ⟨k, hk⟩
+    have h2 : (Real.pi : ℂ) * w = (Real.pi : ℂ) * (2 * (k : ℂ) + 1) := by linear_combination 2 * hk
+    have hwk : w = 2 * (k : ℂ) + 1 := mul_left_cancel₀ hpi h2
+    have hkpos : 0 < k := by
+      by_contra hk0
+      push_neg at hk0
+      rw [hwk] at hw
+      simp only [Complex.add_re, Complex.mul_re, Complex.intCast_re, Complex.intCast_im,
+        Complex.one_re, Complex.re_ofNat, Complex.im_ofNat] at hw
+      have : (k : ℝ) ≤ 0 := by exact_mod_cast hk0
+      linarith
+    obtain ⟨m, rfl⟩ : ∃ m : ℕ, k = (m : ℤ) + 1 := ⟨(k - 1).toNat, by omega⟩
+    exact h m (by rw [hwk]; push_cast; ring)
+  rw [riemannZeta_one_sub hwn hw1]
+  refine mul_ne_zero (mul_ne_zero (mul_ne_zero (mul_ne_zero two_ne_zero ?_) ?_) hcos) ?_
+  · simp [Complex.cpow_eq_zero_iff, mul_ne_zero two_ne_zero hpi]
+  · exact Complex.Gamma_ne_zero hwn
+  · exact riemannZeta_ne_zero_of_one_lt_re hw
+
+/-- **The ladder abscissas this instantiation uses: `σ n = 1 - 2n`.**
+
+`LadderParams` leaves `σ` free, and the choice is the whole content of the pole half. Odd negative
+abscissas are the classical choice and the reason is visible in
+`riemannZeta_ne_zero_of_re_neg`: the trivial zeros are the *even* negative integers, so odd
+columns thread between them. `σ 0 = 1` is forced by the structure, and `1 - 2n` is the simplest
+sequence meeting that and decreasing to `-∞`. -/
+noncomputable def sigmaZeta (n : ℕ) : ℝ := 1 - 2 * n
+
+/-- Every ladder column past the first misses the zeros of `ζ`. -/
+lemma riemannZeta_ne_zero_on_column {n : ℕ} (hn : 1 ≤ n) {z : ℂ} (hz : z.re = sigmaZeta n) :
+    riemannZeta z ≠ 0 := by
+  have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
+  have hre : z.re < 0 := by rw [hz]; simp only [sigmaZeta]; linarith
+  refine riemannZeta_ne_zero_of_re_neg hre ?_
+  intro m hm
+  -- A trivial zero is real with even real part; the column's real part is odd.
+  have : z.re = -2 * ((m : ℝ) + 1) := by rw [hm]; simp
+  rw [hz] at this
+  simp only [sigmaZeta] at this
+  -- `1 - 2n = -2m - 2` has no solution in the naturals: the left side is odd, the right even.
+  have hcast : (1 : ℝ) - 2 * n = -2 * m - 2 := by linarith
+  have : (1 : ℤ) - 2 * n = -2 * m - 2 := by exact_mod_cast hcast
+  omega
+
 end CH2ZetaInstance
