@@ -6,7 +6,7 @@ node:
   family: PrimeInterval
   version: v1
   kind: pipeline
-  status: awaiting-verification
+  status: active
 
 project:
   name: "PrimeInterval.v1"
@@ -40,12 +40,11 @@ conclusions:
     kind: none-yet
     note: >-
       Solutions/PrimeInterval.v1/ proves this; see progress there for status.
-  designated: solution
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061'
+  designated: comparator
 
-  progress:
-    solution: Solutions/PrimeInterval.v1/
-    state: in-progress
-    remaining_holes: 0
 - id: eTheta_criterion
   issue: 53
   declaration: PrimeInterval.v1.eTheta_criterion
@@ -57,12 +56,11 @@ conclusions:
     kind: none-yet
     note: >-
       Solutions/PrimeInterval.v1/ proves this from theta_characterisation.
-  designated: solution
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061'
+  designated: comparator
 
-  progress:
-    solution: Solutions/PrimeInterval.v1/
-    state: in-progress
-    remaining_holes: 0
 - id: numericalBound_hasPrimeInInterval
   issue: 53
   declaration: PrimeInterval.v1.numericalBound_hasPrimeInInterval
@@ -75,12 +73,11 @@ conclusions:
     note: >-
       Solutions/PrimeInterval.v1/ proves this from eTheta_criterion. Included per the issue's
       default (Vocabulary carries IEANTN.HasNumericalBound already).
-  designated: solution
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061'
+  designated: comparator
 
-  progress:
-    solution: Solutions/PrimeInterval.v1/
-    state: in-progress
-    remaining_holes: 0
 - id: classicalBound_hasPrimeInInterval
   issue: 53
   declaration: PrimeInterval.v1.classicalBound_hasPrimeInInterval
@@ -94,12 +91,11 @@ conclusions:
       Solutions/PrimeInterval.v1/ proves this by showing admissibleBound is AntitoneOn
       [exp (R (2B/C)^2), ∞) and reducing to numericalBound_hasPrimeInInterval. This is the
       conclusion FKS2.v2.proposition_13 is meant to feed.
-  designated: solution
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061'
+  designated: comparator
 
-  progress:
-    solution: Solutions/PrimeInterval.v1/
-    state: in-progress
-    remaining_holes: 0
 sources:
 - title: "PrimeInInterval.lean"
   authors: ["Alex Kontorovich"]

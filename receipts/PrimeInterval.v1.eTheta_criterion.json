@@ -1,0 +1,28 @@
+{
+  "challenge": "PrimeInterval.v1.challenge_eTheta_criterion",
+  "conclusion": "PrimeInterval.v1.eTheta_criterion",
+  "environment": {
+    "lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
+    "mathlib_rev": "5b1c3618759375e0ef0033d39000b1338e99f133"
+  },
+  "repository": {
+    "commit": "1f791c48b62403fde877482de5c703ea8247b107"
+  },
+  "run": {
+    "recorded_at": "2026-09-06T16:12:09Z",
+    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/34043946061"
+  },
+  "schema": 2,
+  "solution": {
+    "project": "Solutions/PrimeInterval.v1"
+  },
+  "statement": {
+    "PrimeInterval.v1.eTheta_criterion": "9e11e1c44f530ce064dc3779dc844fd75ddc0ade2646129d7c5a9321234cab82"
+  },
+  "tools": {
+    "comparator": "10dd2b33dc43751af3257f4d684535375306f162",
+    "landrun": "811cfff51ceaf3d9843708aa6d22e9b84ccac8b4",
+    "lean4export": "cacf989bd75f608700820f6afc595f32e7a99a4d",
+    "nanoda": "68d5ca9db226849b41a6fff59d796ff19d0a8840"
+  }
+}

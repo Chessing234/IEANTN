@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | Kind | pipeline |
-| Status | awaiting-verification |
+| Status | active |
 | Maintainers | Sebastian Rodrigo |
 | Licence | Apache-2.0 |
 | Review | self-assessed |
@@ -41,14 +41,19 @@ def theta_characterisation : Prop :=
 | Challenge | `PrimeInterval.v1.challenge_theta_characterisation` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L36) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`PrimeInterval.v1.theta_characterisation.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.theta_characterisation.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `solution`** — **designated** — none-yet
+**Justification `solution`** — none-yet
 
 > Solutions/PrimeInterval.v1/ proves this; see progress there for status.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061
 
 ### `eTheta_criterion`
 
@@ -73,14 +78,19 @@ def eTheta_criterion : Prop :=
 | Challenge | `PrimeInterval.v1.challenge_eTheta_criterion` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L47) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`PrimeInterval.v1.eTheta_criterion.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.eTheta_criterion.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `solution`** — **designated** — none-yet
+**Justification `solution`** — none-yet
 
 > Solutions/PrimeInterval.v1/ proves this from theta_characterisation.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061
 
 ### `numericalBound_hasPrimeInInterval`
 
@@ -104,14 +114,19 @@ def numericalBound_hasPrimeInInterval : Prop :=
 | Challenge | `PrimeInterval.v1.challenge_numericalBound_hasPrimeInInterval` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L58) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`PrimeInterval.v1.numericalBound_hasPrimeInInterval.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.numericalBound_hasPrimeInInterval.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `solution`** — **designated** — none-yet
+**Justification `solution`** — none-yet
 
 > Solutions/PrimeInterval.v1/ proves this from eTheta_criterion. Included per the issue's default (Vocabulary carries IEANTN.HasNumericalBound already).
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061
 
 ### `classicalBound_hasPrimeInInterval`
 
@@ -140,14 +155,19 @@ def classicalBound_hasPrimeInInterval : Prop :=
 | Challenge | `PrimeInterval.v1.challenge_classicalBound_hasPrimeInInterval` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L72) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`PrimeInterval.v1.classicalBound_hasPrimeInInterval.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.classicalBound_hasPrimeInInterval.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `solution`** — **designated** — none-yet
+**Justification `solution`** — none-yet
 
 > Solutions/PrimeInterval.v1/ proves this by showing admissibleBound is AntitoneOn [exp (R (2B/C)^2), ∞) and reducing to numericalBound_hasPrimeInInterval. This is the conclusion FKS2.v2.proposition_13 is meant to feed.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34043946061
 
 ## Limitations
 

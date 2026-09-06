@@ -15,9 +15,9 @@ adds the environment detail.
 |---|---:|
 | `asserted` | 1 |
 | `bridged` | 1 |
-| `lean-comparator` | 18 |
+| `lean-comparator` | 22 |
 | `literature` | 36 |
-| `none-yet` | 8 |
+| `none-yet` | 4 |
 | `numerical` | 14 |
 
 ## Nodes
@@ -93,10 +93,10 @@ adds the environment detail.
 | `PlattTrudgian.v1` | active | `rh_up_to` | literature | 0 | - |
 | `PlattTrudgian2021.v1` | stub | `theorem_1_classical` | literature | 3 | - |
 | `PlattTrudgian2021.v1` | stub | `theorem_1_numerical` | literature | 3 | - |
-| `PrimeInterval.v1` | awaiting-verification | `theta_characterisation` | none-yet | 0 | #53 |
-| `PrimeInterval.v1` | awaiting-verification | `eTheta_criterion` | none-yet | 0 | #53 |
-| `PrimeInterval.v1` | awaiting-verification | `numericalBound_hasPrimeInInterval` | none-yet | 0 | #53 |
-| `PrimeInterval.v1` | awaiting-verification | `classicalBound_hasPrimeInInterval` | none-yet | 0 | #53 |
+| `PrimeInterval.v1` | active | `theta_characterisation` | lean-comparator | 0 | #53 |
+| `PrimeInterval.v1` | active | `eTheta_criterion` | lean-comparator | 0 | #53 |
+| `PrimeInterval.v1` | active | `numericalBound_hasPrimeInInterval` | lean-comparator | 0 | #53 |
+| `PrimeInterval.v1` | active | `classicalBound_hasPrimeInInterval` | lean-comparator | 0 | #53 |
 | `RosserSchoenfeld.v1` | stub | `zero_free_region` | literature | 0 | - |
 | `RosserSchoenfeld.v1` | stub | `zero_free_region_classical` | bridged | 0 | - |
 | `Trudgian2011.v1` | stub | `integral_S_bound` | literature | 0 | - |
