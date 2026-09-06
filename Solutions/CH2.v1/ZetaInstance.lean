@@ -655,4 +655,76 @@ lemma hasSimplePolesOn_F_univ : HasSimplePolesOn F Set.univ := by
   · rw [meromorphicOrderAt_logDeriv_eq_neg_one hζ h0 (meromorphicOrderAt_riemannZeta₁_ne_top z)]
     norm_cast
 
+/-! ### The leftward rays
+
+The last shape in `l.Rboundary ∪ l.admissible_contour ∪ l.L` that the compact argument does not
+reach: sets running off to `Re s = -∞` at bounded height. Every one of them is of that form — the
+horizontal pieces `{Re s ≤ 1, Im s = ±T}` and `{Re s ≤ 1, Im s = δ}`, and the ladder `L`, whose
+columns have `|Im s| ≤ T` and abscissas marching to `-∞`.
+
+On these the `x₀ ^ s` factor is doing the work. `‖x₀ ^ s‖ = x₀ ^ Re s`, which decays exponentially
+in `|Re s|` when `x₀ > 1`, and that beats any polynomial growth of `F`. Since the true growth of
+`ζ'/ζ` out there is only logarithmic, stating the hypothesis with LINEAR growth costs nothing and
+is much easier to supply — and it absorbs the extra factor of `s` in `prop_5_2`'s second
+boundedness hypothesis, which then only changes the constant. -/
+
+/-- `(a + b u) e^{-c u} ≤ a + b/c` for `u ≥ 0`.
+
+The whole reason the rays are bounded, in one line of real analysis. The `u` term is beaten by
+`c u ≤ exp (c u)`, which is `Real.add_one_le_exp`. -/
+theorem linear_mul_exp_neg_le {a b c u : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 < c)
+    (hu : 0 ≤ u) : (a + b * u) * Real.exp (-(c * u)) ≤ a + b / c := by
+  have hcu : 0 ≤ c * u := mul_nonneg hc.le hu
+  have hle_one : Real.exp (-(c * u)) ≤ 1 := by
+    rw [Real.exp_le_one_iff]; linarith
+  have hu_bound : u * Real.exp (-(c * u)) ≤ 1 / c := by
+    rw [le_div_iff₀ hc]
+    have h1 : c * u ≤ Real.exp (c * u) := by linarith [Real.add_one_le_exp (c * u)]
+    have h2 : u * Real.exp (-(c * u)) * c = (c * u) * Real.exp (-(c * u)) := by ring
+    rw [h2]
+    calc (c * u) * Real.exp (-(c * u))
+        ≤ Real.exp (c * u) * Real.exp (-(c * u)) :=
+          mul_le_mul_of_nonneg_right h1 (Real.exp_pos _).le
+      _ = 1 := by rw [← Real.exp_add]; simp
+  calc (a + b * u) * Real.exp (-(c * u))
+      = a * Real.exp (-(c * u)) + b * (u * Real.exp (-(c * u))) := by ring
+    _ ≤ a * 1 + b * (1 / c) := by gcongr
+    _ = a + b / c := by ring
+
+/-- **A function of at most linear growth, damped by `x₀ ^ s` with `x₀ > 1`, is bounded on any set
+in the closed left half-plane of bounded height.**
+
+`x₀ > 1` is not a convenience. `prop_5_2`'s signature asks only `1 ≤ x₀`, but at `x₀ = 1` the
+damping factor is identically `1` and the statement is false: `ζ'/ζ` is unbounded along the ladder,
+whose columns march to `-∞`. -/
+theorem exists_bound_of_linear_growth_mul_cpow {f : ℂ → ℂ} {S : Set ℂ} {x₀ C : ℝ}
+    (hx₀ : 1 < x₀) (hC : 0 ≤ C) (hS : ∀ z ∈ S, z.re ≤ 0)
+    (hbd : ∀ z ∈ S, ‖f z‖ ≤ C * (1 + ‖z‖)) (hIm : ∀ z ∈ S, |z.im| ≤ C) :
+    ∃ M, ∀ z ∈ S, ‖f z * (x₀ : ℂ) ^ z‖ ≤ M := by
+  have hx₀pos : (0 : ℝ) < x₀ := by linarith
+  have hlog : 0 < Real.log x₀ := Real.log_pos hx₀
+  refine ⟨C * (1 + C) + C / Real.log x₀, fun z hz ↦ ?_⟩
+  have hre : z.re ≤ 0 := hS z hz
+  set u : ℝ := -z.re with hu_def
+  have hu : 0 ≤ u := by rw [hu_def]; linarith
+  have habs : |z.re| = u := by rw [hu_def, abs_of_nonpos hre]
+  have hnorm : ‖z‖ ≤ u + C := by
+    refine (Complex.norm_le_abs_re_add_abs_im z).trans ?_
+    rw [habs]
+    linarith [hIm z hz]
+  have hfz : ‖f z‖ ≤ C * (1 + C) + C * u := by
+    refine (hbd z hz).trans ?_
+    have h1 : (1 : ℝ) + ‖z‖ ≤ (1 + C) + u := by linarith
+    nlinarith
+  have hcpow : ‖(x₀ : ℂ) ^ z‖ = Real.exp (-(Real.log x₀ * u)) := by
+    rw [Complex.norm_cpow_eq_rpow_re_of_pos hx₀pos, Real.rpow_def_of_pos hx₀pos]
+    congr 1
+    rw [hu_def]; ring
+  rw [norm_mul, hcpow]
+  calc ‖f z‖ * Real.exp (-(Real.log x₀ * u))
+      ≤ (C * (1 + C) + C * u) * Real.exp (-(Real.log x₀ * u)) :=
+        mul_le_mul_of_nonneg_right hfz (Real.exp_pos _).le
+    _ ≤ C * (1 + C) + C / Real.log x₀ :=
+        linear_mul_exp_neg_le (by nlinarith) hC hlog hu
+
 end CH2ZetaInstance

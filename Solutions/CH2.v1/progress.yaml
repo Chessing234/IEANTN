@@ -108,8 +108,9 @@ stages:
     state: >-
       partial -- three of prop_5_2's five hypotheses closed unconditionally on all of C; of the
       remaining two, the no-poles half is done, and of the boundedness half the compact pieces and
-      the Re w >= 2 input are done, as are F itself and choosing T and delta off the zero
-      ordinates. THE ONE THING LEFT IN THE STAGE IS THE LEFTWARD RAYS.
+      the Re w >= 2 input are done, as are F itself, choosing T and delta off the zero ordinates,
+      and the damping estimate for the leftward rays. What is left is the ASSEMBLY: feeding the
+      pieces to prop_5_2 with a concrete LadderParams.
     note: >-
       Done first because it is the smallest thing that tests whether the section 5 port is USABLE
       rather than merely compiling. It is: ConjSymm falls straight out of the ported
@@ -221,9 +222,18 @@ stages:
       from riemannZeta_1_one. The split is unavoidable, since ConjSymm is a claim about EVERY s
       while the transporting identity holds only off the pole. Two lines.
       SO prop_5_2's FIRST THREE HYPOTHESES NOW HOLD FOR THE FUNCTION IT IS ACTUALLY APPLIED TO.
-      (ii) THE LEFTWARD RAYS. On {Re s <= 1, Im s = +-T} and {Re s <= 1, Im s = delta} the estimate
-      is the ladder-form identity for Re s <= -1 and compactness on the rest, with x0^s decay doing
-      the work at infinity. Same shape as the columns.
+      (ii) THE LEFTWARD RAYS ARE DONE as an estimate:
+      exists_bound_of_linear_growth_mul_cpow. Every non-compact piece of the target set is a set
+      running off to Re s = -infinity at bounded height -- the horizontal pieces and the ladder L
+      alike -- and on those the x0^s factor does the work, since ||x0^s|| = x0^(Re s) decays
+      exponentially in |Re s| and beats any polynomial growth of F.
+      THE HYPOTHESIS IS DELIBERATELY WEAK. It asks for LINEAR growth, where the truth is
+      logarithmic. That costs nothing and makes it much easier to supply, and it also absorbs the
+      extra factor of s in prop_5_2's second boundedness hypothesis, which then only changes the
+      constant rather than needing a separate argument.
+      x0 > 1 IS ESSENTIAL AND THE SIGNATURE DOES NOT SAY SO. prop_5_2 asks only 1 <= x0; at
+      x0 = 1 the damping factor is identically 1 and the statement is FALSE, since zeta'/zeta is
+      unbounded along a ladder whose columns march to -infinity. Recorded on the lemma itself.
       (iii) T AND DELTA AVOIDING THE ZERO ORDINATES IS NOW DONE:
       exists_ordinate_free_height gives, for every T0 > 0, a height T in [T0, T0+1] with no zero of
       zeta at |Im z| = T. Same statement serves delta, since it is the same question.
