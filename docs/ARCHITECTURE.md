@@ -518,6 +518,7 @@ python scripts/ieantn.py housekeeping     # the derived task queue
 # at the `verification` gate waiting for a human. It cannot approve; approval is the one
 # privileged act here and the gate exists because someone is supposed to have looked at the branch.
 python scripts/ieantn.py verify <node> --branch <branch>
+python scripts/ieantn.py verify <node> --pr <n>
 
 # scaffolding
 python scripts/ieantn.py new-node         # scaffold a node

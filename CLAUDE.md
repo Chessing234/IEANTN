@@ -68,6 +68,7 @@ python scripts/ieantn.py progress <node> [--write]   # where a partial solution'
 python scripts/ieantn.py state          # STATE.md
 python scripts/ieantn.py graph          # GRAPH.md, two Mermaid diagrams
 python scripts/ieantn.py verify <node> --branch <branch>   # dispatch a verification and follow it
+python scripts/ieantn.py verify <node> --pr <n>            # same, for a pull request (fork-safe)
 python scripts/ieantn.py spinoff <conclusion> --out <dir> --compile   # Palomar submission
 ```
 

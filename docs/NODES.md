@@ -287,7 +287,9 @@ Landlock and `systemd-run`, so it does not run on Windows or macOS; WSL2 works f
 (Landlock ABI 3 and `systemd-run` are both present), but keep the clone inside the WSL filesystem —
 Lake builds over `/mnt/c` are pathologically slow.
 
-Dispatch it with `python scripts/ieantn.py verify <node> --branch <branch>` rather than
+Dispatch it with `python scripts/ieantn.py verify <node> --branch <branch>` — or `--pr <n>` for a
+pull request, which is the form to use for anything from a fork, since the receipt job writes to a
+branch on this repository and a fork's pull request has none. Prefer either over
 `gh workflow run verify.yml` directly: a run waiting at the approval gate is drawn exactly like one
 that is building, and that command is the only thing that says so. It cannot approve anything.
 [../CONTRIBUTING.md](../CONTRIBUTING.md) §3 has the full ordering and the three things that catch
