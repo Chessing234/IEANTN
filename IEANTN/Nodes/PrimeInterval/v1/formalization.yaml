@@ -118,7 +118,33 @@ automation:
 
 review:
   status: self-assessed
-  reviewers: []
+  reviewers: ["Terence Tao"]
+  notes: >-
+    CONTRIBUTED FROM OUTSIDE, AND REVIEWED BEFORE THE VERIFICATION WAS APPROVED. This node arrived
+    as PR #83 from Sebastian Rodrigo, the repository's first external node contribution; it was
+    merged through #84, which carried the branch together with its receipt, because verify.yml
+    records receipts by pushing to a branch on this repository and could not write to a fork. The
+    reviewer named here is the maintainer, who approved the Comparator run -- which in this
+    repository is the act of vouching for a branch, since the receipt job elaborates the branch's
+    core Lean while holding a write token.
+    WHAT THE REVIEW COVERED, so that a later reader is not left guessing. The four statements were
+    read against their intended meanings; theta_characterisation is quantified over all reals with
+    no positivity hypotheses, which is the shape a junk-value trap usually hides in, and it was
+    checked to be genuinely true rather than vacuous -- theta jumps by log p > 0 exactly at the
+    primes, and both sides are false for h <= 0. The threshold exp(R (2B/C)^2) in
+    classicalBound_hasPrimeInInterval was re-derived rather than taken on trust: with
+    u = sqrt(log x / R) the admissible bound is proportional to u^(2B) exp(-C u), whose derivative
+    changes sign at u = 2B/C, so the threshold is the exact turning point and not a conservative
+    over-estimate. The solution was compiled and its four challenge theorems checked with
+    #print axioms, giving propext, Classical.choice and Quot.sound and no sorryAx, before the
+    Comparator run confirmed the same independently.
+    THE BRANCH WAS ALSO SCANNED FOR BUILD-TIME CODE EXECUTION, which is the specific thing approving
+    a verification vouches for. Conclusions.lean, Challenge.lean, Examples.lean and Nodes.lean carry
+    no #eval, run_cmd, initialize, unsafe, implemented_by, extern, macro, elab or IO; the import
+    closure is Vocabulary plus the node's own Conclusions; and the solution's lake-manifest matches
+    the root's except for the expected IEANTN path dependency.
+    NOT AN INDEPENDENT MATHEMATICAL REFEREEING. status is self-assessed, and the statements have not
+    been checked by a second person against the literature they are modelled on.
 
 limitations:
 - >-
