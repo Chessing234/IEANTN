@@ -151,6 +151,38 @@ stages:
       makes the hypothesis true is the x0^s factor decaying like x0^(1-2n). The second hypothesis
       is worse, carrying l.zOf s = (s-1)/(i T) as well, so it needs that decay to beat a further
       factor of |s|.
+      THE ORIENTATION OF ZetaLogDeriv.v1 MATTERS, AND THE OBVIOUS READING IS THE WRONG ONE. That
+      node states
+        zeta'/zeta(w) = -zeta'/zeta(1-w) + log 2pi - psi(w) + (pi/2) tan(pi w / 2),
+      and read at w = s it evaluates psi at s -- out on the ladder at Re s <= -1, where
+      GammaAsymptotics.v1 says nothing whatever, since its bound is stated for Re w >= 1. Read at
+      w = 1 - s instead, the same identity puts psi at 1 - s with Re (1-s) >= 2, inside that range,
+      and needs no further input. That is logDeriv_ladder_form in ZetaInstance.lean.
+      Getting this backwards would have sent someone hunting for a digamma bound on the left
+      half-plane, or for the reflection formula psi(1-w) - psi(w) = pi cot(pi w) that this
+      repository's Mathlib pin does not carry -- a detour of days for a one-line change of
+      instantiation point. Both orientations were checked numerically to 30 digits at five points
+      before either was written down.
+      WHAT REMAINS FOR THE BOUNDEDNESS HALF, with the identity in hand. On a column Re s = 1 - 2n:
+      (a) zeta'/zeta(1-s) is bounded because Re (1-s) >= 2 and the Dirichlet series converges
+      there -- Mathlib has LSeries_vonMangoldt_eq_deriv_riemannZeta_div and
+      LSeriesSummable_vonMangoldt, and this is the Re s >= 2 bound ZetaLogDeriv.v1's metadata
+      deliberately declined to state as a conclusion, on the grounds it is about thirty lines
+      inside a solution. This is that solution;
+      (b) tan(pi (1-s)/2) is bounded by 1 in modulus, since 1 - s = 2n - it makes it i tanh(pi t/2)
+      -- cos_ne_zero_on_column already carries the parity argument this rests on;
+      (c) psi(1-s) is O(log|s|) from GammaAsymptotics.v1, which arrives as a HYPOTHESIS on the
+      generated challenge rather than needing a sorry, since CH2.v1 already imports it;
+      (d) log 2pi is constant.
+      So the column bound is O(log|s|), and x0^(1-2n) beats it. The remaining work is (a) and the
+      assembly, plus the same estimate on Rboundary and the admissible contour, which are NOT
+      columns and will need their own argument.
+      NOTE FOR WHOEVER CLOSES THIS: CH2.v1's formalization.yaml does not yet import
+      ZetaLogDeriv.v1. It will have to, since logDeriv_ladder_form takes that statement as a
+      hypothesis and the corollary proofs must supply it from the challenge. Adding the import
+      leaves the conclusion text untouched, so no fingerprint moves; it only adds a hypothesis to
+      the generated challenge. It was left out here because the corollaries are still holes and
+      the dependency is not yet real at the conclusion level.
       Mathlib friction worth knowing: `DifferentiableAt` unfolds to an Exists, so
       `(differentiableAt_riemannZeta hz).analyticAt` resolves to `Exists.analyticAt` and fails
       confusingly -- go through DifferentiableOn.analyticAt. And there is no meromorphicOrderAt_neg,

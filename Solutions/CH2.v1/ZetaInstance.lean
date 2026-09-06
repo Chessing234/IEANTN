@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Terence Tao
 -/
 import Section5
+import IEANTN.Nodes.ZetaLogDeriv.v1.Conclusions
 
 /-!
 # Instantiating §5 at `A(s) = -ζ'(s)/ζ(s)`
@@ -226,6 +227,75 @@ lemma riemannZeta_ne_zero_on_column {n : ℕ} (hn : 1 ≤ n) {z : ℂ} (hz : z.r
   -- `1 - 2n = -2m - 2` has no solution in the naturals: the left side is odd, the right even.
   have hcast : (1 : ℝ) - 2 * n = -2 * m - 2 := by linarith
   have : (1 : ℤ) - 2 * n = -2 * m - 2 := by exact_mod_cast hcast
+  omega
+
+/-! ### The functional equation, in the orientation the ladder needs
+
+`ZetaLogDeriv.v1` states
+
+  `ζ'/ζ(w) = -ζ'/ζ(1-w) + log 2π - ψ(w) + (π/2) tan(π w / 2)`,
+
+and read at `w = s` that is the *wrong* orientation for this argument: on a ladder column
+`Re s ≤ -1`, it evaluates `ψ` at `s`, out in the left half-plane where `GammaAsymptotics.v1` says
+nothing at all — its bound is stated for `Re w ≥ 1`.
+
+Reading the same identity at `w = 1 - s` fixes that, and needs no new input. It moves `ψ` to
+`1 - s`, where `Re (1-s) ≥ 2`, which is inside `GammaAsymptotics.v1`'s range. So the node is the
+right one after all; it is the instantiation point that matters, and getting it wrong would have
+sent someone looking for a digamma bound on the left half-plane, or for the reflection formula
+that this repository's Mathlib pin does not yet carry.
+
+Checked numerically at five points before being written, including `-9 + 5i`. -/
+lemma logDeriv_ladder_form (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    {s : ℂ} (hs : s.re < 0)
+    (hcos : Complex.cos ((Real.pi : ℂ) * (1 - s) / 2) ≠ 0) :
+    deriv riemannZeta s / riemannZeta s
+      = -(deriv riemannZeta (1 - s) / riemannZeta (1 - s))
+        + Complex.log (2 * (Real.pi : ℂ)) - Complex.digamma (1 - s)
+        + ((Real.pi : ℂ) / 2) * Complex.tan ((Real.pi : ℂ) * (1 - s) / 2) := by
+  have hw : (1 : ℝ) < (1 - s).re := by
+    simp only [Complex.sub_re, Complex.one_re]; linarith
+  have hwn : ∀ n : ℕ, (1 - s) ≠ -n := by
+    intro n hn
+    rw [hn] at hw
+    simp only [Complex.neg_re, Complex.natCast_re] at hw
+    have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
+  have hw1 : (1 - s) ≠ 1 := by intro hn; rw [hn] at hw; simp at hw
+  have hz : riemannZeta (1 - s) ≠ 0 := riemannZeta_ne_zero_of_one_lt_re hw
+  have h1 := hfe (1 - s) hwn hw1 hz hcos
+  -- `1 - (1 - s)` is `s`; after that the identity is a rearrangement.
+  rw [show (1 : ℂ) - (1 - s) = s by ring] at h1
+  linear_combination h1
+
+/-- On a ladder column the cosine factor never vanishes, so `logDeriv_ladder_form` applies there.
+
+At `Re s = 1 - 2n` the reflected point is `1 - s = 2n - it`, and
+`cos(π(2n - it)/2) = (-1)^n cosh(π t/2)`, which is bounded away from zero rather than merely
+nonzero. Only the parity of `2n` is doing the work: an odd column would put the cosine's zeros on
+the line. -/
+lemma cos_ne_zero_on_column {n : ℕ} {s : ℂ} (hs : s.re = sigmaZeta n) :
+    Complex.cos ((Real.pi : ℂ) * (1 - s) / 2) ≠ 0 := by
+  rw [Ne, Complex.cos_eq_zero_iff]
+  rintro ⟨k, hk⟩
+  -- Compare imaginary parts first: they force `s` real.
+  have him : s.im = 0 := by
+    have := congrArg Complex.im hk
+    simp only [Complex.div_im, Complex.mul_im, Complex.mul_re, Complex.sub_im, Complex.sub_re,
+      Complex.one_im, Complex.one_re, Complex.ofReal_im, Complex.ofReal_re, Complex.add_im,
+      Complex.add_re, Complex.intCast_im, Complex.intCast_re, Complex.re_ofNat,
+      Complex.im_ofNat, Complex.normSq_apply] at this
+    have hpi : (0 : ℝ) < Real.pi := Real.pi_pos
+    nlinarith [this, hpi]
+  -- Then real parts give `2n = 2k + 1`, which parity forbids.
+  have hre := congrArg Complex.re hk
+  simp only [Complex.div_re, Complex.mul_re, Complex.mul_im, Complex.sub_re, Complex.sub_im,
+    Complex.one_re, Complex.one_im, Complex.ofReal_re, Complex.ofReal_im, Complex.add_re,
+    Complex.add_im, Complex.intCast_re, Complex.intCast_im, Complex.re_ofNat, Complex.im_ofNat,
+    Complex.normSq_apply, him, hs, sigmaZeta] at hre
+  have hpi : Real.pi ≠ 0 := Real.pi_ne_zero
+  have h2n : (2 : ℝ) * n = 2 * k + 1 := by field_simp at hre; nlinarith [hre, Real.pi_pos]
+  have : (2 : ℤ) * n = 2 * k + 1 := by exact_mod_cast h2n
   omega
 
 end CH2ZetaInstance
