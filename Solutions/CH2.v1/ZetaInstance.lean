@@ -390,4 +390,65 @@ lemma isCompact_reOne_segment (T : ℝ) : IsCompact {z : ℂ | z.re = 1 ∧ |z.i
           simp only [abs_one]
           linarith
 
+/-! ### Isolation of the zeros, for choosing `T` and `δ`
+
+`LadderParams` leaves `T` and `δ` free, and the ladder needs both off the zero ordinates: the
+horizontal pieces `{Re s ≤ 1, |Im s| = T}` and `{Re s ≤ 1, Im s = δ}` must miss the zeros of `ζ`.
+Nothing so far proves a good choice exists, and it is not free — it needs the zeros to be isolated.
+
+The route is `riemannZeta₁`, and it is the right tool for a reason worth stating: the identity
+theorem is about *analytic* functions, and `ζ` has a pole, so `ζ` itself cannot be fed to it on any
+set containing `1`. Mathlib's `riemannZeta₁` is entire, and away from `1` it has exactly `ζ`'s
+zeros. Mathlib does not currently connect the two — `riemannZeta₁` occurs only in `ZetaAsymp`,
+where it was built for the asymptotic expansion — so the bridge is proved here. -/
+
+/-- **`ζ` is `riemannZeta₁` with the pole divided out**: `ζ s = riemannZeta₁ s / (s - 1)`.
+
+Immediate from `riemannZeta_eq_inv_sub_add` and the definition of `riemannZeta₁`, and apparently
+absent from Mathlib, where `riemannZeta₁` is never related back to `ζ`. It is what makes that
+helper usable for anything beyond the expansion it was introduced for. -/
+theorem riemannZeta_eq_riemannZeta₁_div {s : ℂ} (hs : s ≠ 1) :
+    riemannZeta s = riemannZeta₁ s / (s - 1) := by
+  have hs' : s - 1 ≠ 0 := sub_ne_zero.mpr hs
+  rw [riemannZeta_eq_inv_sub_add hs, riemannZeta₁]
+  field_simp
+
+/-- Away from the pole, the zeros of `ζ` are exactly the zeros of the entire `riemannZeta₁`. -/
+theorem riemannZeta_eq_zero_iff_riemannZeta₁ {s : ℂ} (hs : s ≠ 1) :
+    riemannZeta s = 0 ↔ riemannZeta₁ s = 0 := by
+  rw [riemannZeta_eq_riemannZeta₁_div hs, div_eq_zero_iff]
+  simp [sub_eq_zero, hs]
+
+/-- The zeros of `riemannZeta₁` are isolated.
+
+`riemannZeta₁` is entire and takes the value `1` at `s = 1`, so it is not identically zero and the
+identity theorem applies on all of `ℂ` — no seed point has to be found, `riemannZeta₁_one` is one. -/
+theorem riemannZeta₁_ne_zero_codiscrete :
+    ∀ᶠ z in codiscreteWithin (Set.univ : Set ℂ), riemannZeta₁ z ≠ 0 := by
+  have hana : AnalyticOnNhd ℂ riemannZeta₁ Set.univ := fun z _ ↦
+    DifferentiableOn.analyticAt differentiable_riemannZeta₁.differentiableOn Filter.univ_mem
+  rcases hana.eqOn_zero_or_eventually_ne_zero_of_preconnected isPreconnected_univ with h | h
+  · exact absurd (h (Set.mem_univ 1)) (by simp [riemannZeta₁_one])
+  · exact h
+
+/-- **`ζ` has only finitely many zeros in a compact set avoiding the pole.**
+
+This is what makes `T` and `δ` choosable: the ordinates occurring in any bounded band are finite,
+so an interval of candidates contains one that is not an ordinate.
+
+The pole has to be excluded, and excluding it is not a technicality — `ζ` is not analytic at `1`,
+and `IsCompact.finite_sdiff_of_mem_codiscreteWithin` is applied to `riemannZeta₁`'s non-zero set,
+which is codiscrete on all of `ℂ` precisely because `riemannZeta₁` is entire. For the ladder the
+exclusion costs nothing: the bands in question have `|Im s|` bounded away from `0`. -/
+theorem finite_zeros_riemannZeta_of_isCompact {K : Set ℂ} (hK : IsCompact K) (h1 : (1 : ℂ) ∉ K) :
+    {z ∈ K | riemannZeta z = 0}.Finite := by
+  have hmem : {z : ℂ | riemannZeta₁ z ≠ 0} ∈ codiscreteWithin K :=
+    Filter.codiscreteWithin_mono (Set.subset_univ K) riemannZeta₁_ne_zero_codiscrete
+  have hfin := hK.finite_sdiff_of_mem_codiscreteWithin hmem
+  refine hfin.subset (fun z hz ↦ ?_)
+  obtain ⟨hzK, hz0⟩ := hz
+  refine ⟨hzK, ?_⟩
+  simp only [Set.mem_setOf_eq, not_not]
+  exact (riemannZeta_eq_zero_iff_riemannZeta₁ (fun h ↦ h1 (h ▸ hzK))).mp hz0
+
 end CH2ZetaInstance
