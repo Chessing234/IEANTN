@@ -338,4 +338,56 @@ theorem logDeriv_riemannZeta_bounded_of_two_le_re :
     _ ≤ ∑' n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖ :=
         Summable.tsum_mono hsumw hsum2 hle
 
+/-! ### Splitting the boundedness half into compact and unbounded pieces
+
+`l.Rboundary ∪ l.admissible_contour ∪ l.L` is not compact — every piece of it runs off to
+`Re s = -∞` — but it is a union of compact pieces and leftward rays, and the two need completely
+different arguments. On a compact piece, analyticity is the whole story. On a ray, the growth of
+`ζ'/ζ` matters and so does the `x₀ ^ s` decay that beats it.
+
+This is the compact half, and it is worth having separately because three of the five pieces are
+compact: the segment `{Re s = 1, |Im s| ≤ T}` of `∂R`, the contour's vertical stub
+`{Re s = 1, Im s ∈ [0, δ]}`, and any bounded portion of a ray. -/
+
+/-- **On a compact set where `f` is analytic, `IsBoundedNoPolesOn` is free.**
+
+Both halves arrive at once and for different reasons. Analytic gives continuous, and a continuous
+function on a compact set is bounded. Analytic also gives `meromorphicOrderAt ≥ 0` pointwise,
+because the meromorphic order of an analytic function is its analytic order, which is a natural
+number and so never negative.
+
+Stated for a general `f` rather than for `A`: the same lemma serves `F`, `zOf · * F`, and each
+multiplied by `x₀ ^ s`. -/
+theorem isBoundedNoPolesOn_of_isCompact {f : ℂ → ℂ} {S : Set ℂ} (hS : IsCompact S)
+    (hf : ∀ z ∈ S, AnalyticAt ℂ f z) : CH2.IsBoundedNoPolesOn f S := by
+  obtain ⟨M, hM⟩ := hS.exists_bound_of_continuousOn
+    (fun z hz ↦ ((hf z hz).continuousAt).continuousWithinAt)
+  refine ⟨M, fun z hz ↦ ⟨hM z hz, ?_⟩⟩
+  rw [(hf z hz).meromorphicOrderAt_eq]
+  exact ENat.map_natCast_nonneg
+
+/-- The segment of `∂R` on the line `Re s = 1` is compact.
+
+`{z | z.re = 1 ∧ |z.im| ≤ T}` is closed as an intersection of preimages of closed sets under the
+continuous `re` and `im`, and bounded because both coordinates are. This is the piece of
+`Rboundary` that carries `s = 1`, where `A` has its pole — so it is also the piece that forces the
+whole argument to run on `F = A - 1/(s-1)` rather than on `A`. -/
+lemma isCompact_reOne_segment (T : ℝ) : IsCompact {z : ℂ | z.re = 1 ∧ |z.im| ≤ T} := by
+  rw [Metric.isCompact_iff_isClosed_bounded]
+  constructor
+  · have h1 : IsClosed {z : ℂ | z.re = 1} :=
+      isClosed_eq Complex.continuous_re continuous_const
+    have h2 : IsClosed {z : ℂ | |z.im| ≤ T} :=
+      isClosed_le (Complex.continuous_im.abs) continuous_const
+    exact h1.inter h2
+  · refine (Metric.isBounded_iff_subset_closedBall 0).mpr ⟨1 + |T|, fun z hz ↦ ?_⟩
+    obtain ⟨hre, him⟩ := hz
+    simp only [Metric.mem_closedBall, dist_zero_right]
+    calc ‖z‖ ≤ |z.re| + |z.im| := Complex.norm_le_abs_re_add_abs_im z
+      _ ≤ 1 + |T| := by
+          have hT : |z.im| ≤ |T| := him.trans (le_abs_self T)
+          rw [hre]
+          simp only [abs_one]
+          linarith
+
 end CH2ZetaInstance

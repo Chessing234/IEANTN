@@ -105,7 +105,11 @@ stages:
 
   - stage: "instantiating section 5 at A(s) = -zeta'/zeta"
     files: [ZetaInstance.lean]
-    state: partial -- three of prop_5_2's five hypotheses, unconditionally on all of C
+    state: >-
+      partial -- three of prop_5_2's five hypotheses closed unconditionally on all of C; of the
+      remaining two, the no-poles half is done, and of the boundedness half the compact pieces and
+      the Re w >= 2 input are done. What is left is F itself, the leftward rays, and choosing T
+      and delta off the zero ordinates.
     note: >-
       Done first because it is the smallest thing that tests whether the section 5 port is USABLE
       rather than merely compiling. It is: ConjSymm falls straight out of the ported
@@ -183,6 +187,31 @@ stages:
       leaves the conclusion text untouched, so no fingerprint moves; it only adds a hypothesis to
       the generated challenge. It was left out here because the corollaries are still holes and
       the dependency is not yet real at the conclusion level.
+      THE SET SPLITS INTO COMPACT PIECES AND LEFTWARD RAYS, and the two want different arguments.
+      Rboundary union admissible_contour union L is nowhere near compact -- every piece of it runs
+      off to Re s = -infinity -- but three of its five pieces are compact: the segment
+      {Re s = 1, |Im s| <= T} of the boundary, the contour's vertical stub
+      {Re s = 1, Im s in [0, delta]}, and any bounded portion of a ray. On those, analyticity is
+      the whole story, and isBoundedNoPolesOn_of_isCompact gets both halves at once: continuous on
+      a compact set is bounded, and the meromorphic order of an analytic function is its analytic
+      order, which is a natural number and so never negative. isCompact_reOne_segment does the
+      first of the three.
+      THREE THINGS REMAIN FOR THIS STAGE, in rough order of difficulty.
+      (i) F ITSELF IS NOT YET DEFINED. prop_5_2 is not applied to A = -zeta'/zeta but to
+      F = A - 1/(s-1), Theorem 1.1's pole-free part, because Rboundary CONTAINS s = 1 -- it has
+      Re s = 1 and |Im s| = 0 <= T -- and IsBoundedNoPolesOn demands order >= 0 there, which A
+      fails. Defining F and proving it analytic at 1 is a removable-singularity argument;
+      riemannZeta_eq_inv_sub_add should give it, since zeta s = (s-1)^{-1} + zeta_0 s with zeta_0
+      entire makes zeta s = (s-1)^{-1}(1 + (s-1) zeta_0 s), whose logarithmic derivative is
+      -1/(s-1) plus something analytic near 1.
+      (ii) THE LEFTWARD RAYS. On {Re s <= 1, Im s = +-T} and {Re s <= 1, Im s = delta} the estimate
+      is the ladder-form identity for Re s <= -1 and compactness on the rest, with x0^s decay doing
+      the work at infinity. Same shape as the columns.
+      (iii) T AND DELTA MUST AVOID THE ZERO ORDINATES, and nothing yet proves a good choice exists.
+      LadderParams leaves both free, so this is a matter of proving that zeta's zeros are discrete
+      -- the identity-theorem circle already used for meromorphicOrderAt_ne_top_of_isPreconnected
+      -- and then choosing. Do not assume this is free; it is the one genuinely open sub-problem
+      left in the stage.
       Mathlib friction worth knowing: `DifferentiableAt` unfolds to an Exists, so
       `(differentiableAt_riemannZeta hz).analyticAt` resolves to `Exists.analyticAt` and fails
       confusingly -- go through DifferentiableOn.analyticAt. And there is no meromorphicOrderAt_neg,
