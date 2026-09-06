@@ -727,4 +727,53 @@ theorem exists_bound_of_linear_growth_mul_cpow {f : ℂ → ℂ} {S : Set ℂ} {
     _ ≤ C * (1 + C) + C / Real.log x₀ :=
         linear_mul_exp_neg_le (by nlinarith) hC hlog hu
 
+/-! ### A concrete ladder for `ζ`
+
+Everything above is about pieces; this assembles them into an actual `LadderParams`. The three
+free data are the abscissas, the height and the contour offset, and each is now pinned:
+`σ n = 1 - 2n` from the trivial zeros being even, and `T`, `δ` from
+`exists_ordinate_free_height`. -/
+
+/-- Heights and offsets exist meeting every constraint `LadderParams` and the ladder impose.
+
+`T` is drawn from `[20, 21]` and `δ` from `[1, 2]`, which forces `δ < T/4` since `T/4 ≥ 5`. The
+numbers are arbitrary — any pair of intervals with the same separation would do — and they are
+concrete only because that is cheaper than carrying the inequality abstractly. -/
+theorem exists_ladder_heights :
+    ∃ T δ : ℝ, 0 < T ∧ 0 < δ ∧ δ < T / 4 ∧
+      (∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ T) ∧
+      (∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ δ) := by
+  obtain ⟨T, hT1, hT2, hTfree⟩ := exists_ordinate_free_height (T₀ := 20) (by norm_num)
+  obtain ⟨δ, hd1, hd2, hdfree⟩ := exists_ordinate_free_height (T₀ := 1) (by norm_num)
+  exact ⟨T, δ, by linarith, by linarith, by linarith, hTfree, hdfree⟩
+
+/-- **A `LadderParams` whose ladder and contour miss every zero of `ζ`.**
+
+This is the object `prop_5_2` is to be applied with. The abscissas are `sigmaZeta`, so the columns
+thread between the trivial zeros; the height and offset come from `exists_ladder_heights`, so the
+horizontal pieces miss the non-trivial ones.
+
+Stated as an existence rather than a `def` on purpose: nothing downstream should depend on *which*
+admissible `T` and `δ` were chosen, only that some choice works. -/
+theorem exists_ladderParams_zeta :
+    ∃ l : CH2.LadderParams, l.σ = sigmaZeta ∧
+      (∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T) ∧
+      (∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ) := by
+  obtain ⟨T, δ, hT, hd0, hdT, hTfree, hdfree⟩ := exists_ladder_heights
+  refine ⟨{ σ := sigmaZeta, T := T, δ := δ, h0 := ?_, hσ := ?_, hlim := ?_, hδ := ?_ },
+    rfl, hTfree, hdfree⟩
+  · simp [sigmaZeta]
+  · intro n
+    simp only [sigmaZeta]
+    have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
+  · -- `1 - 2n -> -infinity`. Mathlib has no `const_sub` lemma landing in `atBot`, so this is the
+    -- direct argument: past `ceil ((1-b)/2)` the value is below `b`.
+    refine Filter.tendsto_atBot.2 (fun b ↦ ?_)
+    filter_upwards [Filter.eventually_ge_atTop (Nat.ceil ((1 - b) / 2))] with n hn
+    have h : ((1 - b) / 2 : ℝ) ≤ (n : ℝ) := le_trans (Nat.le_ceil _) (by exact_mod_cast hn)
+    simp only [sigmaZeta]
+    linarith
+  · exact ⟨hd0, hdT⟩
+
 end CH2ZetaInstance
