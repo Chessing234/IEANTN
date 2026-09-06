@@ -108,8 +108,8 @@ stages:
     state: >-
       partial -- three of prop_5_2's five hypotheses closed unconditionally on all of C; of the
       remaining two, the no-poles half is done, and of the boundedness half the compact pieces and
-      the Re w >= 2 input are done. What is left is F itself, the leftward rays, and choosing T
-      and delta off the zero ordinates -- of which the last is now done.
+      the Re w >= 2 input are done, as are F itself and choosing T and delta off the zero
+      ordinates. THE ONE THING LEFT IN THE STAGE IS THE LEFTWARD RAYS.
     note: >-
       Done first because it is the smallest thing that tests whether the section 5 port is USABLE
       rather than merely compiling. It is: ConjSymm falls straight out of the ported
@@ -210,13 +210,17 @@ stages:
       F. They do not transfer for free. This was not noticed until F was defined, and it is the
       correction most likely to mislead someone reading the earlier notes: ConjSymm,
       MeromorphicOn and HasSimplePolesOn all have to be reproved.
-      It is less bad than it sounds. Each is the same argument run on riemannZeta_1 instead of on
-      zeta, and riemannZeta_1 being entire is EASIER -- meromorphicOn_F is already done and took
-      three lines against the dozen its A-counterpart needed to route around the pole.
-      HasSimplePolesOn F should go the same way through meromorphicOrderAt_logDeriv_eq_neg_one.
-      Only ConjSymm F needs something genuinely new: that riemannZeta_1 commutes with conjugation,
-      which follows from riemannZeta_conj plus the conjugation-symmetry of (s-1)^{-1}, but note
-      ConjSymm is a statement for ALL s, so the argument has to cover s = 1 too.
+      ALL THREE ARE NOW REPROVED FOR F, and it was easier than for A, exactly because
+      riemannZeta_1 is entire: conjSymm_F, meromorphicOn_F, hasSimplePolesOn_F_univ.
+      meromorphicOn_F took three lines against the dozen its A-counterpart needed to route around
+      the pole, and hasSimplePolesOn_F_univ is hasSimplePolesOn_A_univ with riemannZeta_1
+      substituted throughout.
+      ConjSymm F was the only one needing anything new, namely riemannZeta_1_conj. Mathlib has no
+      conjugation lemma for riemannZeta_0 -- checked -- so the route is riemannZeta_1 w =
+      (w-1) zeta w off the pole, transported along riemannZeta_conj, with s = 1 done separately
+      from riemannZeta_1_one. The split is unavoidable, since ConjSymm is a claim about EVERY s
+      while the transporting identity holds only off the pole. Two lines.
+      SO prop_5_2's FIRST THREE HYPOTHESES NOW HOLD FOR THE FUNCTION IT IS ACTUALLY APPLIED TO.
       (ii) THE LEFTWARD RAYS. On {Re s <= 1, Im s = +-T} and {Re s <= 1, Im s = delta} the estimate
       is the ladder-form identity for Re s <= -1 and compactness on the rest, with x0^s decay doing
       the work at infinity. Same shape as the columns.

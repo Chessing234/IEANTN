@@ -578,4 +578,81 @@ lemma meromorphicOn_F : MeromorphicOn F Set.univ := by
   intro z hz
   exact (h.logDeriv z hz).neg
 
+/-- `riemannZeta₁` commutes with conjugation.
+
+Away from `1` this is `riemannZeta_conj` transported along `riemannZeta₁ s = (s-1) ζ s`; at `s = 1`
+it is `riemannZeta₁_one` and `conj 1 = 1`. The split is unavoidable, since `ConjSymm` is a claim
+about *every* `s` and the transporting identity is only available off the pole. -/
+lemma riemannZeta₁_conj (s : ℂ) :
+    riemannZeta₁ (starRingEnd ℂ s) = starRingEnd ℂ (riemannZeta₁ s) := by
+  rcases eq_or_ne s 1 with rfl | hs
+  · simp [riemannZeta₁_one]
+  · have hs' : (starRingEnd ℂ s) ≠ 1 := by
+      intro h
+      exact hs (by simpa using congrArg (starRingEnd ℂ) h)
+    have hmul : ∀ w : ℂ, w ≠ 1 → riemannZeta₁ w = (w - 1) * riemannZeta w := by
+      intro w hw
+      rw [riemannZeta_eq_riemannZeta₁_div hw]
+      field_simp
+    rw [hmul _ hs', hmul _ hs, riemannZeta_conj, map_mul, map_sub, map_one]
+
+/-- The derivative of `riemannZeta₁` commutes with conjugation. -/
+lemma deriv_riemannZeta₁_conj (s : ℂ) :
+    deriv riemannZeta₁ (starRingEnd ℂ s) = starRingEnd ℂ (deriv riemannZeta₁ s) := by
+  have hfun : riemannZeta₁ = fun z ↦ starRingEnd ℂ (riemannZeta₁ (starRingEnd ℂ z)) := by
+    funext z
+    rw [riemannZeta₁_conj]
+    simp
+  conv_lhs => rw [hfun]
+  exact deriv_conj_conj' riemannZeta₁ s
+
+/-- **`ConjSymm F`**, one of `prop_5_2`'s hypotheses — restated for `F` rather than for `A`.
+
+This is the one of the three that needed something genuinely new, because the route through `A`
+does not survive at `s = 1`, where `A` has its pole and `F` does not. Going through
+`riemannZeta₁` avoids the issue entirely: it is entire, so there is no exceptional point. -/
+lemma conjSymm_F : CH2.ConjSymm F := by
+  intro s
+  simp only [F, logDeriv_apply, map_neg, neg_inj]
+  rw [deriv_riemannZeta₁_conj, riemannZeta₁_conj, map_div₀]
+
+/-- `riemannZeta₁` does not vanish identically near any point.
+
+The identity theorem again, and the seed is free: `riemannZeta₁_one` gives `riemannZeta₁ 1 = 1`.
+Compare `meromorphicOrderAt_riemannZeta_ne_top`, which had to find a seed at `s = 2` and route
+around the pole. -/
+lemma meromorphicOrderAt_riemannZeta₁_ne_top (z : ℂ) :
+    meromorphicOrderAt riemannZeta₁ z ≠ ⊤ := by
+  have h1an : AnalyticAt ℂ riemannZeta₁ 1 := analyticAt_riemannZeta₁ 1
+  have h1 : meromorphicOrderAt riemannZeta₁ 1 ≠ ⊤ := by
+    rw [h1an.meromorphicOrderAt_eq,
+      h1an.analyticOrderAt_eq_zero.mpr (by rw [riemannZeta₁_one]; norm_num)]
+    simp
+  have hmero : MeromorphicOn riemannZeta₁ Set.univ :=
+    fun w _ ↦ (analyticAt_riemannZeta₁ w).meromorphicAt
+  exact hmero.meromorphicOrderAt_ne_top_of_isPreconnected
+    isPreconnected_univ (Set.mem_univ 1) (Set.mem_univ z) h1
+
+/-- **`HasSimplePolesOn F Set.univ`**, the last of the three hypotheses restated for `F`.
+
+Identical in shape to `hasSimplePolesOn_A_univ`, run on `riemannZeta₁` instead of on `ζ`. The
+logarithmic derivative of a meromorphic function has order exactly `-1` at any zero or pole and
+order `≥ 0` elsewhere, whatever the multiplicity — the multiplicity lands in the residue. -/
+lemma hasSimplePolesOn_F_univ : HasSimplePolesOn F Set.univ := by
+  intro z _
+  have hζ : MeromorphicAt riemannZeta₁ z := (analyticAt_riemannZeta₁ z).meromorphicAt
+  have hconst : meromorphicOrderAt (fun _ : ℂ ↦ (-1 : ℂ)) z = 0 := by
+    rw [analyticAt_const.meromorphicOrderAt_eq, analyticAt_const.analyticOrderAt_eq_zero.mpr
+      (by norm_num)]
+    rfl
+  have hFeq : F = (fun _ : ℂ ↦ (-1 : ℂ)) • logDeriv riemannZeta₁ := by funext w; simp [F]
+  have hF : meromorphicOrderAt F z = meromorphicOrderAt (logDeriv riemannZeta₁) z := by
+    rw [hFeq, meromorphicOrderAt_smul analyticAt_const.meromorphicAt hζ.logDeriv, hconst, zero_add]
+  rw [hF]
+  by_cases h0 : meromorphicOrderAt riemannZeta₁ z = 0
+  · refine le_trans ?_ (meromorphicOrderAt_logDeriv_nonneg hζ h0)
+    decide
+  · rw [meromorphicOrderAt_logDeriv_eq_neg_one hζ h0 (meromorphicOrderAt_riemannZeta₁_ne_top z)]
+    norm_cast
+
 end CH2ZetaInstance
