@@ -162,11 +162,38 @@ stages:
       argument needs -- negative at one point plus decreasing gives negative thereafter -- so the
       conclusion stands and only the justification sentence is wrong. Do not formalize that sentence
       as written.
-      Second warning: CH2.v3 states its approximant EXISTENTIALLY, pinning only phi 0 and the L1
-      error; the residue weights need pointwise control of phi, so a sup bound will have to be added
-      to that node. Adding a third conclusion there should not disturb its two receipts, whose
-      fingerprints do not move, but re-verification will need comparator.json extended to cover all
-      three.
+      CH2.v3 NEEDS NO SUP BOUND. An earlier revision of this file warned that it would: that the
+      residue weights need pointwise control of the approximant, that CH2.v3 states it only
+      existentially -- pinning phi 0 and the L1 error and nothing else -- and that a third
+      conclusion would therefore have to be added to a node that is already green. That was wrong,
+      and it is recorded here rather than deleted because it was wrong in a direction that costs
+      work: it would have sent someone to re-open a verified node for no reason.
+      The residue weights are not the approximant. They are omega^+_{T,sigma} and theta_{T,sigma},
+      defined in Theorem 1.1 as
+        omega^+_{T,sigma}(s) = -theta_{T,sigma}(s) cot(pi theta_{T,sigma}(s)) + c_{T,sigma},
+        theta_{T,sigma}(s)   = 1 - (s - sigma)/(i T),
+        c_{T,sigma}          = theta_{T,sigma}(1 + iT) cot(pi theta_{T,sigma}(1 + iT)),
+      which are elementary closed forms in s, T and sigma. Section 7 estimates them by comparison
+      with F(z) = 1/pi - (1-z) cot(pi (1-z)) in its Lemma cor:thonny, again elementary. Nothing in
+      that argument evaluates the approximant anywhere.
+      COUNTED IN THE SOURCE, not inferred: across sections 7, 8, 9 and 10 the token varphi occurs
+      ZERO times, and Phi_lambda once, in a remark observing that the weight is the same object --
+      not in a step. All 137 live occurrences of varphi are in sections 2, 4 and 6, the
+      introduction, and an appendix.
+      Where pointwise control IS needed is section 6, the proof of Theorem 1.1, which uses Phi_lambda
+      and varphi throughout. That does not resurrect the problem, for two reasons. Section 6 is the
+      stage above that may not be needed at all. And Phi_lambda is itself explicit --
+        (Phi_lambda^o +- Phi_lambda^*)(z) = 1/(1 - e^u) +- (sgn(lambda)/(2 pi i))
+                                            (u/(e^u - 1) + |lambda|/(e^{-|lambda|} - 1)),
+        u = u(z) = 2 pi i sgn(lambda) z - |lambda|,
+      so a formalization of section 6 would define it directly rather than reach for CH2.v3, whose
+      existential statement was never the right source for a pointwise fact anyway.
+      A WARNING ABOUT READING THIS SOURCE, which is probably how the mistake happened. 46 per cent
+      of VonMangoldt.tex is inside \begin{comment} blocks, including long stretches of Phi_lambda
+      material with lemma statements and proofs in them. A grep over the raw file finds text that is
+      not in the paper -- Phi_lambda alone drops from 57 hits to 31 once comments are stripped.
+      Strip \begin{comment}...\end{comment} and percent-comments before concluding anything from a
+      count.
 
   - stage: "corollary 1.3: the numerics"
     state: not started
