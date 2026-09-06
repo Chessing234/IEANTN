@@ -451,4 +451,76 @@ theorem finite_zeros_riemannZeta_of_isCompact {K : Set ℂ} (hK : IsCompact K) (
   simp only [Set.mem_setOf_eq, not_not]
   exact (riemannZeta_eq_zero_iff_riemannZeta₁ (fun h ↦ h1 (h ▸ hzK))).mp hz0
 
+/-- Every zero of `ζ` off the real axis lies in the closed critical strip.
+
+Both edges come from results already here: `riemannZeta_ne_zero_of_one_le_re` closes off
+`Re z ≥ 1`, and `riemannZeta_ne_zero_of_re_neg` closes off `Re z < 0`, because the exceptions it
+allows — the trivial zeros — are real, and this `z` is not. -/
+lemma re_mem_Icc_of_riemannZeta_eq_zero {z : ℂ} (hz : riemannZeta z = 0) (him : z.im ≠ 0) :
+    0 ≤ z.re ∧ z.re ≤ 1 := by
+  constructor
+  · by_contra hlt
+    push_neg at hlt
+    refine riemannZeta_ne_zero_of_re_neg hlt (fun n hn ↦ him ?_) hz
+    rw [hn]; simp
+  · by_contra hgt
+    push_neg at hgt
+    exact riemannZeta_ne_zero_of_one_le_re hgt.le hz
+
+/-- The band of the critical strip at heights `|Im z| ∈ [T₀, T₀+1]` is compact.
+
+No sign condition on `T₀` is needed; the band is compact whatever `T₀` is, and empty when it is
+negative. Missing the pole is a separate fact, proved at the point of use. -/
+lemma isCompact_strip_band (T₀ : ℝ) :
+    IsCompact {z : ℂ | 0 ≤ z.re ∧ z.re ≤ 1 ∧ T₀ ≤ |z.im| ∧ |z.im| ≤ T₀ + 1} := by
+  rw [Metric.isCompact_iff_isClosed_bounded]
+  constructor
+  · have hEq : {z : ℂ | 0 ≤ z.re ∧ z.re ≤ 1 ∧ T₀ ≤ |z.im| ∧ |z.im| ≤ T₀ + 1}
+        = {z : ℂ | 0 ≤ z.re} ∩ ({z : ℂ | z.re ≤ 1} ∩
+            ({z : ℂ | T₀ ≤ |z.im|} ∩ {z : ℂ | |z.im| ≤ T₀ + 1})) := by
+      ext z; simp only [Set.mem_setOf_eq, Set.mem_inter_iff]
+    rw [hEq]
+    exact (isClosed_le continuous_const Complex.continuous_re).inter
+      ((isClosed_le Complex.continuous_re continuous_const).inter
+        ((isClosed_le continuous_const Complex.continuous_im.abs).inter
+          (isClosed_le Complex.continuous_im.abs continuous_const)))
+  · refine (Metric.isBounded_iff_subset_closedBall 0).mpr ⟨1 + (T₀ + 1), fun z hz ↦ ?_⟩
+    obtain ⟨h0, h1, _, h3⟩ := hz
+    simp only [Metric.mem_closedBall, dist_zero_right]
+    calc ‖z‖ ≤ |z.re| + |z.im| := Complex.norm_le_abs_re_add_abs_im z
+      _ ≤ 1 + (T₀ + 1) := by
+          have : |z.re| = z.re := abs_of_nonneg h0
+          rw [this]
+          linarith
+
+/-- **A height free of zero ordinates exists in every unit interval above the real axis.**
+
+This is what `LadderParams` needs and nothing so far supplied: `T` is a free parameter, and the
+ladder's horizontal pieces must miss the zeros of `ζ`.
+
+The argument is a counting one. A zero with `|Im z| ∈ [T₀, T₀+1]` is off the real axis, so it lies
+in the closed critical strip, so it lies in a compact band missing the pole — of which there are
+only finitely many. Finitely many ordinates cannot exhaust an interval. -/
+theorem exists_ordinate_free_height {T₀ : ℝ} (hT₀ : 0 < T₀) :
+    ∃ T, T₀ ≤ T ∧ T ≤ T₀ + 1 ∧ ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ T := by
+  set K : Set ℂ := {z : ℂ | 0 ≤ z.re ∧ z.re ≤ 1 ∧ T₀ ≤ |z.im| ∧ |z.im| ≤ T₀ + 1} with hK_def
+  have h1K : (1 : ℂ) ∉ K := by
+    simp only [hK_def, Set.mem_setOf_eq, Complex.one_im, abs_zero]
+    rintro ⟨-, -, h, -⟩
+    linarith
+  have hfin := finite_zeros_riemannZeta_of_isCompact (isCompact_strip_band T₀) h1K
+  -- The ordinates occurring in the band are finite; the candidates are not.
+  have himg : ((fun z : ℂ ↦ |z.im|) '' {z ∈ K | riemannZeta z = 0}).Finite := hfin.image _
+  have hinf : (Set.Icc T₀ (T₀ + 1)).Infinite := Set.Icc_infinite (by linarith)
+  obtain ⟨T, hT⟩ := (hinf.diff himg).nonempty
+  obtain ⟨hTmem, hTnot⟩ := hT
+  refine ⟨T, hTmem.1, hTmem.2, fun z hz heq ↦ hTnot ⟨z, ⟨?_, hz⟩, heq⟩⟩
+  -- `z` is a zero at height `T > 0`, hence off the axis, hence in the band.
+  have him : z.im ≠ 0 := by
+    intro h0
+    rw [h0, abs_zero] at heq
+    linarith [hTmem.1]
+  obtain ⟨hre0, hre1⟩ := re_mem_Icc_of_riemannZeta_eq_zero hz him
+  exact ⟨hre0, hre1, heq ▸ hTmem.1, heq ▸ hTmem.2⟩
+
 end CH2ZetaInstance

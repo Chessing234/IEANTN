@@ -109,7 +109,7 @@ stages:
       partial -- three of prop_5_2's five hypotheses closed unconditionally on all of C; of the
       remaining two, the no-poles half is done, and of the boundedness half the compact pieces and
       the Re w >= 2 input are done. What is left is F itself, the leftward rays, and choosing T
-      and delta off the zero ordinates.
+      and delta off the zero ordinates -- of which the last is now done.
     note: >-
       Done first because it is the smallest thing that tests whether the section 5 port is USABLE
       rather than merely compiling. It is: ConjSymm falls straight out of the ported
@@ -207,11 +207,25 @@ stages:
       (ii) THE LEFTWARD RAYS. On {Re s <= 1, Im s = +-T} and {Re s <= 1, Im s = delta} the estimate
       is the ladder-form identity for Re s <= -1 and compactness on the rest, with x0^s decay doing
       the work at infinity. Same shape as the columns.
-      (iii) T AND DELTA MUST AVOID THE ZERO ORDINATES, and nothing yet proves a good choice exists.
-      LadderParams leaves both free, so this is a matter of proving that zeta's zeros are discrete
-      -- the identity-theorem circle already used for meromorphicOrderAt_ne_top_of_isPreconnected
-      -- and then choosing. Do not assume this is free; it is the one genuinely open sub-problem
-      left in the stage.
+      (iii) T AND DELTA AVOIDING THE ZERO ORDINATES IS NOW DONE:
+      exists_ordinate_free_height gives, for every T0 > 0, a height T in [T0, T0+1] with no zero of
+      zeta at |Im z| = T. Same statement serves delta, since it is the same question.
+      THE TOOL IS riemannZeta_1, AND THE REASON IS WORTH KEEPING. The identity theorem is about
+      ANALYTIC functions, and zeta has a pole, so zeta cannot be fed to it on any set containing 1.
+      Mathlib's riemannZeta_1 = 1 + (s-1) zeta_0 s is entire and, away from 1, has exactly zeta's
+      zeros -- but Mathlib never says so. riemannZeta_1 appears only in ZetaAsymp, where it was
+      introduced for the asymptotic expansion, and not one of its five lemmas relates it back to
+      zeta. riemannZeta_eq_riemannZeta_1_div is that bridge.
+      From there the argument is counting, not analysis. riemannZeta_1 is not identically zero
+      because riemannZeta_1_one supplies the seed for free, so its zeros are isolated; on a compact
+      band missing the pole that gives finitely many zeros of zeta; finitely many ordinates cannot
+      exhaust an interval. The band is compact and misses 1 because it has |Im z| bounded away from
+      zero, and a zero off the real axis lies in the closed critical strip -- which is
+      re_mem_Icc_of_riemannZeta_eq_zero, itself just riemannZeta_ne_zero_of_one_le_re at one edge
+      and riemannZeta_ne_zero_of_re_neg at the other, the trivial zeros being real.
+      THREE OF THESE ARE ABOUT ZETA, NOT ABOUT CH2, and have been extracted for upstreaming:
+      riemannZeta_eq_riemannZeta_1_div, riemannZeta_eq_zero_iff_riemannZeta_1, and
+      finite_zeros_riemannZeta_of_isCompact. If they land in Mathlib the copies here can go.
       Mathlib friction worth knowing: `DifferentiableAt` unfolds to an Exists, so
       `(differentiableAt_riemannZeta hz).analyticAt` resolves to `Exists.analyticAt` and fails
       confusingly -- go through DifferentiableOn.analyticAt. And there is no meromorphicOrderAt_neg,
