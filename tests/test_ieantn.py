@@ -891,6 +891,78 @@ class TestVerifyApprovalNotice(FixtureRepo):
         self.assertIn("completed: success", out)
 
 
+class TestVerifyAPullRequest(FixtureRepo):
+    """`--pr` exists because the receipt job writes to a branch on THIS repository.
+
+    A fork's pull request has no such branch, so the first attempt at verifying one failed the
+    branch-existence guard with nothing to say that a fork was the reason.
+    """
+
+    def _resolve(self, fields: str, pushes: list[list[str]] | None = None,
+                 existing: str | None = None) -> tuple[str | None, str]:
+        recorded = pushes if pushes is not None else []
+
+        def fake_gh(args: list[str]) -> str:
+            return fields if args[0] == "pr" else ""
+
+        def fake_run(args: list[str], **_: object) -> object:
+            recorded.append(args)
+            return ieantn.subprocess.CompletedProcess(args, 0, "", "")
+
+        printed = io.StringIO()
+        with unittest.mock.patch.object(ieantn, "_gh_json", fake_gh), \
+             unittest.mock.patch.object(ieantn.subprocess, "run", fake_run), \
+             unittest.mock.patch.object(ieantn, "remote_branch_sha", lambda _: existing), \
+             contextlib.redirect_stdout(printed):
+            return ieantn.branch_for_pr(83), printed.getvalue()
+
+    def test_a_same_repository_pr_is_used_as_is_and_nothing_is_pushed(self) -> None:
+        pushes: list[list[str]] = []
+        branch, _ = self._resolve("OPEN\tmy-branch\tabc123\tfalse\tteorth", pushes)
+        self.assertEqual(branch, "my-branch")
+        self.assertEqual(pushes, [], "a branch already here needs no copying")
+
+    def test_a_fork_head_is_copied_to_a_branch_here(self) -> None:
+        pushes: list[list[str]] = []
+        branch, out = self._resolve("OPEN\ttheirs\tdeadbeef\ttrue\tcontributor", pushes)
+        self.assertEqual(branch, "theirs")
+        # Fetched through the BASE repository's pull ref, so no access to the fork is needed.
+        self.assertIn(["git", "fetch", "origin", "refs/pull/83/head"], pushes)
+        self.assertIn(["git", "push", "origin", "deadbeef:refs/heads/theirs"], pushes)
+        self.assertIn("Nothing is written to the fork", out)
+
+    def test_a_closed_pr_is_refused(self) -> None:
+        branch, out = self._resolve("MERGED\ttheirs\tdeadbeef\ttrue\tcontributor")
+        self.assertIsNone(branch)
+        self.assertIn("nothing to verify", out)
+
+    def test_an_existing_branch_at_a_different_commit_is_never_moved(self) -> None:
+        """Silently force-pushing over someone's branch is the one unrecoverable move here."""
+        pushes: list[list[str]] = []
+        branch, out = self._resolve("OPEN\ttheirs\tdeadbeef\ttrue\tcontributor", pushes,
+                                    existing="0ldc0de")
+        self.assertIsNone(branch)
+        self.assertNotIn(["git", "push", "origin", "deadbeef:refs/heads/theirs"], pushes)
+        self.assertIn("refusing to move it", out)
+
+    def test_an_existing_branch_already_at_the_head_is_reused(self) -> None:
+        pushes: list[list[str]] = []
+        branch, _ = self._resolve("OPEN\ttheirs\tdeadbeef\ttrue\tcontributor", pushes,
+                                  existing="deadbeef")
+        self.assertEqual(branch, "theirs")
+        self.assertEqual(pushes, [], "re-running a verification must not re-push")
+
+    def test_the_followup_says_the_receipt_is_not_on_the_pull_request(self) -> None:
+        """The receipt lands here, not on the contributor's PR, and merging theirs would miss it."""
+        printed = io.StringIO()
+        with contextlib.redirect_stdout(printed):
+            ieantn.report_pr_followup(83, "theirs")
+        out = printed.getvalue()
+        self.assertIn("NOT ON #83", out)
+        self.assertIn("without its receipt", out)
+        self.assertIn("CLOSED rather than MERGED", out)
+
+
 class TestTracedStatus(FixtureRepo):
     """`traced`: the inputs are known, and at least one of them is not an edge.
 

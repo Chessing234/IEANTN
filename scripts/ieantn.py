@@ -549,7 +549,92 @@ def local_head_sha() -> str | None:
     return (finished.stdout or "").strip() if finished.returncode == 0 else None
 
 
-def verify(node: str, branch: str, dispatch: bool, precheck: bool = True) -> bool:
+def branch_for_pr(pr: int) -> str | None:
+    """Resolve a pull request to a branch on `origin` that `verify.yml` can check out.
+
+    `verify.yml` takes a branch name and both reads and writes it on THIS repository: the receipt
+    job checks out `inputs.branch` and pushes the receipt back to `refs/heads/$BRANCH`. A pull
+    request from a fork has no such branch, so verifying one used to mean doing this by hand, and
+    the first time anybody tried it the dispatch failed the branch-existence guard with no hint
+    that a fork was the reason.
+
+    For a same-repository pull request there is nothing to do but read the name off it. For a fork,
+    the head is copied to a branch of the same name here. The commit is obtained through
+    `refs/pull/<n>/head`, which GitHub publishes on the BASE repository, so this needs no remote
+    for the contributor's fork and no push access to it -- which is just as well, since pushing to
+    someone else's repository is a different kind of act from pushing to your own.
+    """
+    fields = _gh_json(["pr", "view", str(pr), "--json",
+                       "headRefName,headRefOid,isCrossRepository,state,headRepositoryOwner",
+                       "--jq", "[.state, .headRefName, .headRefOid, "
+                               "(.isCrossRepository|tostring), .headRepositoryOwner.login] | @tsv"])
+    if not fields:
+        print(f"error: cannot read pull request #{pr}")
+        return None
+    state, ref, sha, cross, owner = (fields.split("\t") + [""] * 5)[:5]
+    if state != "OPEN":
+        print(f"error: pull request #{pr} is {state.lower()}, so there is nothing to verify")
+        return None
+
+    if cross != "true":
+        print(f"#{pr} is a branch on this repository: verifying `{ref}` directly")
+        return ref
+
+    existing = remote_branch_sha(ref)
+    if existing == sha:
+        print(f"#{pr} is from {owner}'s fork; `{ref}` here already matches its head")
+        return ref
+
+    # Fetch through the base repository's own pull ref rather than the fork.
+    fetched = subprocess.run(["git", "fetch", "origin", f"refs/pull/{pr}/head"],
+                             cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+    if fetched.returncode != 0:
+        print(f"error: could not fetch refs/pull/{pr}/head: {(fetched.stderr or '').strip()}")
+        return None
+
+    if existing is not None:
+        print(f"warning: `{ref}` already exists here at {existing[:8]} and #{pr} is at {sha[:8]};")
+        print("         refusing to move it. Delete it, or verify it as it stands with --branch.")
+        return None
+
+    print(f"#{pr} is from {owner}'s fork; copying its head to `{ref}` here so the receipt has")
+    print("  somewhere to land. Nothing is written to the fork.")
+    pushed = subprocess.run(["git", "push", "origin", f"{sha}:refs/heads/{ref}"],
+                            cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+    if pushed.returncode != 0:
+        print(f"error: could not create `{ref}` on origin: {(pushed.stderr or '').strip()}")
+        return None
+    return ref
+
+
+def report_pr_followup(pr: int, branch: str) -> None:
+    """Say where the receipt went, because it is not where someone would look for it.
+
+    The receipt lands on the branch here, NOT on the contributor's pull request, so #<pr> still
+    shows the pre-verification state and merging it would merge a node with no receipt. Both ways
+    out are worth printing: whichever is taken, GitHub tends to mark the original CLOSED rather
+    than MERGED, and a first-time contributor reading their own pull request cannot tell from that
+    badge that their work was accepted.
+    """
+    print()
+    print("=" * 72)
+    print(f"  THE RECEIPT IS ON `{branch}` HERE, NOT ON #{pr}.")
+    print(f"  Merging #{pr} as it stands would merge the node without its receipt.")
+    print()
+    print("  Either push the receipt into the fork, if the contributor allowed edits:")
+    print(f"    git fetch origin {branch}")
+    print(f"    git push <their-remote> FETCH_HEAD:{branch}")
+    print(f"  or open a pull request from `{branch}` and merge that instead:")
+    print(f"    gh pr create --head {branch} --title '<node>: verified'")
+    print()
+    print(f"  The second closes #{pr} automatically only if its head is an ancestor, and GitHub")
+    print("  marks it CLOSED rather than MERGED either way. Say so in a comment -- the badge")
+    print("  understates what happened, and the contributor has no other way to tell.")
+    print("=" * 72)
+
+
+def verify(node: str, branch: str, dispatch: bool, precheck: bool = True,
+           pr: int | None = None) -> bool:
     """Dispatch `verify.yml` and follow it, making the approval gate impossible to miss.
 
     This exists because `gh run watch` draws a run that has not started identically to one that is
@@ -650,7 +735,10 @@ def verify(node: str, branch: str, dispatch: bool, precheck: bool = True) -> boo
             print(f"run {run_id} completed: {conclusion}")
             print(f"  {url}")
             if conclusion == "success":
-                print("  the receipt is on the branch; open a pull request for it")
+                if pr is not None:
+                    report_pr_followup(pr, branch)
+                else:
+                    print("  the receipt is on the branch; open a pull request for it")
             return conclusion == "success"
         else:
             jobs = _gh_json(["api", f"repos/{repository}/actions/runs/{run_id}/jobs",
@@ -3776,7 +3864,11 @@ def main() -> int:
                          help="record the derived hole count in formalization.yaml")
     verification = sub.add_parser("verify")
     verification.add_argument("node", help="e.g. Lcm.v1")
-    verification.add_argument("--branch", required=True, help="branch to record the receipt on")
+    target = verification.add_mutually_exclusive_group(required=True)
+    target.add_argument("--branch", help="branch to record the receipt on")
+    target.add_argument("--pr", type=int, metavar="N",
+                        help="verify pull request N; a fork's head is copied to a branch here "
+                             "first, since the receipt job writes to this repository")
     verification.add_argument("--watch-only", action="store_true",
                               help="follow the latest run instead of dispatching a new one")
     verification.add_argument("--skip-precheck", action="store_true",
@@ -3843,8 +3935,13 @@ def main() -> int:
     if args.command == "progress":
         return 0 if progress(args.node, args.write) else 1
     if args.command == "verify":
-        return 0 if verify(args.node, args.branch, not args.watch_only,
-                           precheck=not args.skip_precheck) else 1
+        branch = args.branch
+        if args.pr is not None:
+            branch = branch_for_pr(args.pr)
+            if branch is None:
+                return 1
+        return 0 if verify(args.node, branch, not args.watch_only,
+                           precheck=not args.skip_precheck, pr=args.pr) else 1
     if args.command == "spinoff":
         return 0 if spinoff(args.conclusion, args.out, args.compile) else 1
     if args.command == "new-version":

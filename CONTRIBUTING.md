@@ -201,7 +201,21 @@ All holes closed and you believe Comparator will accept it.
 
    ```bash
    python scripts/ieantn.py verify Lcm.v1 --branch <your-branch>
+   python scripts/ieantn.py verify Lcm.v1 --pr 83          # a pull request, fork or not
    ```
+
+   **If you contributed from a fork, the maintainer wants the second form.** `verify.yml` both
+   reads and writes a branch on this repository — the receipt job checks it out and pushes the
+   receipt back to it — so a fork's pull request has no branch for it to use, and `--branch` fails
+   the existence guard without saying that a fork is the reason. `--pr` copies the head to a branch
+   here first, through this repository's own `refs/pull/<n>/head`, so nothing is written to your
+   fork and no access to it is needed. It refuses to move a branch that already exists at a
+   different commit rather than force-pushing over it.
+
+   The receipt then lands on the branch **here**, not on your pull request, so yours still shows
+   the pre-verification state; `--pr` prints the two ways to close that gap when the run succeeds.
+   Whichever is taken, GitHub tends to mark the original *Closed* rather than *Merged* even though
+   the commits landed — that badge understates what happened, and it is worth a comment saying so.
 
    Prefer this over `gh workflow run verify.yml` directly, for three reasons. A run waiting at the
    approval gate looks exactly like one that is building — a spinner and a job name — and
