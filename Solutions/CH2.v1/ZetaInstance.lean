@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Terence Tao
 -/
 import Section5
+import IEANTN.Nodes.ZetaLogDeriv.v1.Conclusions
 
 /-!
 # Instantiating §5 at `A(s) = -ζ'(s)/ζ(s)`
@@ -142,5 +143,199 @@ lemma hasSimplePolesOn_A_univ : HasSimplePolesOn A Set.univ := by
 lemma meromorphicOn_A : MeromorphicOn A Set.univ := by
   intro z hz
   exact (meromorphicOn_riemannZeta.logDeriv z hz).neg
+
+/-! ### Towards the two `IsBoundedNoPolesOn` hypotheses
+
+`prop_5_2`'s remaining two hypotheses each ask for two separate things on
+`l.Rboundary ∪ l.admissible_contour ∪ l.L` — that the function is bounded there, and that it has
+no poles there. This section does the second half, which is where the ladder's abscissas are
+actually chosen; the first half is a growth estimate and is not here. See `progress.yaml`.
+
+The pole half reduces to knowing where `ζ` vanishes, because `A = -ζ'/ζ` has a pole exactly at a
+zero or pole of `ζ` and is analytic elsewhere. On the ladder columns, which sit far to the left,
+that needs a fact Mathlib does not have. -/
+
+/-- **The only zeros of `ζ` in the left half-plane are the trivial ones.**
+
+Mathlib has `riemannZeta_neg_two_mul_nat_add_one`, that each `-2(n+1)` *is* a zero, and
+`riemannZeta_ne_zero_of_one_le_re` for `1 ≤ Re s`, but nothing that says the trivial zeros are the
+only ones out there. A ladder argument needs exactly that: it places its vertical columns at
+negative abscissas and has to know they meet no zeros.
+
+The proof is the functional equation and nothing else. Writing `s = 1 - w` with `Re w > 1`,
+`riemannZeta_one_sub` expresses `ζ(s)` as a product of `2`, `(2π)^{-w}`, `Γ(w)`, `cos(πw/2)` and
+`ζ(w)`. Every factor but the cosine is nonzero for free — `Γ` never vanishes, and `ζ(w) ≠ 0`
+because `Re w > 1` — so `ζ(s) = 0` forces `cos(πw/2) = 0`, hence `w = 2k+1` and `s = -2k`, and
+`Re s < 0` makes `k` positive. That is the trivial zeros exactly.
+
+Worth noting for anyone extending this: the same three Mathlib lemmas power
+`ZetaLogDeriv.v1`'s solution, which is not a coincidence — both are the functional equation used
+to move a fact from the convergent half-plane to the left one. -/
+theorem riemannZeta_ne_zero_of_re_neg {s : ℂ} (hs : s.re < 0)
+    (h : ∀ n : ℕ, s ≠ -2 * (n + 1)) : riemannZeta s ≠ 0 := by
+  have hpi : (Real.pi : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  obtain ⟨w, rfl⟩ : ∃ w : ℂ, s = 1 - w := ⟨1 - s, by ring⟩
+  have hw : 1 < w.re := by simp only [Complex.sub_re, Complex.one_re] at hs; linarith
+  have hwn : ∀ n : ℕ, w ≠ -n := by
+    intro n hn
+    rw [hn] at hw
+    simp only [Complex.neg_re, Complex.natCast_re] at hw
+    have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
+  have hw1 : w ≠ 1 := by intro hn; rw [hn] at hw; simp at hw
+  have hcos : Complex.cos ((Real.pi : ℂ) * w / 2) ≠ 0 := by
+    rw [Ne, Complex.cos_eq_zero_iff]
+    rintro ⟨k, hk⟩
+    have h2 : (Real.pi : ℂ) * w = (Real.pi : ℂ) * (2 * (k : ℂ) + 1) := by linear_combination 2 * hk
+    have hwk : w = 2 * (k : ℂ) + 1 := mul_left_cancel₀ hpi h2
+    have hkpos : 0 < k := by
+      by_contra hk0
+      push_neg at hk0
+      rw [hwk] at hw
+      simp only [Complex.add_re, Complex.mul_re, Complex.intCast_re, Complex.intCast_im,
+        Complex.one_re, Complex.re_ofNat, Complex.im_ofNat] at hw
+      have : (k : ℝ) ≤ 0 := by exact_mod_cast hk0
+      linarith
+    obtain ⟨m, rfl⟩ : ∃ m : ℕ, k = (m : ℤ) + 1 := ⟨(k - 1).toNat, by omega⟩
+    exact h m (by rw [hwk]; push_cast; ring)
+  rw [riemannZeta_one_sub hwn hw1]
+  refine mul_ne_zero (mul_ne_zero (mul_ne_zero (mul_ne_zero two_ne_zero ?_) ?_) hcos) ?_
+  · simp [Complex.cpow_eq_zero_iff, mul_ne_zero two_ne_zero hpi]
+  · exact Complex.Gamma_ne_zero hwn
+  · exact riemannZeta_ne_zero_of_one_lt_re hw
+
+/-- **The ladder abscissas this instantiation uses: `σ n = 1 - 2n`.**
+
+`LadderParams` leaves `σ` free, and the choice is the whole content of the pole half. Odd negative
+abscissas are the classical choice and the reason is visible in
+`riemannZeta_ne_zero_of_re_neg`: the trivial zeros are the *even* negative integers, so odd
+columns thread between them. `σ 0 = 1` is forced by the structure, and `1 - 2n` is the simplest
+sequence meeting that and decreasing to `-∞`. -/
+noncomputable def sigmaZeta (n : ℕ) : ℝ := 1 - 2 * n
+
+/-- Every ladder column past the first misses the zeros of `ζ`. -/
+lemma riemannZeta_ne_zero_on_column {n : ℕ} (hn : 1 ≤ n) {z : ℂ} (hz : z.re = sigmaZeta n) :
+    riemannZeta z ≠ 0 := by
+  have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
+  have hre : z.re < 0 := by rw [hz]; simp only [sigmaZeta]; linarith
+  refine riemannZeta_ne_zero_of_re_neg hre ?_
+  intro m hm
+  -- A trivial zero is real with even real part; the column's real part is odd.
+  have : z.re = -2 * ((m : ℝ) + 1) := by rw [hm]; simp
+  rw [hz] at this
+  simp only [sigmaZeta] at this
+  -- `1 - 2n = -2m - 2` has no solution in the naturals: the left side is odd, the right even.
+  have hcast : (1 : ℝ) - 2 * n = -2 * m - 2 := by linarith
+  have : (1 : ℤ) - 2 * n = -2 * m - 2 := by exact_mod_cast hcast
+  omega
+
+/-! ### The functional equation, in the orientation the ladder needs
+
+`ZetaLogDeriv.v1` states
+
+  `ζ'/ζ(w) = -ζ'/ζ(1-w) + log 2π - ψ(w) + (π/2) tan(π w / 2)`,
+
+and read at `w = s` that is the *wrong* orientation for this argument: on a ladder column
+`Re s ≤ -1`, it evaluates `ψ` at `s`, out in the left half-plane where `GammaAsymptotics.v1` says
+nothing at all — its bound is stated for `Re w ≥ 1`.
+
+Reading the same identity at `w = 1 - s` fixes that, and needs no new input. It moves `ψ` to
+`1 - s`, where `Re (1-s) ≥ 2`, which is inside `GammaAsymptotics.v1`'s range. So the node is the
+right one after all; it is the instantiation point that matters, and getting it wrong would have
+sent someone looking for a digamma bound on the left half-plane, or for the reflection formula
+that this repository's Mathlib pin does not yet carry.
+
+Checked numerically at five points before being written, including `-9 + 5i`. -/
+lemma logDeriv_ladder_form (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    {s : ℂ} (hs : s.re < 0)
+    (hcos : Complex.cos ((Real.pi : ℂ) * (1 - s) / 2) ≠ 0) :
+    deriv riemannZeta s / riemannZeta s
+      = -(deriv riemannZeta (1 - s) / riemannZeta (1 - s))
+        + Complex.log (2 * (Real.pi : ℂ)) - Complex.digamma (1 - s)
+        + ((Real.pi : ℂ) / 2) * Complex.tan ((Real.pi : ℂ) * (1 - s) / 2) := by
+  have hw : (1 : ℝ) < (1 - s).re := by
+    simp only [Complex.sub_re, Complex.one_re]; linarith
+  have hwn : ∀ n : ℕ, (1 - s) ≠ -n := by
+    intro n hn
+    rw [hn] at hw
+    simp only [Complex.neg_re, Complex.natCast_re] at hw
+    have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
+  have hw1 : (1 - s) ≠ 1 := by intro hn; rw [hn] at hw; simp at hw
+  have hz : riemannZeta (1 - s) ≠ 0 := riemannZeta_ne_zero_of_one_lt_re hw
+  have h1 := hfe (1 - s) hwn hw1 hz hcos
+  -- `1 - (1 - s)` is `s`; after that the identity is a rearrangement.
+  rw [show (1 : ℂ) - (1 - s) = s by ring] at h1
+  linear_combination h1
+
+/-- On a ladder column the cosine factor never vanishes, so `logDeriv_ladder_form` applies there.
+
+At `Re s = 1 - 2n` the reflected point is `1 - s = 2n - it`, and
+`cos(π(2n - it)/2) = (-1)^n cosh(π t/2)`, which is bounded away from zero rather than merely
+nonzero. Only the parity of `2n` is doing the work: an odd column would put the cosine's zeros on
+the line. -/
+lemma cos_ne_zero_on_column {n : ℕ} {s : ℂ} (hs : s.re = sigmaZeta n) :
+    Complex.cos ((Real.pi : ℂ) * (1 - s) / 2) ≠ 0 := by
+  rw [Ne, Complex.cos_eq_zero_iff]
+  rintro ⟨k, hk⟩
+  -- Compare imaginary parts first: they force `s` real.
+  have him : s.im = 0 := by
+    have := congrArg Complex.im hk
+    simp only [Complex.div_im, Complex.mul_im, Complex.mul_re, Complex.sub_im, Complex.sub_re,
+      Complex.one_im, Complex.one_re, Complex.ofReal_im, Complex.ofReal_re, Complex.add_im,
+      Complex.add_re, Complex.intCast_im, Complex.intCast_re, Complex.re_ofNat,
+      Complex.im_ofNat, Complex.normSq_apply] at this
+    have hpi : (0 : ℝ) < Real.pi := Real.pi_pos
+    nlinarith [this, hpi]
+  -- Then real parts give `2n = 2k + 1`, which parity forbids.
+  have hre := congrArg Complex.re hk
+  simp only [Complex.div_re, Complex.mul_re, Complex.mul_im, Complex.sub_re, Complex.sub_im,
+    Complex.one_re, Complex.one_im, Complex.ofReal_re, Complex.ofReal_im, Complex.add_re,
+    Complex.add_im, Complex.intCast_re, Complex.intCast_im, Complex.re_ofNat, Complex.im_ofNat,
+    Complex.normSq_apply, him, hs, sigmaZeta] at hre
+  have hpi : Real.pi ≠ 0 := Real.pi_ne_zero
+  have h2n : (2 : ℝ) * n = 2 * k + 1 := by field_simp at hre; nlinarith [hre, Real.pi_pos]
+  have : (2 : ℤ) * n = 2 * k + 1 := by exact_mod_cast h2n
+  omega
+
+/-- **`ζ'/ζ` is bounded on `Re w ≥ 2`**, from the Dirichlet series for `Λ`.
+
+This is the bound `ZetaLogDeriv.v1`'s metadata deliberately declined to state as a node conclusion,
+on the grounds that it is a short consequence of two facts Mathlib already has
+(`LSeries_vonMangoldt_eq_deriv_riemannZeta_div` and `LSeriesSummable_vonMangoldt`) and would
+therefore add an unjustified claim where none is needed. This is that consequence, and the
+judgement holds up: it is a dozen lines.
+
+The constant is `∑' n, ‖term Λ 2 n‖`, left unevaluated. Nothing here needs its value — only that
+it is finite and independent of `w` — and pinning it to a decimal would invite exactly the
+numerology the node avoided. The comparison across half-planes is
+`LSeries.norm_term_le_of_re_le_re`, and the absolute convergence that lets the triangle inequality
+through is `summable_norm_iff`, which applies because Mathlib's `Summable` is unconditional. -/
+theorem logDeriv_riemannZeta_bounded_of_two_le_re :
+    ∃ M : ℝ, ∀ w : ℂ, 2 ≤ w.re → ‖deriv riemannZeta w / riemannZeta w‖ ≤ M := by
+  have hsum2 : Summable
+      (fun n ↦ ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖) :=
+    summable_norm_iff.mpr (ArithmeticFunction.LSeriesSummable_vonMangoldt (by norm_num))
+  refine ⟨∑' n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖,
+    fun w hw ↦ ?_⟩
+  have h1 : 1 < w.re := by linarith
+  have hle : ∀ n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖
+      ≤ ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖ := by
+    intro n
+    refine LSeries.norm_term_le_of_re_le_re _ ?_ n
+    simpa using hw
+  have hsumw : Summable
+      (fun n ↦ ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖) :=
+    hsum2.of_nonneg_of_le (fun _ ↦ norm_nonneg _) hle
+  have key : deriv riemannZeta w / riemannZeta w
+      = -LSeries (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w := by
+    rw [ArithmeticFunction.LSeries_vonMangoldt_eq_deriv_riemannZeta_div h1]; ring
+  rw [key, norm_neg]
+  calc ‖LSeries (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w‖
+      = ‖∑' n, LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖ := rfl
+    _ ≤ ∑' n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖ :=
+        norm_tsum_le_tsum_norm hsumw
+    _ ≤ ∑' n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖ :=
+        Summable.tsum_mono hsumw hsum2 hle
 
 end CH2ZetaInstance
