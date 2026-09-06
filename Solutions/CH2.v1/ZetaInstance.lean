@@ -776,4 +776,76 @@ theorem exists_ladderParams_zeta :
     linarith
   · exact ⟨hd0, hdT⟩
 
+/-! ### `tan` is bounded off the real axis
+
+The last input the growth bound needs, and Mathlib has nothing like it: its only results about
+`Complex.tan` say it blows up AT the poles (`tendsto_norm_tan_of_cos_eq_zero`), not that it stays
+bounded away from them. A contour argument needs the second.
+
+The identity `‖cos w‖² = cos²(Re w) + sinh²(Im w)` is what makes it easy, and it follows from
+`Complex.cos_add_mul_I` plus `Real.cosh_sq`. Both it and the `sin` analogue look like Mathlib
+lemmas in their own right. -/
+
+
+/-- `‖cos w‖² = cos²(Re w) + sinh²(Im w)`. -/
+theorem norm_cos_sq (w : ℂ) :
+    ‖Complex.cos w‖ ^ 2 = Real.cos w.re ^ 2 + Real.sinh w.im ^ 2 := by
+  have h := Complex.cos_add_mul_I (w.re : ℂ) (w.im : ℂ)
+  rw [Complex.re_add_im] at h
+  rw [h, ← Complex.ofReal_cos, ← Complex.ofReal_cosh, ← Complex.ofReal_sin,
+    ← Complex.ofReal_sinh, ← Complex.ofReal_mul, ← Complex.ofReal_mul]
+  rw [Complex.sq_norm, Complex.normSq_apply]
+  simp only [Complex.sub_re, Complex.sub_im, Complex.ofReal_re, Complex.ofReal_im,
+    Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  have hc := Real.cosh_sq w.im
+  have hs := Real.sin_sq_add_cos_sq w.re
+  nlinarith [hc, hs, sq_nonneg (Real.cos w.re), sq_nonneg (Real.sinh w.im)]
+
+/-- `‖sin w‖² = sin²(Re w) + sinh²(Im w)`. -/
+theorem norm_sin_sq (w : ℂ) :
+    ‖Complex.sin w‖ ^ 2 = Real.sin w.re ^ 2 + Real.sinh w.im ^ 2 := by
+  have h := Complex.sin_add_mul_I (w.re : ℂ) (w.im : ℂ)
+  rw [Complex.re_add_im] at h
+  rw [h, ← Complex.ofReal_sin, ← Complex.ofReal_cosh, ← Complex.ofReal_cos,
+    ← Complex.ofReal_sinh, ← Complex.ofReal_mul, ← Complex.ofReal_mul]
+  rw [Complex.sq_norm, Complex.normSq_apply]
+  simp only [Complex.add_re, Complex.add_im, Complex.ofReal_re, Complex.ofReal_im,
+    Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  have hc := Real.cosh_sq w.im
+  have hs := Real.sin_sq_add_cos_sq w.re
+  nlinarith [hc, hs, sq_nonneg (Real.sin w.re), sq_nonneg (Real.sinh w.im)]
+
+/-- **`‖tan w‖ ≤ cosh(Im w) / |sinh(Im w)|`** — `tan` is bounded off the real axis.
+
+Mathlib has no upper bound on `‖Complex.tan‖` at all, only that it blows up at the poles. This is
+what a contour argument needs: along a horizontal line at fixed non-zero height, `tan` is bounded,
+and the bound depends only on the height. -/
+theorem norm_tan_le_of_im_ne_zero {w : ℂ} (h : w.im ≠ 0) :
+    ‖Complex.tan w‖ ≤ Real.cosh w.im / |Real.sinh w.im| := by
+  have hsinh : Real.sinh w.im ≠ 0 := fun hc ↦ h (by simpa using Real.sinh_eq_zero.mp hc)
+  have habs : 0 < |Real.sinh w.im| := abs_pos.mpr hsinh
+  have hcos : ‖Complex.cos w‖ ≠ 0 := by
+    intro hc
+    have := norm_cos_sq w
+    rw [hc] at this
+    nlinarith [sq_nonneg (Real.cos w.re), sq_abs (Real.sinh w.im), habs]
+  rw [Complex.tan_eq_sin_div_cos, norm_div, div_le_div_iff₀ (by positivity) habs]
+  have h1 : ‖Complex.sin w‖ ^ 2 ≤ Real.cosh w.im ^ 2 := by
+    rw [norm_sin_sq]
+    nlinarith [Real.sin_sq_add_cos_sq w.re, Real.cosh_sq w.im, sq_nonneg (Real.cos w.re)]
+  have h2 : |Real.sinh w.im| ^ 2 ≤ ‖Complex.cos w‖ ^ 2 := by
+    rw [norm_cos_sq, sq_abs]
+    nlinarith [sq_nonneg (Real.cos w.re)]
+  have hsin_nn : (0:ℝ) ≤ ‖Complex.sin w‖ := norm_nonneg _
+  have hcosh_pos : 0 < Real.cosh w.im := Real.cosh_pos _
+  have hcos_nn : (0:ℝ) ≤ ‖Complex.cos w‖ := norm_nonneg _
+  -- Take square roots of `h1` and `h2`, then multiply.
+  have hsin_le : ‖Complex.sin w‖ ≤ Real.cosh w.im := by
+    have := Real.sqrt_le_sqrt h1
+    rwa [Real.sqrt_sq hsin_nn, Real.sqrt_sq hcosh_pos.le] at this
+  have hsinh_le : |Real.sinh w.im| ≤ ‖Complex.cos w‖ := by
+    have := Real.sqrt_le_sqrt h2
+    rwa [Real.sqrt_sq (abs_nonneg _), Real.sqrt_sq hcos_nn] at this
+  exact mul_le_mul hsin_le hsinh_le (abs_nonneg _) hcosh_pos.le
+
 end CH2ZetaInstance
