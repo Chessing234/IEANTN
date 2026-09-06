@@ -1,0 +1,16 @@
+{
+  "challenge_module": "IEANTN.Nodes.PrimeInterval.v1.Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "PrimeInterval.v1.challenge_theta_characterisation",
+    "PrimeInterval.v1.challenge_eTheta_criterion",
+    "PrimeInterval.v1.challenge_numericalBound_hasPrimeInInterval",
+    "PrimeInterval.v1.challenge_classicalBound_hasPrimeInInterval"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
