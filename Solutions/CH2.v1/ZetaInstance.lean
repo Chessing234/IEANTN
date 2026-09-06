@@ -298,4 +298,44 @@ lemma cos_ne_zero_on_column {n : ℕ} {s : ℂ} (hs : s.re = sigmaZeta n) :
   have : (2 : ℤ) * n = 2 * k + 1 := by exact_mod_cast h2n
   omega
 
+/-- **`ζ'/ζ` is bounded on `Re w ≥ 2`**, from the Dirichlet series for `Λ`.
+
+This is the bound `ZetaLogDeriv.v1`'s metadata deliberately declined to state as a node conclusion,
+on the grounds that it is a short consequence of two facts Mathlib already has
+(`LSeries_vonMangoldt_eq_deriv_riemannZeta_div` and `LSeriesSummable_vonMangoldt`) and would
+therefore add an unjustified claim where none is needed. This is that consequence, and the
+judgement holds up: it is a dozen lines.
+
+The constant is `∑' n, ‖term Λ 2 n‖`, left unevaluated. Nothing here needs its value — only that
+it is finite and independent of `w` — and pinning it to a decimal would invite exactly the
+numerology the node avoided. The comparison across half-planes is
+`LSeries.norm_term_le_of_re_le_re`, and the absolute convergence that lets the triangle inequality
+through is `summable_norm_iff`, which applies because Mathlib's `Summable` is unconditional. -/
+theorem logDeriv_riemannZeta_bounded_of_two_le_re :
+    ∃ M : ℝ, ∀ w : ℂ, 2 ≤ w.re → ‖deriv riemannZeta w / riemannZeta w‖ ≤ M := by
+  have hsum2 : Summable
+      (fun n ↦ ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖) :=
+    summable_norm_iff.mpr (ArithmeticFunction.LSeriesSummable_vonMangoldt (by norm_num))
+  refine ⟨∑' n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖,
+    fun w hw ↦ ?_⟩
+  have h1 : 1 < w.re := by linarith
+  have hle : ∀ n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖
+      ≤ ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖ := by
+    intro n
+    refine LSeries.norm_term_le_of_re_le_re _ ?_ n
+    simpa using hw
+  have hsumw : Summable
+      (fun n ↦ ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖) :=
+    hsum2.of_nonneg_of_le (fun _ ↦ norm_nonneg _) hle
+  have key : deriv riemannZeta w / riemannZeta w
+      = -LSeries (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w := by
+    rw [ArithmeticFunction.LSeries_vonMangoldt_eq_deriv_riemannZeta_div h1]; ring
+  rw [key, norm_neg]
+  calc ‖LSeries (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w‖
+      = ‖∑' n, LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖ := rfl
+    _ ≤ ∑' n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) w n‖ :=
+        norm_tsum_le_tsum_norm hsumw
+    _ ≤ ∑' n, ‖LSeries.term (fun n ↦ (ArithmeticFunction.vonMangoldt n : ℂ)) 2 n‖ :=
+        Summable.tsum_mono hsumw hsum2 hle
+
 end CH2ZetaInstance
