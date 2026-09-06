@@ -523,4 +523,59 @@ theorem exists_ordinate_free_height {T₀ : ℝ} (hT₀ : 0 < T₀) :
   obtain ⟨hre0, hre1⟩ := re_mem_Icc_of_riemannZeta_eq_zero hz him
   exact ⟨hre0, hre1, heq ▸ hTmem.1, heq ▸ hTmem.2⟩
 
+/-! ### `F`, the function `prop_5_2` is actually applied to
+
+`prop_5_2` is not applied to `A` but to Theorem 1.1's `F(s) = A(s) - Res_{s=1} A / (s-1)`, and the
+reason is forced rather than stylistic: `l.Rboundary` **contains `s = 1`** — it has `Re s = 1` and
+`|Im s| = 0 ≤ T` — while `IsBoundedNoPolesOn` demands `meromorphicOrderAt ≥ 0` there, which `A`
+fails at its own pole. `A` cannot be the input.
+
+`riemannZeta₁` makes `F` pleasant rather than awkward. From `ζ s = riemannZeta₁ s / (s - 1)`,
+taking logarithmic derivatives,
+
+  `A = -ζ'/ζ = -riemannZeta₁'/riemannZeta₁ + 1/(s-1)`,
+
+so `F = A - 1/(s-1) = -logDeriv riemannZeta₁`. `F` is the logarithmic derivative of an **entire**
+function, and `riemannZeta₁ 1 = 1 ≠ 0`, so `F` is analytic at the very point `A` was not.
+
+A WARNING FOR WHOEVER CONTINUES. The three hypotheses recorded above as done -- `ConjSymm`,
+`MeromorphicOn`, `HasSimplePolesOn` -- were proved for `A`, and `prop_5_2` wants them for `F`.
+They do not transfer for free, they have to be reproved. That is not the setback it sounds like:
+each is the same argument run on `riemannZeta₁`, which being entire is *easier* to work with than
+`ζ`. Only `ConjSymm F` needs anything new, namely that `riemannZeta₁` commutes with conjugation. -/
+
+/-- **`F = -logDeriv riemannZeta₁`**, Theorem 1.1's pole-free part of `A`.
+
+Defined through `riemannZeta₁` rather than as the literal difference `A s - (s-1)⁻¹`, because the
+two agree and this form is manifestly analytic wherever `riemannZeta₁` is non-zero — including at
+`s = 1`, which is the whole point of introducing `F`. -/
+noncomputable def F : ℂ → ℂ := fun s ↦ -logDeriv riemannZeta₁ s
+
+/-- `riemannZeta₁` is entire, in the form the analytic API wants. -/
+lemma analyticAt_riemannZeta₁ (z : ℂ) : AnalyticAt ℂ riemannZeta₁ z :=
+  DifferentiableOn.analyticAt differentiable_riemannZeta₁.differentiableOn Filter.univ_mem
+
+/-- **`F` is analytic wherever `riemannZeta₁` does not vanish.** -/
+lemma analyticAt_F {z : ℂ} (hz : riemannZeta₁ z ≠ 0) : AnalyticAt ℂ F z := by
+  have hF : F = fun s ↦ -(deriv riemannZeta₁ s / riemannZeta₁ s) := by
+    funext s; simp [F, logDeriv_apply]
+  rw [hF]
+  exact (((analyticAt_riemannZeta₁ z).deriv).div (analyticAt_riemannZeta₁ z) hz).neg
+
+/-- **`F` is analytic at `s = 1`** — the property `A` lacks, and the reason `F` exists.
+
+`riemannZeta₁ 1 = 1`, so no limit or removable-singularity argument is needed. -/
+lemma analyticAt_F_one : AnalyticAt ℂ F 1 :=
+  analyticAt_F (by rw [riemannZeta₁_one]; norm_num)
+
+/-- **`F` is meromorphic on the whole plane**, one of `prop_5_2`'s hypotheses, restated for `F`.
+
+`riemannZeta₁` is entire, so this is `MeromorphicOn.logDeriv` with nothing to exclude — easier
+than the corresponding fact for `A`, which had to route around the pole of `ζ`. -/
+lemma meromorphicOn_F : MeromorphicOn F Set.univ := by
+  have h : MeromorphicOn riemannZeta₁ Set.univ :=
+    fun w _ ↦ (analyticAt_riemannZeta₁ w).meromorphicAt
+  intro z hz
+  exact (h.logDeriv z hz).neg
+
 end CH2ZetaInstance

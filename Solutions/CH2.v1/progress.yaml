@@ -197,13 +197,26 @@ stages:
       order, which is a natural number and so never negative. isCompact_reOne_segment does the
       first of the three.
       THREE THINGS REMAIN FOR THIS STAGE, in rough order of difficulty.
-      (i) F ITSELF IS NOT YET DEFINED. prop_5_2 is not applied to A = -zeta'/zeta but to
-      F = A - 1/(s-1), Theorem 1.1's pole-free part, because Rboundary CONTAINS s = 1 -- it has
-      Re s = 1 and |Im s| = 0 <= T -- and IsBoundedNoPolesOn demands order >= 0 there, which A
-      fails. Defining F and proving it analytic at 1 is a removable-singularity argument;
-      riemannZeta_eq_inv_sub_add should give it, since zeta s = (s-1)^{-1} + zeta_0 s with zeta_0
-      entire makes zeta s = (s-1)^{-1}(1 + (s-1) zeta_0 s), whose logarithmic derivative is
-      -1/(s-1) plus something analytic near 1.
+      (i) F IS NOW DEFINED, AND IT IS NOT THE AWKWARD OBJECT IT LOOKED LIKE. prop_5_2 is applied
+      not to A = -zeta'/zeta but to F = A - 1/(s-1), Theorem 1.1's pole-free part, because
+      Rboundary CONTAINS s = 1 -- it has Re s = 1 and |Im s| = 0 <= T -- and IsBoundedNoPolesOn
+      demands order >= 0 there, which A fails at its own pole. A cannot be the input.
+      No removable-singularity argument was needed in the end. From zeta s = riemannZeta_1 s /
+      (s-1), taking logarithmic derivatives gives A = -riemannZeta_1'/riemannZeta_1 + 1/(s-1), so
+      F = -logDeriv riemannZeta_1 exactly. F is the logarithmic derivative of an ENTIRE function,
+      analytic wherever riemannZeta_1 is non-zero, and riemannZeta_1_one = 1 makes that include
+      s = 1 with nothing to prove. analyticAt_F, analyticAt_F_one and meromorphicOn_F.
+      THE THREE HYPOTHESES RECORDED ABOVE AS DONE WERE PROVED FOR A, AND prop_5_2 WANTS THEM FOR
+      F. They do not transfer for free. This was not noticed until F was defined, and it is the
+      correction most likely to mislead someone reading the earlier notes: ConjSymm,
+      MeromorphicOn and HasSimplePolesOn all have to be reproved.
+      It is less bad than it sounds. Each is the same argument run on riemannZeta_1 instead of on
+      zeta, and riemannZeta_1 being entire is EASIER -- meromorphicOn_F is already done and took
+      three lines against the dozen its A-counterpart needed to route around the pole.
+      HasSimplePolesOn F should go the same way through meromorphicOrderAt_logDeriv_eq_neg_one.
+      Only ConjSymm F needs something genuinely new: that riemannZeta_1 commutes with conjugation,
+      which follows from riemannZeta_conj plus the conjugation-symmetry of (s-1)^{-1}, but note
+      ConjSymm is a statement for ALL s, so the argument has to cover s = 1 too.
       (ii) THE LEFTWARD RAYS. On {Re s <= 1, Im s = +-T} and {Re s <= 1, Im s = delta} the estimate
       is the ladder-form identity for Re s <= -1 and compactness on the rest, with x0^s decay doing
       the work at infinity. Same shape as the columns.
