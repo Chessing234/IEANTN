@@ -66,7 +66,8 @@ def lcmUpto_not_highlyAbundant_of_primeGap : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/Lcm/v2/Conclusions.lean#L71) |
 | Solution | [`Solutions/Lcm.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/Lcm.v2) |
 | Receipt | [`Lcm.v2.lcmUpto_not_highlyAbundant_of_primeGap.json`](https://github.com/teorth/IEANTN/blob/main/receipts/Lcm.v2.lcmUpto_not_highlyAbundant_of_primeGap.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |

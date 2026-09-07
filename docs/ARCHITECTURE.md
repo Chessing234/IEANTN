@@ -243,6 +243,7 @@ what decides whether a breaking change may land is `diff` and its `changes/` ack
   | **green** | Verified against the current Mathlib. |
   | **yellow** | Stale, but within the Mathlib cache window: a refresh costs about one node-sized run. |
   | **orange** | Past the cache window: dependencies build from source, so a refresh costs many times the per-node budget. |
+  | **churn** | The statement's fingerprint moved while its Lean source did not. A digest is taken of the *elaborated* statement, so a Mathlib bump moves it — a renamed instance is enough. Not a severed edge, and not green either: an upstream definition could in principle have changed what the statement means, and only a fresh run settles that. |
 
   Staleness is **derived, not stored** — computed by comparing each receipt's recorded environment
   against the current one. A bump that degrades two hundred nodes therefore edits no node metadata

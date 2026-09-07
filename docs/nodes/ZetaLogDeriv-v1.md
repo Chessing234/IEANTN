@@ -55,7 +55,8 @@ def logDeriv_functional_equation : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaLogDeriv/v1/Conclusions.lean#L81) |
 | Solution | [`Solutions/ZetaLogDeriv.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaLogDeriv.v1) |
 | Receipt | [`ZetaLogDeriv.v1.logDeriv_functional_equation.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZetaLogDeriv.v1.logDeriv_functional_equation.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
