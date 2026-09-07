@@ -47,8 +47,11 @@ noncomputable def gaussSum (s : ℂ) : ℂ :=
 /-- **A telescoping series**: if `f n → 0` and the differences are summable, they sum to `f 0`.
 
 Stated for its own sake rather than inlined, because the argument is entirely about partial sums
-and has nothing to do with `Γ`. -/
-theorem hasSum_sub_succ {f : ℕ → ℂ} (hsum : Summable fun k ↦ f k - f (k + 1))
+and has nothing to do with `Γ` — and stated over an arbitrary complete normed group because it is
+used twice at different types: over `ℂ` for the recurrence below, and over `ℝ` in
+`Oscillation.lean`, where the same telescoping sums `1/((k+t)(k+t+1))` to `1/t`. -/
+theorem hasSum_sub_succ {F : Type*} [NormedAddCommGroup F] [CompleteSpace F] {f : ℕ → F}
+    (hsum : Summable fun k ↦ f k - f (k + 1))
     (hlim : Filter.Tendsto f Filter.atTop (nhds 0)) :
     HasSum (fun k ↦ f k - f (k + 1)) (f 0) := by
   have hpart : ∀ n : ℕ, ∑ i ∈ Finset.range n, (f i - f (i + 1)) = f 0 - f n :=
