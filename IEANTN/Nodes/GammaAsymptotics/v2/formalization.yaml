@@ -54,11 +54,18 @@ conclusions:
       pushes rightward and controls Re w -> infinity at bounded height; it says nothing about
       w = 1 + it as t -> infinity, which no compact box reaches. That was noticed only when someone
       went to carry the route out.
-      On a strip the same route works. The recurrence psi(w+1) = psi(w) + 1/w moves w rightward
-      until its real part is large, the accumulated sum of 1/(w+j) is compared with the harmonic
-      series to produce log w, and the starting region -- Re w in [1,2] with |Im w| <= H -- is
-      genuinely compact, so psi is bounded on it by continuity, meromorphic_digamma putting the
-      poles at the non-positive integers.
+      THE STRIP DOES NOT RESCUE THE ELEMENTARY ROUTE EITHER, and an earlier version of this note
+      claimed it did. Writing w = u + n with Re u in [1,2], the recurrence gives
+      psi(w) = psi(u) + sum_{j<n} 1/(u+j), and comparing that sum with the harmonic series leaves
+      psi(w) - log w -> psi(u) + gamma + sum_{j>=0} (1/(u+j) - 1/(1+j)) =: kappa(u), a 1-periodic
+      analytic function. Pinning kappa == 0 IS the Gauss representation. psi(1) = -gamma gives
+      kappa(1) = 0 and periodicity spreads it to the integers and no further; the trigamma route
+      meets the same obstruction one derivative down.
+      SO THE REAL TARGET IS THE GAUSS/WEIERSTRASS SERIES,
+      psi(u) = -gamma + sum_{k>=0} (1/(k+1) - 1/(k+u)), which Mathlib does not have and lists as a
+      TODO in the file defining digamma. Once it exists v2 follows directly; v1 needs a further
+      uniformity argument as Im w -> infinity. That series is the thing worth formalizing, and it
+      is a Mathlib contribution in its own right rather than a step private to this repository.
       THE CONSTANT MAY DEPEND ON H AND MUST. A bound uniform in H is exactly v1.
   designated: unjustified
   designated: unjustified
