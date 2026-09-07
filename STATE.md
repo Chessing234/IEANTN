@@ -105,7 +105,7 @@ adds the environment detail.
 | `ZeroCount.v1` | stub | `rvm_error_bound` | literature | 0 | #64 |
 | `ZeroCount.v1` | stub | `rvm_error_small` | literature | 0 | #64 |
 | `ZeroFreeHeight.v1` | active | `classical_region_descends` | lean-comparator-stale | 0 | #30 |
-| `ZetaLogDeriv.v1` | active | `logDeriv_functional_equation` | lean-comparator-stale | 0 | #64 |
+| `ZetaLogDeriv.v1` | active | `logDeriv_functional_equation` | lean-comparator | 0 | #64 |
 
 ## Receipts needing attention
 
@@ -117,8 +117,8 @@ node now claims, and only a fresh verification restores it.
 |---|---|---|
 | `CH2.v2.proposition_2_4_lower` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `CH2.v2.proposition_2_4_upper` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v4.contour_shift` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v4.contour_shift_holomorphic` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| `CH2.v4.contour_shift` | churn | its own statement re-elaborates differently under the current environment, though its Lean source is unchanged since verification |
+| `CH2.v4.contour_shift_holomorphic` | churn | its own statement re-elaborates differently under the current environment, though its Lean source is unchanged since verification |
 | `DudekPlatt.v2.ramanujan_inequality_3915` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `DudekPlatt.v3.criterion` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `FKS2.v1.corollary_14` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
@@ -134,7 +134,6 @@ node now claims, and only a fresh verification restores it.
 | `PrimeInterval.v1.numericalBound_hasPrimeInInterval` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `PrimeInterval.v1.theta_characterisation` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `ZeroFreeHeight.v1.classical_region_descends` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `ZetaLogDeriv.v1.logDeriv_functional_equation` | churn | its own statement re-elaborates differently under the current environment, though its Lean source is unchanged since verification |
 
 ## Leverage
 
