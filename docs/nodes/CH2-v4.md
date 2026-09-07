@@ -55,8 +55,8 @@ def contour_shift_holomorphic : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/CH2/v4/Conclusions.lean#L121) |
 | Solution | [`Solutions/CH2.v4`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v4) |
 | Receipt | [`CH2.v4.contour_shift_holomorphic.json`](https://github.com/teorth/IEANTN/blob/main/receipts/CH2.v4.contour_shift_holomorphic.json) |
-| Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Evidence | verified, drifted (`lean-comparator`) |
+| Receipt state | its own statement changed since verification |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -110,8 +110,8 @@ def contour_shift : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/CH2/v4/Conclusions.lean#L147) |
 | Solution | [`Solutions/CH2.v4`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v4) |
 | Receipt | [`CH2.v4.contour_shift.json`](https://github.com/teorth/IEANTN/blob/main/receipts/CH2.v4.contour_shift.json) |
-| Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Evidence | verified, drifted (`lean-comparator`) |
+| Receipt state | its own statement changed since verification |
 | Sources traced | identified |
 | Assumes | [`ContourIntegration.v1.residue_theorem_rectangle`](ContourIntegration-v1.md#residue_theorem_rectangle) |
 | Assumed by | nothing yet |

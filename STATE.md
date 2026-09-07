@@ -50,10 +50,10 @@ adds the environment detail.
 | `CH2.v1` | stub | `corollary_1_3_lambda_sum` | literature | 2 | - |
 | `CH2.v2` | active | `proposition_2_4_upper` | lean-comparator-stale | 0 | #64 |
 | `CH2.v2` | active | `proposition_2_4_lower` | lean-comparator-stale | 0 | #64 |
-| `CH2.v3` | active | `extremal_majorant` | lean-comparator-stale | 0 | #64 |
-| `CH2.v3` | active | `extremal_minorant` | lean-comparator-stale | 0 | #64 |
-| `CH2.v4` | active | `contour_shift_holomorphic` | lean-comparator-stale | 0 | #64 |
-| `CH2.v4` | active | `contour_shift` | lean-comparator-stale | 1 | #64 |
+| `CH2.v3` | active | `extremal_majorant` | lean-comparator | 0 | #64 |
+| `CH2.v3` | active | `extremal_minorant` | lean-comparator | 0 | #64 |
+| `CH2.v4` | active | `contour_shift_holomorphic` | lean-comparator-drifted | 0 | #64 |
+| `CH2.v4` | active | `contour_shift` | lean-comparator-drifted | 1 | #64 |
 | `ChengGraham2004.v1` | stub | *(none yet)* | - | - | - |
 | `ContourIntegration.v1` | awaiting-solution | `residue_theorem_rectangle` | none-yet | 0 | #64 |
 | `DudekPlatt.v1` | stub | `ramanujan_inequality` | literature | 2 | - |
@@ -105,7 +105,7 @@ adds the environment detail.
 | `ZeroCount.v1` | stub | `rvm_error_bound` | literature | 0 | #64 |
 | `ZeroCount.v1` | stub | `rvm_error_small` | literature | 0 | #64 |
 | `ZeroFreeHeight.v1` | active | `classical_region_descends` | lean-comparator-stale | 0 | #30 |
-| `ZetaLogDeriv.v1` | active | `logDeriv_functional_equation` | lean-comparator-stale | 0 | #64 |
+| `ZetaLogDeriv.v1` | active | `logDeriv_functional_equation` | lean-comparator | 0 | #64 |
 
 ## Receipts needing attention
 
@@ -117,10 +117,8 @@ node now claims, and only a fresh verification restores it.
 |---|---|---|
 | `CH2.v2.proposition_2_4_lower` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `CH2.v2.proposition_2_4_upper` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v3.extremal_majorant` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v3.extremal_minorant` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v4.contour_shift` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v4.contour_shift_holomorphic` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| `CH2.v4.contour_shift` | drifted | its own statement changed since verification |
+| `CH2.v4.contour_shift_holomorphic` | drifted | its own statement changed since verification |
 | `DudekPlatt.v2.ramanujan_inequality_3915` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `DudekPlatt.v3.criterion` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `FKS2.v1.corollary_14` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
@@ -136,7 +134,6 @@ node now claims, and only a fresh verification restores it.
 | `PrimeInterval.v1.numericalBound_hasPrimeInInterval` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `PrimeInterval.v1.theta_characterisation` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `ZeroFreeHeight.v1.classical_region_descends` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `ZetaLogDeriv.v1.logDeriv_functional_equation` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 
 ## Leverage
 

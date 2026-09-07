@@ -1757,6 +1757,22 @@ class TestStaleness(FixtureRepo):
         self.assertEqual(light, "BROKEN")
         self.assertIn("B.v1.main", detail)
 
+    def test_views_do_not_consult_history_so_they_stay_reproducible(self) -> None:
+        """A generated view that depends on git history is not reproducible.
+
+        CI checks out a shallow tree where the receipt's commit is unreachable, so a view that
+        asked git would grade `BROKEN` there and `churn` in a full clone — and `pages` would then
+        differ from what is committed, failing `check` for a reason that has nothing to do with
+        the repository's contents. That happened.
+        """
+        receipt = self._receipt({"A.v1.main": "old"})
+        receipt["repository"] = {"commit": "c" * 40}
+        with unittest.mock.patch.object(ieantn, "statement_source_unchanged", lambda *_: True):
+            light, _ = ieantn.assess(
+                "A.v1.main", receipt, {"A.v1.main": "new"}, consult_history=False
+            )
+        self.assertEqual(light, "BROKEN")
+
     def test_an_unanswerable_source_question_grades_broken(self) -> None:
         """No `repository.commit` means git cannot be asked, and silence must not read as safe."""
         light, _ = ieantn.assess(

@@ -3,14 +3,14 @@
   "conclusion": "CH2.v3.extremal_minorant",
   "environment": {
     "lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
-    "mathlib_rev": "5b1c3618759375e0ef0033d39000b1338e99f133"
+    "mathlib_rev": "71a80585ee495fc24472fd0eaffc89d94e4fd8d6"
   },
   "repository": {
-    "commit": "5876247bfe11f8dea70ce9803e5f0f74d62f0212"
+    "commit": "13a52e0265775421223b4ac8dc1abbc5264d303a"
   },
   "run": {
-    "recorded_at": "2026-08-30T18:27:31Z",
-    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/33327322588"
+    "recorded_at": "2026-09-07T05:20:18Z",
+    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/34085250304"
   },
   "schema": 2,
   "solution": {
