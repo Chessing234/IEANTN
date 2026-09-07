@@ -5,6 +5,7 @@ Authors: Terence Tao
 -/
 import Section5
 import IEANTN.Nodes.ZetaLogDeriv.v1.Conclusions
+import IEANTN.Nodes.GammaAsymptotics.v1.Conclusions
 
 /-!
 # Instantiating §5 at `A(s) = -ζ'(s)/ζ(s)`
@@ -847,5 +848,166 @@ theorem norm_tan_le_of_im_ne_zero {w : ℂ} (h : w.im ≠ 0) :
     have := Real.sqrt_le_sqrt h2
     rwa [Real.sqrt_sq (abs_nonneg _), Real.sqrt_sq hcos_nn] at this
   exact mul_le_mul hsin_le hsinh_le (abs_nonneg _) hcosh_pos.le
+
+/-! ### The growth bound on `F`
+
+The last estimate. Everything it consumes is now proved: the ladder-form identity, boundedness of
+`ζ'/ζ` on `Re w ≥ 2`, the `tan` bound, and `GammaAsymptotics.v1`'s digamma estimate, which arrives
+as a hypothesis rather than a `sorry` because `CH2.v1` imports that node. -/
+
+/-- `‖log w‖ ≤ ‖w‖ + π` once `‖w‖ ≥ 1`. Crude on purpose: only linear growth is needed. -/
+theorem norm_log_le_norm_add_pi {w : ℂ} (hw : 1 ≤ ‖w‖) :
+    ‖Complex.log w‖ ≤ ‖w‖ + Real.pi := by
+  have hlog_nn : 0 ≤ Real.log ‖w‖ := Real.log_nonneg hw
+  have hlog_le : Real.log ‖w‖ ≤ ‖w‖ := by
+    have := Real.log_le_sub_one_of_pos (show (0:ℝ) < ‖w‖ by linarith)
+    linarith
+  calc ‖Complex.log w‖ ≤ |(Complex.log w).re| + |(Complex.log w).im| :=
+        Complex.norm_le_abs_re_add_abs_im _
+    _ = |Real.log ‖w‖| + |Complex.arg w| := by rw [Complex.log_re, Complex.log_im]
+    _ ≤ ‖w‖ + Real.pi := by
+        rw [abs_of_nonneg hlog_nn]
+        have := Complex.abs_arg_le_pi w
+        linarith
+
+/-- `ζ₁ w = (w - 1) * ζ w` away from the pole. -/
+theorem riemannZeta₁_eq_mul {s : ℂ} (hs : s ≠ 1) :
+    riemannZeta₁ s = (s - 1) * riemannZeta s := by
+  have hne : s - 1 ≠ 0 := sub_ne_zero.mpr hs
+  rw [riemannZeta_eq_inv_sub_add hs, riemannZeta₁]
+  field_simp
+
+/-- **The two descriptions of `F` agree**: `-logDeriv ζ₁ = -logDeriv ζ - 1/(s-1)`.
+
+`F` is *defined* through `riemannZeta₁` because that is manifestly analytic at `s = 1`. This says
+it really is Theorem 1.1's `A - Res_{s=1} A / (s-1)`, which is what the paper applies. -/
+theorem logDeriv_riemannZeta₁_eq {s : ℂ} (hs : s ≠ 1) (hz : riemannZeta s ≠ 0) :
+    logDeriv riemannZeta₁ s = logDeriv riemannZeta s + (s - 1)⁻¹ := by
+  have hne : s - 1 ≠ 0 := sub_ne_zero.mpr hs
+  have hEq : riemannZeta₁ =ᶠ[nhds s] (fun z ↦ (z - 1) * riemannZeta z) := by
+    filter_upwards [isOpen_compl_singleton.mem_nhds (show s ∈ ({(1 : ℂ)}ᶜ) from hs)] with z hz'
+    exact riemannZeta₁_eq_mul hz'
+  have h := (logDeriv_congr_nhds hEq).eq_of_nhds
+  have hsub : logDeriv (fun z : ℂ ↦ z - 1) s = (s - 1)⁻¹ := by
+    rw [logDeriv_apply]
+    have hd : deriv (fun z : ℂ ↦ z - 1) s = 1 := by
+      simpa using ((hasDerivAt_id s).sub_const (1 : ℂ)).deriv
+    rw [hd, one_div]
+  rw [h, logDeriv_fun_mul s hne hz (by fun_prop) (differentiableAt_riemannZeta hs), hsub]
+  ring
+
+/-- **`F` grows at most linearly on any set in `Re s ≤ -1` where `tan` is bounded.**
+
+The hypotheses are exactly the two things that vary between the pieces of the target set: how big
+`tan(π(1-s)/2)` gets, and that it is defined at all. Both are supplied per-piece — bounded by `1`
+on a column by parity, and by `norm_tan_le_of_im_ne_zero` on a ray.
+
+`hcos` is doing double duty. It keeps `tan` finite, and it also gives `ζ z ≠ 0` for free: its
+failures are exactly the even integers, which include every trivial zero, so with `Re z ≤ -1` the
+remaining points are covered by `riemannZeta_ne_zero_of_re_neg`. -/
+theorem norm_F_le_linear
+    (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    (hdig : GammaAsymptotics.v1.digamma_sub_log_isBigO)
+    {S : Set ℂ} {B : ℝ} (hB : 0 ≤ B)
+    (hS : ∀ z ∈ S, z.re ≤ -1)
+    (hcos : ∀ z ∈ S, Complex.cos ((Real.pi : ℂ) * (1 - z) / 2) ≠ 0)
+    (htan : ∀ z ∈ S, ‖Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖ ≤ B) :
+    ∃ C, 0 ≤ C ∧ ∀ z ∈ S, ‖F z‖ ≤ C * (1 + ‖z‖) := by
+  obtain ⟨M, hM⟩ := logDeriv_riemannZeta_bounded_of_two_le_re
+  obtain ⟨Cd, hCd⟩ := hdig
+  set L : ℝ := ‖Complex.log (2 * (Real.pi : ℂ))‖ with hL_def
+  set K : ℝ := |M| + L + (1 + Real.pi + |Cd| / 2) + (Real.pi / 2) * B + 1 with hK_def
+  have hK : 0 ≤ K := by
+    have : (0:ℝ) ≤ L := norm_nonneg _
+    have hpi := Real.pi_pos
+    positivity
+  refine ⟨K + 1, by linarith, fun z hz ↦ ?_⟩
+  have hre : z.re ≤ -1 := hS z hz
+  have hz1 : z ≠ 1 := by intro h; rw [h] at hre; simp at hre; linarith
+  -- `ζ z ≠ 0`: `hcos` rules out the even integers, hence every trivial zero.
+  have hzne : riemannZeta z ≠ 0 := by
+    refine riemannZeta_ne_zero_of_re_neg (by linarith) (fun n hn ↦ ?_)
+    refine hcos z hz ?_
+    rw [hn, Complex.cos_eq_zero_iff]
+    exact ⟨(n : ℤ) + 1, by push_cast; ring⟩
+  -- Rewrite `F` through the ladder-form identity.
+  have hFz : F z = -(deriv riemannZeta z / riemannZeta z) - (z - 1)⁻¹ := by
+    rw [F, logDeriv_riemannZeta₁_eq hz1 hzne, logDeriv_apply]
+    ring
+  have hlad := logDeriv_ladder_form hfe (by linarith : z.re < 0) (hcos z hz)
+  rw [hFz, hlad]
+  -- Bound the five terms.
+  have hw2 : (2 : ℝ) ≤ (1 - z).re := by
+    simp only [Complex.sub_re, Complex.one_re]; linarith
+  have hw2' : (2 : ℝ) ≤ ‖1 - z‖ := by
+    have h := Complex.abs_re_le_norm (1 - z)
+    have h' : (1 - z).re ≤ |(1 - z).re| := le_abs_self _
+    linarith
+  have hw1 : (1 : ℝ) ≤ ‖1 - z‖ := by linarith
+  have hwle : ‖1 - z‖ ≤ 1 + ‖z‖ := by
+    calc ‖1 - z‖ ≤ ‖(1 : ℂ)‖ + ‖z‖ := norm_sub_le _ _
+      _ = 1 + ‖z‖ := by simp
+  have hzm1 : ‖z - 1‖ = ‖1 - z‖ := by rw [← norm_neg]; congr 1; ring
+  have hinv : ‖(z - 1)⁻¹‖ ≤ 1 := by
+    rw [norm_inv, inv_le_one_iff₀]
+    right; rw [hzm1]; linarith
+  have hdg : ‖Complex.digamma (1 - z)‖ ≤ (1 + ‖z‖ + Real.pi) + |Cd| / 2 := by
+    have hsplit : Complex.digamma (1 - z)
+        = (Complex.digamma (1 - z) - Complex.log (1 - z)) + Complex.log (1 - z) := by ring
+    rw [hsplit]
+    refine (norm_add_le _ _).trans ?_
+    have h1 := hCd (1 - z) (by linarith)
+    have h2 := norm_log_le_norm_add_pi hw1
+    have h3 : Cd / ‖1 - z‖ ≤ |Cd| / 2 := by
+      by_cases hc : Cd ≤ 0
+      · have hle : Cd / ‖1 - z‖ ≤ 0 := div_nonpos_of_nonpos_of_nonneg hc (by linarith)
+        have hnn : (0:ℝ) ≤ |Cd| / 2 := by positivity
+        linarith
+      · push_neg at hc
+        rw [div_le_div_iff₀ (by linarith) (by norm_num)]
+        have hab : Cd ≤ |Cd| := le_abs_self _
+        nlinarith
+    linarith
+  have hX : ‖deriv riemannZeta (1 - z) / riemannZeta (1 - z)‖ ≤ |M| :=
+    (hM (1 - z) hw2).trans (le_abs_self M)
+  have hT : ‖((Real.pi : ℂ) / 2) * Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖
+      ≤ (Real.pi / 2) * B := by
+    rw [norm_mul]
+    have hnp : ‖((Real.pi : ℂ) / 2)‖ = Real.pi / 2 := by
+      rw [show ((Real.pi : ℂ) / 2) = ((Real.pi / 2 : ℝ) : ℂ) by push_cast; ring,
+        Complex.norm_real]
+      exact Real.norm_of_nonneg (by positivity)
+    rw [hnp]
+    exact mul_le_mul_of_nonneg_left (htan z hz) (by positivity)
+  -- Expand into a five-term sum and peel the triangle inequality one term at a time.
+  have hexpand : -(-(deriv riemannZeta (1 - z) / riemannZeta (1 - z))
+        + Complex.log (2 * (Real.pi : ℂ)) - Complex.digamma (1 - z)
+        + ((Real.pi : ℂ) / 2) * Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)) - (z - 1)⁻¹
+      = deriv riemannZeta (1 - z) / riemannZeta (1 - z)
+        + -Complex.log (2 * (Real.pi : ℂ))
+        + Complex.digamma (1 - z)
+        + -(((Real.pi : ℂ) / 2) * Complex.tan ((Real.pi : ℂ) * (1 - z) / 2))
+        + -(z - 1)⁻¹ := by ring
+  rw [hexpand]
+  have hpeel : ‖deriv riemannZeta (1 - z) / riemannZeta (1 - z)
+        + -Complex.log (2 * (Real.pi : ℂ))
+        + Complex.digamma (1 - z)
+        + -(((Real.pi : ℂ) / 2) * Complex.tan ((Real.pi : ℂ) * (1 - z) / 2))
+        + -(z - 1)⁻¹‖
+      ≤ ‖deriv riemannZeta (1 - z) / riemannZeta (1 - z)‖
+        + ‖-Complex.log (2 * (Real.pi : ℂ))‖
+        + ‖Complex.digamma (1 - z)‖
+        + ‖-(((Real.pi : ℂ) / 2) * Complex.tan ((Real.pi : ℂ) * (1 - z) / 2))‖
+        + ‖-(z - 1)⁻¹‖ := by
+    refine le_trans (norm_add_le _ _) (add_le_add ?_ (le_refl _))
+    refine le_trans (norm_add_le _ _) (add_le_add ?_ (le_refl _))
+    refine le_trans (norm_add_le _ _) (add_le_add ?_ (le_refl _))
+    exact norm_add_le _ _
+  simp only [norm_neg] at hpeel
+  refine hpeel.trans ?_
+  have hznn : (0:ℝ) ≤ ‖z‖ := norm_nonneg z
+  have hLdef : ‖Complex.log (2 * (Real.pi : ℂ))‖ = L := hL_def.symm
+  rw [hLdef, hK_def]
+  nlinarith [hX, hdg, hT, hinv, hznn, norm_nonneg (Complex.log (2 * (Real.pi : ℂ)))]
 
 end CH2ZetaInstance

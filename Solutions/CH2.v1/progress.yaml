@@ -261,10 +261,22 @@ stages:
       Note the tan bound is needed for the RAYS but not for the COLUMNS: on a column Re s = 1-2n
       the reflected point is 1-s = 2n - it, where the tangent is i tanh(pi t/2) and bounded by 1
       outright. cos_ne_zero_on_column carries the parity argument that rests on.
-      WHAT IS LEFT is the linear growth bound on F assembled from those four inputs, and then the
-      application of prop_5_2 itself. Every input now exists; the growth lemma will take
-      GammaAsymptotics.v1's statement as an argument, exactly as logDeriv_ladder_form takes
-      ZetaLogDeriv.v1's.
+      THE GROWTH BOUND IS NOW PROVED: norm_F_le_linear. It takes GammaAsymptotics.v1's statement
+      as an argument, exactly as logDeriv_ladder_form takes ZetaLogDeriv.v1's, so no sorry is
+      involved -- both arrive as hypotheses on the generated challenge.
+      Its two set-dependent hypotheses are the right ones: how big tan is on the piece, and that
+      the cosine does not vanish there. Both are supplied per-piece -- bounded by 1 on a column by
+      parity, by norm_tan_le_of_im_ne_zero on a ray.
+      hcos does double duty and that is worth knowing: its failures are exactly the EVEN integers,
+      which include every trivial zero, so together with Re z <= -1 it hands over zeta z /= 0 free
+      via riemannZeta_ne_zero_of_re_neg. No separate non-vanishing hypothesis is needed.
+      Two supporting facts had to be built: norm_log_le_norm_add_pi (crude on purpose, only linear
+      growth is wanted) and logDeriv_riemannZeta_1_eq, which is what finally proves that the F
+      defined here as -logDeriv riemannZeta_1 really IS Theorem 1.1's A - Res/(s-1).
+      WHAT IS LEFT IN THE STAGE is now only the application: instantiate prop_5_2 at
+      exists_ladderParams_zeta, splitting the target set into its compact pieces and its rays and
+      feeding isBoundedNoPolesOn_of_isCompact and exists_bound_of_linear_growth_mul_cpow
+      respectively. No estimate remains unproved.
       (iii) T AND DELTA AVOIDING THE ZERO ORDINATES IS NOW DONE:
       exists_ordinate_free_height gives, for every T0 > 0, a height T in [T0, T0+1] with no zero of
       zeta at |Im z| = T. Same statement serves delta, since it is the same question.
