@@ -136,7 +136,7 @@ node now claims, and only a fresh verification restores it.
 | `PrimeInterval.v1.numericalBound_hasPrimeInInterval` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `PrimeInterval.v1.theta_characterisation` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `ZeroFreeHeight.v1.classical_region_descends` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `ZetaLogDeriv.v1.logDeriv_functional_equation` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| `ZetaLogDeriv.v1.logDeriv_functional_equation` | churn | its own statement re-elaborates differently under the current environment, though its Lean source is unchanged since verification |
 
 ## Leverage
 

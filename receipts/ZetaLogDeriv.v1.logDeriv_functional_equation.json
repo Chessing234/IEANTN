@@ -3,21 +3,21 @@
   "conclusion": "ZetaLogDeriv.v1.logDeriv_functional_equation",
   "environment": {
     "lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
-    "mathlib_rev": "5b1c3618759375e0ef0033d39000b1338e99f133"
+    "mathlib_rev": "71a80585ee495fc24472fd0eaffc89d94e4fd8d6"
   },
   "repository": {
-    "commit": "f6f16b131933219f736b0fe3934d00d97320fbab"
+    "commit": "13a52e0265775421223b4ac8dc1abbc5264d303a"
   },
   "run": {
-    "recorded_at": "2026-08-31T07:27:12Z",
-    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/33367289954"
+    "recorded_at": "2026-09-07T05:19:33Z",
+    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/34085258076"
   },
   "schema": 2,
   "solution": {
     "project": "Solutions/ZetaLogDeriv.v1"
   },
   "statement": {
-    "ZetaLogDeriv.v1.logDeriv_functional_equation": "0f2e5ee859002538a8a1bb2a162831c885864c635a2d14454fa281aa0230b263"
+    "ZetaLogDeriv.v1.logDeriv_functional_equation": "d8fdd0ed83c200d19ee197abe94d3c28b07a57378676bfece5a428e811820293"
   },
   "tools": {
     "comparator": "10dd2b33dc43751af3257f4d684535375306f162",
