@@ -55,8 +55,7 @@ def extremal_majorant : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/CH2/v3/Conclusions.lean#L93) |
 | Solution | [`Solutions/CH2.v3`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v3) |
 | Receipt | [`CH2.v3.extremal_majorant.json`](https://github.com/teorth/IEANTN/blob/main/receipts/CH2.v3.extremal_majorant.json) |
-| Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -67,7 +66,7 @@ def extremal_majorant : Prop :=
 
 **Justification `comparator`** — **designated** — lean-comparator
 
-> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/33327322588
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34085250304
 
 ### `extremal_minorant`
 
@@ -103,8 +102,7 @@ def extremal_minorant : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/CH2/v3/Conclusions.lean#L115) |
 | Solution | [`Solutions/CH2.v3`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v3) |
 | Receipt | [`CH2.v3.extremal_minorant.json`](https://github.com/teorth/IEANTN/blob/main/receipts/CH2.v3.extremal_minorant.json) |
-| Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -115,7 +113,7 @@ def extremal_minorant : Prop :=
 
 **Justification `comparator`** — **designated** — lean-comparator
 
-> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/33327322588
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34085250304
 
 ## Limitations
 

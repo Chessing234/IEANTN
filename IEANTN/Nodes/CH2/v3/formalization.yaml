@@ -73,7 +73,7 @@ conclusions:
       and Solutions/DudekPlatt.v3 of the @[blueprint ...] stripping it needs.
   - id: comparator
     kind: lean-comparator
-    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/33327322588'
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34085250304'
   designated: comparator
 - id: extremal_minorant
   issue: 64
@@ -94,7 +94,7 @@ conclusions:
       is the more expensive side, and that asymmetry survives into the final constants.
   - id: comparator
     kind: lean-comparator
-    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/33327322588'
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34085250304'
   designated: comparator
 
 sources:

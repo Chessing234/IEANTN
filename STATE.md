@@ -50,8 +50,8 @@ adds the environment detail.
 | `CH2.v1` | stub | `corollary_1_3_lambda_sum` | literature | 2 | - |
 | `CH2.v2` | active | `proposition_2_4_upper` | lean-comparator-stale | 0 | #64 |
 | `CH2.v2` | active | `proposition_2_4_lower` | lean-comparator-stale | 0 | #64 |
-| `CH2.v3` | active | `extremal_majorant` | lean-comparator-stale | 0 | #64 |
-| `CH2.v3` | active | `extremal_minorant` | lean-comparator-stale | 0 | #64 |
+| `CH2.v3` | active | `extremal_majorant` | lean-comparator | 0 | #64 |
+| `CH2.v3` | active | `extremal_minorant` | lean-comparator | 0 | #64 |
 | `CH2.v4` | active | `contour_shift_holomorphic` | lean-comparator-stale | 0 | #64 |
 | `CH2.v4` | active | `contour_shift` | lean-comparator-stale | 1 | #64 |
 | `ChengGraham2004.v1` | stub | *(none yet)* | - | - | - |
@@ -117,8 +117,6 @@ node now claims, and only a fresh verification restores it.
 |---|---|---|
 | `CH2.v2.proposition_2_4_lower` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `CH2.v2.proposition_2_4_upper` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v3.extremal_majorant` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v3.extremal_minorant` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `CH2.v4.contour_shift` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `CH2.v4.contour_shift_holomorphic` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `DudekPlatt.v2.ramanujan_inequality_3915` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
