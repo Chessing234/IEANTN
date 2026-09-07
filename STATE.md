@@ -52,8 +52,8 @@ adds the environment detail.
 | `CH2.v2` | active | `proposition_2_4_lower` | lean-comparator-stale | 0 | #64 |
 | `CH2.v3` | active | `extremal_majorant` | lean-comparator | 0 | #64 |
 | `CH2.v3` | active | `extremal_minorant` | lean-comparator | 0 | #64 |
-| `CH2.v4` | active | `contour_shift_holomorphic` | lean-comparator-stale | 0 | #64 |
-| `CH2.v4` | active | `contour_shift` | lean-comparator-stale | 1 | #64 |
+| `CH2.v4` | active | `contour_shift_holomorphic` | lean-comparator-drifted | 0 | #64 |
+| `CH2.v4` | active | `contour_shift` | lean-comparator-drifted | 1 | #64 |
 | `ChengGraham2004.v1` | stub | *(none yet)* | - | - | - |
 | `ContourIntegration.v1` | awaiting-solution | `residue_theorem_rectangle` | none-yet | 0 | #64 |
 | `DudekPlatt.v1` | stub | `ramanujan_inequality` | literature | 2 | - |
@@ -117,8 +117,8 @@ node now claims, and only a fresh verification restores it.
 |---|---|---|
 | `CH2.v2.proposition_2_4_lower` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `CH2.v2.proposition_2_4_upper` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v4.contour_shift` | churn | its own statement re-elaborates differently under the current environment, though its Lean source is unchanged since verification |
-| `CH2.v4.contour_shift_holomorphic` | churn | its own statement re-elaborates differently under the current environment, though its Lean source is unchanged since verification |
+| `CH2.v4.contour_shift` | drifted | its own statement changed since verification |
+| `CH2.v4.contour_shift_holomorphic` | drifted | its own statement changed since verification |
 | `DudekPlatt.v2.ramanujan_inequality_3915` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `DudekPlatt.v3.criterion` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | `FKS2.v1.corollary_14` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |

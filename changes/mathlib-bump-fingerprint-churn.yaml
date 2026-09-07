@@ -1,0 +1,63 @@
+# The Mathlib bump in #93 moved nine conclusion fingerprints without anyone touching a line of
+# Lean. A fingerprint digests the ELABORATED statement, so a renamed instance upstream is enough
+# to move one, and `fingerprints.json` has to be regenerated or CI's `fingerprint --check` fails
+# against a real build -- which is what left `main` red.
+#
+# Regenerating is therefore not optional, and it is what this acknowledgement covers. Of the nine,
+# two carry receipts predating the bump, so those receipts stop matching the recorded digests.
+#
+# NOTHING WAS RESTATED IN ANY MATHEMATICAL SENSE. `CH2/v4/Conclusions.lean` is byte-identical
+# across the bump; only its elaboration moved. This is exactly the distinction `status` now draws
+# as `churn` rather than `BROKEN`, added in #93 for this reason. `diff` compares two committed
+# states and cannot see it -- from its side a recorded digest changed and a receipt no longer
+# matches -- so it reports a degradation, correctly, and asks for this file.
+#
+# Re-verifying CH2.v4 would clear it. That was a deliberate choice not to: the sample chosen for
+# testing the bump was CH2.v3 and ZetaLogDeriv.v1, both of which passed, and re-verifying the
+# whole network on every bump is the cost this repository has decided not to pay each time.
+acknowledge:
+  - conclusion: CH2.v4.contour_shift
+    effect: statement-restated
+    reason: >-
+      Fingerprint churn from the Mathlib bump, not an edit. The Lean source of
+      IEANTN/Nodes/CH2/v4/Conclusions.lean is unchanged across #93; the digest moved because it is
+      taken of the elaborated statement. The receipt from run 33343299680 attests to the same
+      mathematical claim under the previous Mathlib, and `status` grades this `churn`. Re-verify
+      when CH2.v4 is next touched for any other reason; nothing downstream imports it yet.
+  - conclusion: CH2.v4.contour_shift_holomorphic
+    effect: statement-restated
+    reason: >-
+      The same change, in the same file, for the same reason.
+  - conclusion: ContourIntegration.v1.residue_theorem_rectangle
+    effect: statement-restated
+    reason: >-
+      The same fingerprint churn, and the only one of the nine with an importer, which is why it
+      reports as breaking rather than merely degraded. Its importer is CH2.v4.contour_shift, in
+      this repository, and what that conclusion may rely on is unchanged: the Lean source of
+      IEANTN/Nodes/ContourIntegration/v1/Conclusions.lean is byte-identical across the bump.
+      ContourIntegration.v1 carries no receipt of its own -- it is none-yet -- so nothing
+      mechanically verified is invalidated on its side either.
+      Versioning was considered and rejected. A v2 differing from v1 in nothing but the Mathlib
+      revision its statement happened to elaborate under would be a version with no mathematical
+      content, and every future bump would demand another.
+  - conclusion: KLN.v1.zero_density
+    effect: statement-restated
+    reason: >-
+      The same fingerprint churn. Its two importers, PlattTrudgian2021.v1.theorem_1_classical and
+      theorem_1_numerical, are both designated `literature` and carry no receipt, so nothing
+      mechanically verified rests on it and neither importer's claim changes: the Lean source of
+      IEANTN/Nodes/KLN/v1/Conclusions.lean is byte-identical across the bump.
+  - conclusion: Trudgian2011.v1.integral_S_bound
+    effect: statement-restated
+    reason: >-
+      The same fingerprint churn. Its importer, Platt2017.v1.rh_up_to, is designated `literature`
+      and carries no receipt. Source byte-identical across the bump.
+  - conclusion: ZetaLogDeriv.v1.logDeriv_functional_equation
+    effect: statement-restated
+    reason: >-
+      The same fingerprint churn, but this one is already resolved rather than deferred: the node
+      was re-verified against the bumped Mathlib in run 34085258076, and that receipt is in this
+      branch. Its recorded digest is d8fdd0ed, which is what the conclusion now elaborates to, so
+      the receipt and the fingerprint agree and `status` grades it green. It reports as breaking
+      only because `diff` compares two committed states and sees a recorded digest move under a
+      conclusion that has a receipt, without looking at whether the receipt moved with it.

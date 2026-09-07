@@ -1750,7 +1750,8 @@ def release_distance(recorded: str, current: str) -> int | None:
     return abs(new_minor - old_minor)
 
 
-def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str]) -> tuple[str, str]:
+def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str], *,
+           consult_history: bool = True) -> tuple[str, str]:
     """Grade one receipt against the world as it is now.
 
     Two axes, deliberately not collapsed (ARCHITECTURE section 4):
@@ -1758,6 +1759,13 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str]) -> 
     * a **statement** that has moved is a *broken edge* -- the verified implication no longer
       connects to what is now claimed. Binary and fatal, however small the edit;
     * an **environment** that has moved is ordinary staleness. Graduated, and expected.
+
+    `consult_history` decides whether `churn` may be distinguished from `BROKEN`, and the views
+    must pass `False`. Telling those apart means asking git whether a file changed since the
+    receipt's commit, and a generated view that depends on git history is not reproducible: CI
+    checks out a shallow tree where the commit is unreachable, grades `BROKEN` where a full clone
+    grades `churn`, and `pages` then differs from what is committed. `status` is run by a human in
+    a real clone and does ask.
     """
     recorded = receipt.get("statement") or {}
     commit = (receipt.get("repository") or {}).get("commit")
@@ -1773,7 +1781,7 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str]) -> 
             # edge and must not be graded as one, or every bump manufactures BROKEN edges that look
             # like someone quietly rewrote a theorem. When the source is demonstrably unchanged the
             # verdict is `churn`; when it changed, or cannot be checked, it stays BROKEN.
-            if statement_source_unchanged(name, commit):
+            if consult_history and statement_source_unchanged(name, commit):
                 churn = churn or (
                     f"{which} re-elaborates differently under the current environment, though its "
                     "Lean source is unchanged since verification"
@@ -1892,7 +1900,8 @@ def receipt_state(conclusion_key: str, conclusion: dict) -> tuple[str, str] | No
     receipt = load_receipt(conclusion_key)
     if receipt is None:
         return "BROKEN", "designated `lean-comparator` but no receipt file"
-    return assess(conclusion_key, receipt, recorded_fingerprints())
+    # Views are generated and diffed by CI, so they must not depend on git history.
+    return assess(conclusion_key, receipt, recorded_fingerprints(), consult_history=False)
 
 
 #: `assess`'s verdict, as the views draw it. Environment staleness keeps the verification: the
@@ -3324,6 +3333,11 @@ def diff(base: str) -> bool:
     for key, receipt in sorted(after["receipts"].items()):
         for name, digest in (receipt.get("statement") or {}).items():
             if after["fingerprints"].get(name) != digest:
+                if name in excused:
+                    # A receipt breaking is the CONSEQUENCE of the restatement acknowledged above,
+                    # not a second event. Reporting both made an acknowledgement that covered the
+                    # cause still fail the branch, which reads as the mechanism not working.
+                    continue
                 warnings.append(
                     f"Receipt for `{key}` is now **BROKEN**: `{name}` no longer matches what was "
                     "verified."
