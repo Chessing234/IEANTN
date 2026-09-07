@@ -105,7 +105,13 @@ stages:
 
   - stage: "instantiating section 5 at A(s) = -zeta'/zeta"
     files: [ZetaInstance.lean]
-    state: partial -- three of prop_5_2's five hypotheses, unconditionally on all of C
+    state: >-
+      partial -- three of prop_5_2's five hypotheses closed unconditionally on all of C; of the
+      remaining two, the no-poles half is done, and of the boundedness half the compact pieces and
+      the Re w >= 2 input are done, as are F itself, choosing T and delta off the zero ordinates,
+      the damping estimate for the leftward rays, a concrete LadderParams whose ladder and contour
+      miss every zero, and the linear growth bound on F. NO ESTIMATE REMAINS UNPROVED; what is
+      left is the application of prop_5_2 itself.
     note: >-
       Done first because it is the smallest thing that tests whether the section 5 port is USABLE
       rather than merely compiling. It is: ConjSymm falls straight out of the ported
@@ -183,6 +189,113 @@ stages:
       leaves the conclusion text untouched, so no fingerprint moves; it only adds a hypothesis to
       the generated challenge. It was left out here because the corollaries are still holes and
       the dependency is not yet real at the conclusion level.
+      THE SET SPLITS INTO COMPACT PIECES AND LEFTWARD RAYS, and the two want different arguments.
+      Rboundary union admissible_contour union L is nowhere near compact -- every piece of it runs
+      off to Re s = -infinity -- but three of its five pieces are compact: the segment
+      {Re s = 1, |Im s| <= T} of the boundary, the contour's vertical stub
+      {Re s = 1, Im s in [0, delta]}, and any bounded portion of a ray. On those, analyticity is
+      the whole story, and isBoundedNoPolesOn_of_isCompact gets both halves at once: continuous on
+      a compact set is bounded, and the meromorphic order of an analytic function is its analytic
+      order, which is a natural number and so never negative. isCompact_reOne_segment does the
+      first of the three.
+      THREE THINGS REMAIN FOR THIS STAGE, in rough order of difficulty.
+      (i) F IS NOW DEFINED, AND IT IS NOT THE AWKWARD OBJECT IT LOOKED LIKE. prop_5_2 is applied
+      not to A = -zeta'/zeta but to F = A - 1/(s-1), Theorem 1.1's pole-free part, because
+      Rboundary CONTAINS s = 1 -- it has Re s = 1 and |Im s| = 0 <= T -- and IsBoundedNoPolesOn
+      demands order >= 0 there, which A fails at its own pole. A cannot be the input.
+      No removable-singularity argument was needed in the end. From zeta s = riemannZeta_1 s /
+      (s-1), taking logarithmic derivatives gives A = -riemannZeta_1'/riemannZeta_1 + 1/(s-1), so
+      F = -logDeriv riemannZeta_1 exactly. F is the logarithmic derivative of an ENTIRE function,
+      analytic wherever riemannZeta_1 is non-zero, and riemannZeta_1_one = 1 makes that include
+      s = 1 with nothing to prove. analyticAt_F, analyticAt_F_one and meromorphicOn_F.
+      THE THREE HYPOTHESES RECORDED ABOVE AS DONE WERE PROVED FOR A, AND prop_5_2 WANTS THEM FOR
+      F. They do not transfer for free. This was not noticed until F was defined, and it is the
+      correction most likely to mislead someone reading the earlier notes: ConjSymm,
+      MeromorphicOn and HasSimplePolesOn all have to be reproved.
+      ALL THREE ARE NOW REPROVED FOR F, and it was easier than for A, exactly because
+      riemannZeta_1 is entire: conjSymm_F, meromorphicOn_F, hasSimplePolesOn_F_univ.
+      meromorphicOn_F took three lines against the dozen its A-counterpart needed to route around
+      the pole, and hasSimplePolesOn_F_univ is hasSimplePolesOn_A_univ with riemannZeta_1
+      substituted throughout.
+      ConjSymm F was the only one needing anything new, namely riemannZeta_1_conj. Mathlib has no
+      conjugation lemma for riemannZeta_0 -- checked -- so the route is riemannZeta_1 w =
+      (w-1) zeta w off the pole, transported along riemannZeta_conj, with s = 1 done separately
+      from riemannZeta_1_one. The split is unavoidable, since ConjSymm is a claim about EVERY s
+      while the transporting identity holds only off the pole. Two lines.
+      SO prop_5_2's FIRST THREE HYPOTHESES NOW HOLD FOR THE FUNCTION IT IS ACTUALLY APPLIED TO.
+      (ii) THE LEFTWARD RAYS ARE DONE as an estimate:
+      exists_bound_of_linear_growth_mul_cpow. Every non-compact piece of the target set is a set
+      running off to Re s = -infinity at bounded height -- the horizontal pieces and the ladder L
+      alike -- and on those the x0^s factor does the work, since ||x0^s|| = x0^(Re s) decays
+      exponentially in |Re s| and beats any polynomial growth of F.
+      THE HYPOTHESIS IS DELIBERATELY WEAK. It asks for LINEAR growth, where the truth is
+      logarithmic. That costs nothing and makes it much easier to supply, and it also absorbs the
+      extra factor of s in prop_5_2's second boundedness hypothesis, which then only changes the
+      constant rather than needing a separate argument.
+      x0 > 1 IS ESSENTIAL AND THE SIGNATURE DOES NOT SAY SO. prop_5_2 asks only 1 <= x0; at
+      x0 = 1 the damping factor is identically 1 and the statement is FALSE, since zeta'/zeta is
+      unbounded along a ladder whose columns march to -infinity. Recorded on the lemma itself.
+      (iv) THE LADDER ITSELF NOW EXISTS: exists_ladderParams_zeta produces a LadderParams with
+      sigma = sigmaZeta and with T, delta drawn from exists_ladder_heights, so its columns thread
+      between the trivial zeros and its horizontal pieces miss the non-trivial ones. Stated as an
+      existence rather than a def on purpose -- nothing downstream should depend on WHICH
+      admissible T and delta were picked, only that some choice works. T is taken from [20,21] and
+      delta from [1,2], which forces delta < T/4; the numbers are arbitrary and concrete only
+      because that is cheaper than carrying the inequality abstractly.
+      One Mathlib gap met on the way: there is no const_sub lemma landing in atBot, so
+      1 - 2n -> -infinity is proved directly through Filter.tendsto_atBot.
+      (v) WHAT IS ACTUALLY LEFT is a linear growth bound on F over
+      Rboundary union admissible_contour union L, which is what
+      exists_bound_of_linear_growth_mul_cpow consumes. Every input exists --
+      logDeriv_ladder_form, logDeriv_riemannZeta_bounded_of_two_le_re, the tan bound implicit in
+      cos_ne_zero_on_column, and GammaAsymptotics.v1's digamma estimate, which arrives as a
+      HYPOTHESIS on the generated challenge rather than needing a sorry.
+      ONE OF THOSE INPUTS TURNED OUT TO BE MISSING FROM MATHLIB and is now supplied here:
+      norm_tan_le_of_im_ne_zero, that ||tan w|| <= cosh(Im w)/|sinh(Im w)|. Mathlib's only results
+      about Complex.tan say it blows up AT its poles -- tendsto_norm_tan_of_cos_eq_zero -- and a
+      contour argument needs the opposite, that it stays bounded away from them. Along a horizontal
+      ray at fixed non-zero height the bound is a constant depending only on the height, which is
+      exactly what the rays need. The identity that makes it easy is
+      ||cos w||^2 = cos^2(Re w) + sinh^2(Im w), from Complex.cos_add_mul_I and Real.cosh_sq; that
+      and its sin analogue look like Mathlib lemmas in their own right.
+      Note the tan bound is needed for the RAYS but not for the COLUMNS: on a column Re s = 1-2n
+      the reflected point is 1-s = 2n - it, where the tangent is i tanh(pi t/2) and bounded by 1
+      outright. cos_ne_zero_on_column carries the parity argument that rests on.
+      THE GROWTH BOUND IS NOW PROVED: norm_F_le_linear. It takes GammaAsymptotics.v1's statement
+      as an argument, exactly as logDeriv_ladder_form takes ZetaLogDeriv.v1's, so no sorry is
+      involved -- both arrive as hypotheses on the generated challenge.
+      Its two set-dependent hypotheses are the right ones: how big tan is on the piece, and that
+      the cosine does not vanish there. Both are supplied per-piece -- bounded by 1 on a column by
+      parity, by norm_tan_le_of_im_ne_zero on a ray.
+      hcos does double duty and that is worth knowing: its failures are exactly the EVEN integers,
+      which include every trivial zero, so together with Re z <= -1 it hands over zeta z /= 0 free
+      via riemannZeta_ne_zero_of_re_neg. No separate non-vanishing hypothesis is needed.
+      Two supporting facts had to be built: norm_log_le_norm_add_pi (crude on purpose, only linear
+      growth is wanted) and logDeriv_riemannZeta_1_eq, which is what finally proves that the F
+      defined here as -logDeriv riemannZeta_1 really IS Theorem 1.1's A - Res/(s-1).
+      WHAT IS LEFT IN THE STAGE is now only the application: instantiate prop_5_2 at
+      exists_ladderParams_zeta, splitting the target set into its compact pieces and its rays and
+      feeding isBoundedNoPolesOn_of_isCompact and exists_bound_of_linear_growth_mul_cpow
+      respectively. No estimate remains unproved.
+      (iii) T AND DELTA AVOIDING THE ZERO ORDINATES IS NOW DONE:
+      exists_ordinate_free_height gives, for every T0 > 0, a height T in [T0, T0+1] with no zero of
+      zeta at |Im z| = T. Same statement serves delta, since it is the same question.
+      THE TOOL IS riemannZeta_1, AND THE REASON IS WORTH KEEPING. The identity theorem is about
+      ANALYTIC functions, and zeta has a pole, so zeta cannot be fed to it on any set containing 1.
+      Mathlib's riemannZeta_1 = 1 + (s-1) zeta_0 s is entire and, away from 1, has exactly zeta's
+      zeros -- but Mathlib never says so. riemannZeta_1 appears only in ZetaAsymp, where it was
+      introduced for the asymptotic expansion, and not one of its five lemmas relates it back to
+      zeta. riemannZeta_eq_riemannZeta_1_div is that bridge.
+      From there the argument is counting, not analysis. riemannZeta_1 is not identically zero
+      because riemannZeta_1_one supplies the seed for free, so its zeros are isolated; on a compact
+      band missing the pole that gives finitely many zeros of zeta; finitely many ordinates cannot
+      exhaust an interval. The band is compact and misses 1 because it has |Im z| bounded away from
+      zero, and a zero off the real axis lies in the closed critical strip -- which is
+      re_mem_Icc_of_riemannZeta_eq_zero, itself just riemannZeta_ne_zero_of_one_le_re at one edge
+      and riemannZeta_ne_zero_of_re_neg at the other, the trivial zeros being real.
+      THREE OF THESE ARE ABOUT ZETA, NOT ABOUT CH2, and have been extracted for upstreaming:
+      riemannZeta_eq_riemannZeta_1_div, riemannZeta_eq_zero_iff_riemannZeta_1, and
+      finite_zeros_riemannZeta_of_isCompact. If they land in Mathlib the copies here can go.
       Mathlib friction worth knowing: `DifferentiableAt` unfolds to an Exists, so
       `(differentiableAt_riemannZeta hz).analyticAt` resolves to `Exists.analyticAt` and fails
       confusingly -- go through DifferentiableOn.analyticAt. And there is no meromorphicOrderAt_neg,
