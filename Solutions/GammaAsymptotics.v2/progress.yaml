@@ -229,6 +229,17 @@ consumer: >-
   |Im s| <= T. The strip is not a compromise for that consumer; it is everything it ever asked for.
 
 upstream: >-
-  Steps 1, 2a and 2f-lemma are stated about Mathlib objects only and have no IEANTN import between
-  them. Once 2g lands, the natural Mathlib contribution is the representation itself -- the TODO in
-  Mathlib/Analysis/SpecialFunctions/Gamma/Digamma.lean -- with step 1 a plausible second PR.
+  Every file here is stated about Mathlib objects only; nothing in stages 1 and 2 imports anything
+  from IEANTN. Three asks, in the order they are worth making.
+  ONE: the representation itself, psi(x) = -gamma + sum_k (1/(k+1) - 1/(k+x)). This is the TODO in
+  Mathlib/Analysis/SpecialFunctions/Gamma/Digamma.lean. The real case is now PROVED here
+  (digamma_eq_gaussSum_of_pos); the complex case needs 2c and 2g, which is where the identity
+  theorem comes in, so it is worth waiting for those before opening a PR.
+  TWO: drop `private` from HasDerivAt.complex_of_real in NumberTheory/Harmonic/GammaDeriv.lean. It
+  is the fact that a complex-differentiable function agreeing with a real one on R has that
+  function's derivative there, it is four lines, and it is exactly what ComplexToReal.lean needs and
+  reproves verbatim. A one-line PR that costs upstream nothing, and worth sending FIRST because it
+  is independent of everything else here.
+  THREE: step 1, |psi(x) - log x| <= 1/x on the reals from Real.convexOn_log_Gamma alone, with the
+  constant explicit. Independent of the representation, and arguably the more useful of the two for
+  a reader who wants an effective bound rather than an identity.
