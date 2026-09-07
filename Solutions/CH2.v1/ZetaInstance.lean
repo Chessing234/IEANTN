@@ -5,7 +5,7 @@ Authors: Terence Tao
 -/
 import Section5
 import IEANTN.Nodes.ZetaLogDeriv.v1.Conclusions
-import IEANTN.Nodes.GammaAsymptotics.v1.Conclusions
+import IEANTN.Nodes.GammaAsymptotics.v2.Conclusions
 
 /-!
 # Instantiating §5 at `A(s) = -ζ'(s)/ζ(s)`
@@ -853,7 +853,11 @@ theorem norm_tan_le_of_im_ne_zero {w : ℂ} (h : w.im ≠ 0) :
 
 The last estimate. Everything it consumes is now proved: the ladder-form identity, boundedness of
 `ζ'/ζ` on `Re w ≥ 2`, the `tan` bound, and `GammaAsymptotics.v1`'s digamma estimate, which arrives
-as a hypothesis rather than a `sorry` because `CH2.v1` imports that node. -/
+as a hypothesis rather than a `sorry` because `CH2.v1` imports that node.
+
+The digamma input is `GammaAsymptotics.v2`, the STRIP version, and `hH` is what pays for it:
+every piece of the ladder has `|Im s|` bounded by `T`, so the height restriction costs this
+consumer nothing. See that node for why the half-plane version is harder and still open. -/
 
 /-- `‖log w‖ ≤ ‖w‖ + π` once `‖w‖ ≥ 1`. Crude on purpose: only linear growth is needed. -/
 theorem norm_log_le_norm_add_pi {w : ℂ} (hw : 1 ≤ ‖w‖) :
@@ -907,14 +911,14 @@ failures are exactly the even integers, which include every trivial zero, so wit
 remaining points are covered by `riemannZeta_ne_zero_of_re_neg`. -/
 theorem norm_F_le_linear
     (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
-    (hdig : GammaAsymptotics.v1.digamma_sub_log_isBigO)
-    {S : Set ℂ} {B : ℝ} (hB : 0 ≤ B)
-    (hS : ∀ z ∈ S, z.re ≤ -1)
+    (hdig : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    {S : Set ℂ} {B H : ℝ} (hB : 0 ≤ B)
+    (hS : ∀ z ∈ S, z.re ≤ -1) (hH : ∀ z ∈ S, |z.im| ≤ H)
     (hcos : ∀ z ∈ S, Complex.cos ((Real.pi : ℂ) * (1 - z) / 2) ≠ 0)
     (htan : ∀ z ∈ S, ‖Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖ ≤ B) :
     ∃ C, 0 ≤ C ∧ ∀ z ∈ S, ‖F z‖ ≤ C * (1 + ‖z‖) := by
   obtain ⟨M, hM⟩ := logDeriv_riemannZeta_bounded_of_two_le_re
-  obtain ⟨Cd, hCd⟩ := hdig
+  obtain ⟨Cd, hCd⟩ := hdig H
   set L : ℝ := ‖Complex.log (2 * (Real.pi : ℂ))‖ with hL_def
   set K : ℝ := |M| + L + (1 + Real.pi + |Cd| / 2) + (Real.pi / 2) * B + 1 with hK_def
   have hK : 0 ≤ K := by
@@ -956,7 +960,9 @@ theorem norm_F_le_linear
         = (Complex.digamma (1 - z) - Complex.log (1 - z)) + Complex.log (1 - z) := by ring
     rw [hsplit]
     refine (norm_add_le _ _).trans ?_
-    have h1 := hCd (1 - z) (by linarith)
+    have him : |(1 - z).im| ≤ H := by
+      simpa [Complex.sub_im, Complex.one_im, abs_neg] using hH z hz
+    have h1 := hCd (1 - z) (by linarith) him
     have h2 := norm_log_le_norm_add_pi hw1
     have h3 : Cd / ‖1 - z‖ ≤ |Cd| / 2 := by
       by_cases hc : Cd ≤ 0

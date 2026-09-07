@@ -1,27 +1,30 @@
-# Node metadata for `GammaAsymptotics.v1`.  See docs/NODES.md.
+# Node metadata for `GammaAsymptotics.v2`.  See docs/NODES.md.
 #
 # Growth of Gamma and its logarithmic derivative -- textbook asymptotics Mathlib does not have.
 # Named for the class: intended to grow, and a plausible eventual contribution to Mathlib.
 version: "v0.4"
 
 node:
-  id: GammaAsymptotics.v1
+  id: GammaAsymptotics.v2
   family: GammaAsymptotics
-  version: v1
+  version: v2
   kind: standard
   status: awaiting-solution
 
 project:
   name: "Growth of the Gamma function and its logarithmic derivative"
   description: >-
-    Textbook asymptotics for Gamma and digamma that Mathlib happens not to have, stated once so
-    several nodes can import them rather than each carrying a copy. At present one conclusion: the
-    digamma function equals log w up to O(1/|w|) in the right half-plane, the leading term of the
-    Stirling expansion. Mathlib's Digamma file is sixty-four lines -- a definition, three special
-    values, the recurrence and meromorphy -- with no growth bound anywhere, and its Stirling file
-    concerns the factorial rather than Gamma in the complex plane. The gap is reached from any
-    explicit estimate that shifts a contour into the left half-plane, since the functional equation
-    for zeta turns zeta'/zeta into an expression whose digamma term must be controlled.
+    The digamma asymptotic psi(w) = log w + O(1/|w|), restricted to a horizontal strip: for each
+    height H a constant depending on H bounds ||psi w - log w|| by C/||w|| whenever Re w >= 1 and
+    |Im w| <= H. GammaAsymptotics.v1 states the same estimate on the whole half-plane and is
+    retained, unproved, as the harder target; removing the height restriction means proving v1.
+    The split exists because the strip is where the elementary argument reaches. v1's route --
+    iterating the digamma recurrence out of a compact box -- controls Re w -> infinity at bounded
+    height and says nothing as Im w -> infinity, so v1 was over-general in precisely the direction
+    carrying the difficulty. Mathlib supplies nothing to close that: its Digamma file is sixty-four
+    lines, and BohrMollerup's logGammaSeq is real-variable only.
+    Every consumer so far wants only the strip. CH2.v1 evaluates psi at 1-s for s on a ladder whose
+    every piece has |Im s| <= T.
   authors: ["Terence Tao"]
   license: "Apache-2.0"
   responsible_maintainers: ["Terence Tao"]
@@ -34,34 +37,37 @@ classification:
   msc2020: ["33B15", "41A60"]
 
 conclusions:
-- id: digamma_sub_log_isBigO
+- id: digamma_sub_log_isBigO_strip
   issue: 64
-  declaration: GammaAsymptotics.v1.digamma_sub_log_isBigO
-  challenge: GammaAsymptotics.v1.challenge_digamma_sub_log_isBigO
+  declaration: GammaAsymptotics.v2.digamma_sub_log_isBigO_strip
+  challenge: GammaAsymptotics.v2.challenge_digamma_sub_log_isBigO_strip
   imports: []
   imports_status: none
   justifications:
   - id: unjustified
     kind: none-yet
     note: >-
-      Imports `none`, and that is a real none: w is universally quantified with its condition a
+      Imports `none`, and that is a real none: w is universally quantified with every condition a
       hypothesis, so a Lean proof is the whole justification.
-      EXPECTED ROUTE, which is elementary and does not need Stirling's formula proper. Mathlib has
-      the recurrence digamma_apply_add_one, psi(s+1) = psi(s) + 1/s. Iterating it from a compact box
-      in Re w in [1,2] -- where psi is continuous, hence bounded, since meromorphic_digamma puts its
-      poles at the non-positive integers -- expresses psi(w) as a bounded term plus a partial sum of
-      1/(w-j), which is log w + O(1/|w|) by comparison with the harmonic series. The work is in the
-      comparison and in making the box argument uniform in the imaginary direction.
-      A sharper route through the Gauss or Binet integral representations would give the full
-      expansion, and Mathlib's Digamma file lists Gauss' representation as a TODO. Whoever proves
-      this should consider whether proving the representation first is cheaper than the recurrence
-      argument; it would also give the -1/(2w) term for free.
-      THE REFLECTION FORMULA DOES NOT HELP WITH THIS, and it is worth saying so because it is the
-      obvious thing to reach for. A more recent Mathlib than this repository's pin has merged it
-      (leanprover-community/mathlib4#42349), giving psi(1-w) - psi(w) = pi cot(pi w). That relates
-      the two half-planes to each other; it supplies no growth bound in EITHER, so it cannot start
-      the argument. Where it does help is the left half-plane -- see the limitations -- and that
-      will arrive with a Mathlib bump rather than needing anything here.
+      THIS IS v1 WITH A HEIGHT RESTRICTION, and the restriction is the point. v1's recorded route --
+      iterate digamma_apply_add_one from a compact box in Re w in [1,2] -- DOES NOT PROVE v1. It
+      pushes rightward and controls Re w -> infinity at bounded height; it says nothing about
+      w = 1 + it as t -> infinity, which no compact box reaches. That was noticed only when someone
+      went to carry the route out.
+      THE STRIP DOES NOT RESCUE THE ELEMENTARY ROUTE EITHER, and an earlier version of this note
+      claimed it did. Writing w = u + n with Re u in [1,2], the recurrence gives
+      psi(w) = psi(u) + sum_{j<n} 1/(u+j), and comparing that sum with the harmonic series leaves
+      psi(w) - log w -> psi(u) + gamma + sum_{j>=0} (1/(u+j) - 1/(1+j)) =: kappa(u), a 1-periodic
+      analytic function. Pinning kappa == 0 IS the Gauss representation. psi(1) = -gamma gives
+      kappa(1) = 0 and periodicity spreads it to the integers and no further; the trigamma route
+      meets the same obstruction one derivative down.
+      SO THE REAL TARGET IS THE GAUSS/WEIERSTRASS SERIES,
+      psi(u) = -gamma + sum_{k>=0} (1/(k+1) - 1/(k+u)), which Mathlib does not have and lists as a
+      TODO in the file defining digamma. Once it exists v2 follows directly; v1 needs a further
+      uniformity argument as Im w -> infinity. That series is the thing worth formalizing, and it
+      is a Mathlib contribution in its own right rather than a step private to this repository.
+      THE CONSTANT MAY DEPEND ON H AND MUST. A bound uniform in H is exactly v1.
+  designated: unjustified
   designated: unjustified
 
 sources:
@@ -106,17 +112,8 @@ review:
 
 limitations:
 - >-
-  Stated but not proved, AND NO LONGER ON ANY CONSUMER'S PATH. GammaAsymptotics.v2 states the same
-  estimate with |Im w| bounded, which is what every consumer so far actually needs, and CH2.v1
-  now imports that instead. This version is retained deliberately, as the harder target.
-- >-
-  THE ROUTE RECORDED IN THIS NODE'S JUSTIFICATION NOTE DOES NOT PROVE THIS NODE, which was only
-  noticed when someone went to carry it out. Iterating digamma_apply_add_one from a compact box
-  in Re w in [1,2] pushes rightward and controls Re w -> infinity at bounded height; it says
-  nothing about w = 1 + it as t -> infinity, which no compact box reaches. The half-plane
-  version needs a Binet or Gauss integral representation, and Mathlib has neither. Removing the
-  height restriction from v2 -- that is, proving this -- is a genuine piece of complex analysis
-  and a plausible Mathlib contribution in its own right.
+  Stated but not proved. Nothing downstream may treat it as established, and CH2.v1's ladder
+  bounds inherit that.
 - >-
   ONE ASYMPTOTIC ONLY, and a weak one. The node is named for the class because it is intended to
   grow: the -1/(2w) term, the sector version, a bound on Gamma itself, and Stirling's formula in the

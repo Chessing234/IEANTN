@@ -45,7 +45,7 @@ def digamma_sub_log_isBigO : Prop :=
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
-| Assumed by | [`CH2.v1.corollary_1_2_lambda_sum`](CH2-v1.md#corollary_1_2_lambda_sum), [`CH2.v1.corollary_1_2_psi`](CH2-v1.md#corollary_1_2_psi) |
+| Assumed by | nothing yet |
 
 **Justification `unjustified`** — **designated** — none-yet
 
@@ -55,7 +55,8 @@ def digamma_sub_log_isBigO : Prop :=
 
 Recorded by the node itself, not derived.
 
-- Stated but not proved. Nothing downstream may treat it as established, and CH2.v1's ladder bounds inherit that.
+- Stated but not proved, AND NO LONGER ON ANY CONSUMER'S PATH. GammaAsymptotics.v2 states the same estimate with \|Im w\| bounded, which is what every consumer so far actually needs, and CH2.v1 now imports that instead. This version is retained deliberately, as the harder target.
+- THE ROUTE RECORDED IN THIS NODE'S JUSTIFICATION NOTE DOES NOT PROVE THIS NODE, which was only noticed when someone went to carry it out. Iterating digamma_apply_add_one from a compact box in Re w in [1,2] pushes rightward and controls Re w -> infinity at bounded height; it says nothing about w = 1 + it as t -> infinity, which no compact box reaches. The half-plane version needs a Binet or Gauss integral representation, and Mathlib has neither. Removing the height restriction from v2 -- that is, proving this -- is a genuine piece of complex analysis and a plausible Mathlib contribution in its own right.
 - ONE ASYMPTOTIC ONLY, and a weak one. The node is named for the class because it is intended to grow: the -1/(2w) term, the sector version, a bound on Gamma itself, and Stirling's formula in the complex plane are all wanted and none is here. A consumer needing any of them will not find it.
 - THE CONSTANT IS EXISTENTIAL. A consumer needing an explicit numerical constant -- which an explicit estimate eventually will -- cannot get one from this statement and will need a sharper conclusion stated alongside it.
 - Re w >= 1 excludes the left half-plane entirely, where digamma has its poles. An application that needs psi there must combine this with the reflection formula psi(1-w) - psi(w) = pi cot(pi w), which a more recent Mathlib than this repository's pin has merged (leanprover-community/mathlib4#42349). So that gap closes on a bump rather than needing a conclusion here -- but note the reflection formula alone proves nothing about growth, in either half-plane, so it does not shorten the work below. CH2.v1 does not need the left half-plane: its ladder argument evaluates psi at 1-s with Re(1-s) >= 2, which is already inside the stated range.
