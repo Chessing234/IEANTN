@@ -109,9 +109,9 @@ stages:
       partial -- three of prop_5_2's five hypotheses closed unconditionally on all of C; of the
       remaining two, the no-poles half is done, and of the boundedness half the compact pieces and
       the Re w >= 2 input are done, as are F itself, choosing T and delta off the zero ordinates,
-      the damping estimate for the leftward rays, and a concrete LadderParams whose ladder and
-      contour miss every zero. What is left is ONE estimate and the final application: a linear
-      growth bound on F over the whole target set.
+      the damping estimate for the leftward rays, a concrete LadderParams whose ladder and contour
+      miss every zero, and the linear growth bound on F. NO ESTIMATE REMAINS UNPROVED; what is
+      left is the application of prop_5_2 itself.
     note: >-
       Done first because it is the smallest thing that tests whether the section 5 port is USABLE
       rather than merely compiling. It is: ConjSymm falls straight out of the ported
