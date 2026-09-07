@@ -72,7 +72,6 @@ conclusions:
     solution: Solutions/GammaAsymptotics.v2/
     state: in-progress
     remaining_holes: 1
-
 sources:
 - title: "The digamma asymptotic expansion"
   authors: ["folklore"]

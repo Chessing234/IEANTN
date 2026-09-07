@@ -7,6 +7,7 @@ import RealAsymptotic
 import Periodic
 import GaussSeries
 import Recurrence
+import RealIdentity
 import IEANTN.Nodes.GammaAsymptotics.v2.Conclusions
 
 /-!
@@ -31,22 +32,30 @@ the order of work. The plan is now:
 2. **The Gauss series on `ℂ`.** Write `G s := -γ + ∑ₖ gaussTerm s k`.
    * a. the series converges — `GaussSeries.lean`, **done**;
    * b. the recurrence `G(s+1) = G(s) + 1/s` — `Recurrence.lean`, **done**, by telescoping;
-   * c. `G` is analytic off the non-positive integers;
-   * d. hence `E := ψ - G` is 1-periodic on the reals;
+   * d. hence `E := ψ - G` reproduces itself under `x ↦ x + 1` for `x > 0` —
+        `RealIdentity.lean`, **done**;
    * e. `ψ(n+1) = G(n+1)`, both being `-γ + Hₙ` — `Recurrence.lean`, **done**;
-   * f. `E` oscillates by `O(1/n)` across unit intervals — Stage 1 handles the `ψ` side, a
-        telescoping comparison the `G` side — so `eq_zero_of_periodic_of_nat_of_oscillation`
-        (`Periodic.lean`, **done**) gives `E ≡ 0` on the positive reals;
-   * g. the identity theorem carries `ψ = G` from a set with a limit point to all of `ℂ`.
+   * f. `E` oscillates by `≤ 5/n` across unit intervals — `Oscillation.lean`, **done**: Stage 1
+        gives the `ψ` side `3/n` (through `ComplexToReal.lean`), and a telescoping comparison
+        gives the `G` side `2/n`;
+   * **so `ψ = G` on the positive reals** — `RealIdentity.lean`, **done**, by
+     `eq_zero_of_periodic_of_nat_of_oscillation`. *This is the Gauss representation, the fact
+     Mathlib's `Digamma.lean` lists as a `TODO`, and the obstruction the node docstring named.*
+   * c. `G` is analytic off the non-positive integers — **to do**;
+   * g. the identity theorem carries `ψ = G` from the positive reals, which have a limit point,
+        to all of `ℂ` — **to do**, and needs (c).
 3. **The strip bound.** With the representation in hand, `‖ψ w - log w‖ ≤ C_H / ‖w‖` for
-   `Re w ≥ 1`, `|Im w| ≤ H`.
+   `Re w ≥ 1`, `|Im w| ≤ H` — **to do**.
+
+Step (c) moved after the real identity rather than before it, because nothing up to and including
+the identity needs `G` to be analytic — the whole argument runs on the real axis, where `G` is
+just a convergent series of real terms. Analyticity is needed only to *transport* the identity,
+which is step (g)'s business.
 
 The two steps that looked hardest going in — the real asymptotic and the periodic-vanishing
-argument — are the two that were finished first, and neither used the representation.
-
-Of the vanishing lemma's three hypotheses, two are now in hand (2b gives periodicity once paired
-with `Complex.digamma_apply_add_one`; 2e is the vanishing at integers outright). The oscillation
-bound, 2f, is the one still to write, and Stage 1 already supplies its harder half.
+argument — were the two that finished first, and neither used the representation. What was
+actually awkward was neither: it was `ComplexToReal.lean`, one lemma relating `Complex.digamma` on
+the real axis to Stage 1's real derivative, whose Mathlib counterpart exists but is `private`.
 
 ## What the constant does
 

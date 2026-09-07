@@ -5,7 +5,7 @@
 # judgement and should read like it.
 
 solution: Solutions/GammaAsymptotics.v2/
-state: in-progress   # one hole, the conclusion itself; five of the eight sub-steps closed
+state: in-progress   # one hole, the conclusion itself; the Gauss representation holds on the reals
 
 # --------------------------------------------------------------------------------------------
 # WHAT THE MATHLIB BUMP CHANGED, and what the node still records.
@@ -94,10 +94,19 @@ steps:
     file: Periodic.lean
     state: done
     what: >-
-      A 1-periodic real function that vanishes at the naturals and varies by O(1/n) across unit
-      intervals far out is identically zero on the positive reals. Periodicity pushes any point
-      arbitrarily far right, where the oscillation bound is arbitrarily tight and a zero always sits
-      within distance one.
+      A function that reproduces itself under x -> x+1 to the right of the origin, vanishes at the
+      naturals, and varies by O(1/n) across unit intervals far out, is identically zero on the
+      positive reals. The shift pushes any point arbitrarily far right, where the oscillation bound
+      is arbitrarily tight and a zero always sits within distance one.
+    weakened_twice_when_it_met_its_consumer: >-
+      As first written it asked for Function.Periodic E 1 and for E real-valued. BOTH WERE WRONG FOR
+      THE ACTUAL E. Full periodicity is FALSE for psi - G: at x = -1 both are junk (Gamma(-1) = 0,
+      so logDeriv divides by zero; the series is not summable, so tsum is 0), and the recurrences
+      that would give periodicity carry the hypothesis s not in {0, -1, -2, ...}. And E is
+      complex-valued, since restricting Complex.digamma to the real axis does not make it a real
+      function in Lean's sense. The proof needed neither, so the statement now asks for the rightward
+      shift only and takes values in any normed group. Worth recording as a pattern: a lemma proved
+      before its consumer exists will be over-specified in whatever direction was not thought about.
     why_it_is_stated_alone: >-
       THE NAIVE VERSION DOES NOT WORK, and an earlier draft of the node docstring believed it did:
       periodicity spreads E(1) = 0 to the integers and NOWHERE ELSE, since a 1-periodic function
@@ -117,17 +126,17 @@ steps:
       is the first hypothesis of the vanishing lemma.
     exports: [gaussSum, hasSum_sub_succ, tendsto_inv_natCast_add, gaussSum_add_one]
 
-  - id: "2c"
-    name: Analyticity of G
-    state: todo
-    what: >-
-      G is analytic off the non-positive integers, by differentiableOn_tsum_of_summable_norm with
-      the O(1/k^2) bound from 2a made locally uniform.
-
   - id: "2d"
-    name: E is 1-periodic
-    state: todo
-    what: "E := psi - G is 1-periodic, from 2b and Complex.digamma_apply_add_one."
+    name: E reproduces itself under a unit shift
+    file: RealIdentity.lean
+    state: done
+    what: >-
+      E := psi - G satisfies E(x+1) = E(x) for x > 0, from 2b and Complex.digamma_apply_add_one.
+      NOT full periodicity, and the difference matters: both recurrences carry the hypothesis
+      s not in {0, -1, -2, ...}, and at a pole both psi and G are junk values (Gamma(-1) = 0, so
+      logDeriv divides by zero; the series is not summable, so tsum is 0). The vanishing lemma was
+      restated to ask only for the rightward shift, which is all its proof uses.
+    exports: [gaussError, gaussError_add_one]
 
   - id: "2e"
     name: E vanishes at the naturals
@@ -140,18 +149,73 @@ steps:
 
   - id: "2f"
     name: The oscillation bound
+    file: Oscillation.lean
+    state: done
+    what: >-
+      ||E(a) - E(b)|| <= 5/n for a, b >= n >= 1 at distance at most 1, so C = 5. The psi side is
+      3/n from Stage 1: writing psi(a) - psi(b) as (psi(a) - log a) + (log a - log b) -
+      (psi(b) - log b), the outer brackets are 1/a and 1/b and the middle is |a-b|/n from
+      log(1+t) <= t. The G side is 2/n: termwise the difference is (a-b)/((k+a)(k+b)), the
+      divergent 1/(k+1) having cancelled, and 1/((k+a)(k+b)) <= 2/((k+n)(k+n+1)) whose right side
+      TELESCOPES TO 2/n EXACTLY -- so no p-series constant survives into the answer.
+    exports:
+      - summable_telescope
+      - tsum_telescope
+      - hasSum_comparison
+      - gaussTerm_sub
+      - norm_gaussSum_sub_le
+      - abs_log_sub_log_le
+      - abs_deriv_log_Gamma_sub_le
+      - norm_error_sub_le
+
+  - id: "2-glue"
+    name: Complex.digamma on the real axis
+    file: ComplexToReal.lean
+    state: done
+    what: >-
+      Complex.digamma x = the real deriv (fun t => log (Gamma t)) x, for real x > 0, which is what
+      lets Stage 1 feed the psi side of 2f. Both sides are Gamma'/Gamma; the content is that
+      Complex.Gamma differentiated ALONG THE REAL AXIS is the real Gamma', which is not automatic.
+      THE AWKWARD PART OF THE WHOLE STAGE, and not for mathematical reasons: Mathlib has exactly
+      this argument as HasDerivAt.complex_of_real in NumberTheory/Harmonic/GammaDeriv.lean, marked
+      `private`, so it cannot be imported and is reproved here verbatim. If any of this goes
+      upstream, that lemma losing its `private` is the first thing to ask for.
+    exports:
+      - hasDerivAt_complex_of_real
+      - ofReal_ne_neg_natCast
+      - differentiableAt_real_Gamma
+      - hasDerivAt_Gamma_ofReal
+      - deriv_log_Gamma_eq
+      - digamma_ofReal
+
+  - id: "2-real"
+    name: THE GAUSS REPRESENTATION ON THE POSITIVE REALS
+    file: RealIdentity.lean
+    state: done
+    what: >-
+      psi(x) = -gamma + sum_k (1/(k+1) - 1/(k+x)) for every real x > 0, by feeding 2d, 2e and 2f to
+      eq_zero_of_periodic_of_nat_of_oscillation. This is the fact Mathlib's Digamma.lean lists as a
+      TODO and the obstruction the node's docstring correctly named. What remains for the node is
+      transport to the complex plane and the estimate, not this.
+    exports: [gaussError, gaussError_nat_add_one, norm_gaussError_sub_le, digamma_eq_gaussSum_of_pos]
+
+  - id: "2c"
+    name: Analyticity of G
     state: todo
     what: >-
-      |E(a) - E(b)| = O(1/n) for a, b >= n at distance at most 1. Stage 1 gives the psi side; the G
-      side is |G(a) - G(b)| <= |a-b| * sum_k 1/(k+n)^2 by comparison with a telescoping series.
-      With 2d and 2e this closes E = 0 on the positive reals.
+      G is analytic off the non-positive integers, by differentiableOn_tsum_of_summable_norm with
+      the O(1/k^2) bound from 2a made locally uniform.
+      MOVED AFTER THE REAL IDENTITY rather than before it. Nothing up to and including the identity
+      needs G to be analytic: the whole argument runs on the real axis, where G is a convergent
+      series of real terms. Analyticity is needed only to TRANSPORT the identity, which is 2g.
 
   - id: "2g"
     name: To the complex plane
     state: todo
     what: >-
-      psi = G on the positive reals, a set with a limit point; both sides are analytic on the
-      connected slit plane; the identity theorem does the rest.
+      psi = G on the positive reals -- now PROVED rather than planned, see 2-real -- and that set
+      has a limit point; both sides are analytic on the connected slit plane; the identity theorem
+      does the rest. Needs 2c.
 
   - id: "3"
     name: The strip bound
