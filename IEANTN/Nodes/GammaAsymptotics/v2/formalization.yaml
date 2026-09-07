@@ -68,7 +68,10 @@ conclusions:
       is a Mathlib contribution in its own right rather than a step private to this repository.
       THE CONSTANT MAY DEPEND ON H AND MUST. A bound uniform in H is exactly v1.
   designated: unjustified
-  designated: unjustified
+  progress:
+    solution: Solutions/GammaAsymptotics.v2/
+    state: in-progress
+    remaining_holes: 1
 
 sources:
 - title: "The digamma asymptotic expansion"
@@ -105,10 +108,19 @@ review:
     conclusion here rather than sharpen this one -- they are different statements.
     What the applications actually consume is the corollary ||psi w|| <= ||log w|| + C, hence
     O(log|w|); that follows immediately and is not stated separately.
-    Mathlib was checked rather than assumed: Analysis/SpecialFunctions/Gamma/Digamma.lean is 64 lines
-    and contains the definition, digamma_zero, digamma_one, digamma_one_half, digamma_apply_add_one
-    and meromorphic_digamma, and no bound of any kind. Analysis/SpecialFunctions/Stirling.lean is
-    about the factorial, not Gamma on the complex plane.
+    Mathlib was checked rather than assumed, and RE-CHECKED after the bump, which moved it. On this
+    repository's pin (mathlib 71a80585) Analysis/SpecialFunctions/Gamma/Digamma.lean is 153 lines
+    and contains the definition, digamma_zero, digamma_one, digamma_one_half, digamma_apply_add_one,
+    digamma_apply_add_nat, digamma_nat_add_one, Euler's reflection formula digamma_one_sub, the
+    duplication formula digamma_two_mul, and meromorphic_digamma -- AND STILL NO BOUND OF ANY KIND,
+    which is the half of the observation this node turns on. Gauss' integral representation remains
+    a TODO in that file. Analysis/SpecialFunctions/Stirling.lean is about the factorial, not Gamma on
+    the complex plane.
+    WHEN FIRST WRITTEN THIS ENTRY SAID SIXTY-FOUR LINES AND LISTED FIVE THEOREMS. That was accurate
+    then. It is recorded here rather than silently overwritten because the way it went stale is
+    general: a Mathlib bump changes what the repository may assume, and prose claims about what
+    Mathlib contains rot without any Lean file changing and without any check failing. Nothing in
+    this repository verifies a sentence like the one above; only someone going to look does.
 
 limitations:
 - >-
@@ -125,10 +137,11 @@ limitations:
 - >-
   Re w >= 1 excludes the left half-plane entirely, where digamma has its poles. An application that
   needs psi there must combine this with the reflection formula
-  psi(1-w) - psi(w) = pi cot(pi w), which a more recent Mathlib than this repository's pin has
-  merged (leanprover-community/mathlib4#42349). So that gap closes on a bump rather than needing a
-  conclusion here -- but note the reflection formula alone proves nothing about growth, in either
-  half-plane, so it does not shorten the work below.
+  psi(1-w) - psi(w) = pi cot(pi w). THAT IS NOW AVAILABLE: this entry previously said it awaited a
+  more recent Mathlib than this repository's pin, and the bump that brought it
+  (leanprover-community/mathlib4#42349) has since happened, so it is Complex.digamma_one_sub on the
+  current pin. But note the reflection formula alone proves nothing about growth, in either
+  half-plane, so having it does not shorten the work below.
   CH2.v1 does not need the left half-plane: its ladder argument evaluates psi at 1-s with
   Re(1-s) >= 2, which is already inside the stated range.
 - >-

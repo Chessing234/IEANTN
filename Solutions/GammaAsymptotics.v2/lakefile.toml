@@ -1,0 +1,26 @@
+name = "solution_GammaAsymptotics_v2"
+defaultTargets = ["RealAsymptotic", "Periodic", "GaussSeries", "Recurrence", "Solution"]
+
+[[require]]
+name = "IEANTN"
+path = "../.."
+
+[[lean_lib]]
+name = "RealAsymptotic"
+roots = ["RealAsymptotic"]
+
+[[lean_lib]]
+name = "Periodic"
+roots = ["Periodic"]
+
+[[lean_lib]]
+name = "GaussSeries"
+roots = ["GaussSeries"]
+
+[[lean_lib]]
+name = "Recurrence"
+roots = ["Recurrence"]
+
+[[lean_lib]]
+name = "Solution"
+roots = ["Solution"]

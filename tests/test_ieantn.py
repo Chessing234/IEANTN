@@ -1081,6 +1081,45 @@ class TestProgressMarker(FixtureRepo):
         self.assertIn("no solution", printed.getvalue())
 
 
+class TestAxiomReportParsing(unittest.TestCase):
+    """`#print axioms` wraps, and the wrap hid `sorryAx`.
+
+    This is the one direction of error that matters: a solution whose sole compared theorem was a
+    bare `sorry` was reported as free of `sorryAx`, because the name was long enough to push the
+    list onto continuation lines -- and adding `sorryAx` to the list is part of what pushes it
+    over. The parse is separated from the subprocess so it can be checked without Lean.
+    """
+
+    LONG = "GammaAsymptotics.v2.challenge_digamma_sub_log_isBigO_strip"
+
+    def test_a_wrapped_report_still_shows_sorry(self) -> None:
+        output = ("'" + self.LONG + "' depends on axioms: [propext," + chr(10)
+                  + " sorryAx," + chr(10)
+                  + " Classical.choice," + chr(10)
+                  + " Quot.sound]" + chr(10))
+        records = ieantn.axiom_records(output, [self.LONG])
+        self.assertIn("sorryAx", records[self.LONG])
+
+    def test_a_clean_report_on_one_line_is_read(self) -> None:
+        output = "'Short.v1.main' depends on axioms: [propext, Classical.choice, Quot.sound]"
+        records = ieantn.axiom_records(output, ["Short.v1.main"])
+        self.assertNotIn("sorryAx", records["Short.v1.main"])
+
+    def test_a_declaration_with_no_axioms_closes_its_record(self) -> None:
+        """No brackets at all, so the record must not swallow the report that follows it."""
+        output = ("'A.v1.first' does not depend on any axioms" + chr(10)
+                  + "'A.v1.second' depends on axioms: [propext," + chr(10)
+                  + " sorryAx]")
+        records = ieantn.axiom_records(output, ["A.v1.first", "A.v1.second"])
+        self.assertNotIn("sorryAx", records["A.v1.first"])
+        self.assertIn("sorryAx", records["A.v1.second"])
+
+    def test_a_missing_report_is_absent_rather_than_clean(self) -> None:
+        """A name Lean never printed must not read as proved."""
+        records = ieantn.axiom_records("", ["A.v1.main"])
+        self.assertNotIn("A.v1.main", records)
+
+
 class TestGraphPage(FixtureRepo):
     """`GRAPH.md`: the network as a page someone can read without cloning anything.
 
