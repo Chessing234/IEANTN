@@ -8,7 +8,7 @@ node:
   family: CH2
   version: v1
   kind: paper
-  status: stub
+  status: awaiting-solution
 
 project:
   name: "Chirre-Helfgott: optimal bounds for sums of non-negative arithmetic functions"

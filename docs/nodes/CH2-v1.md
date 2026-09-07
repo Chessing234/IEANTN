@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | Kind | paper |
-| Status | stub |
+| Status | awaiting-solution |
 | Maintainers | Terence Tao |
 | Licence | Apache-2.0 |
 | Review | self-assessed |

@@ -1831,10 +1831,36 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str], *,
 
     recorded_toolchain = environment.get("lean_toolchain", "?")
     distance = release_distance(recorded_toolchain, current["lean_toolchain"])
-    detail = f"verified under {recorded_toolchain}, now {current['lean_toolchain']}"
+    detail = environment_gap(environment, current)
     if distance is not None and distance > CACHE_WINDOW_RELEASES:
         return "orange", f"{detail} ({distance} releases; likely outside the cache window)"
     return "yellow", detail
+
+
+def environment_gap(recorded: dict, current: dict) -> str:
+    """Say which part of the environment moved, rather than always naming the toolchain.
+
+    THE TEST ABOVE IS ON `mathlib_rev`; the message used to report the *toolchain*. A Mathlib bump
+    that keeps the toolchain therefore printed `verified under v4.34.0-rc2, now v4.34.0-rc2` --
+    the same string twice, which reads as a bug in this script rather than as a stale receipt, and
+    hides the revision that actually moved. Every conclusion verified before the September 2026
+    bump said exactly that.
+
+    So name whichever fields differ. The toolchain is still worth printing when it moved, because
+    it is what `release_distance` grades and what governs the cache window.
+    """
+    parts = []
+    if recorded.get("mathlib_rev") != current.get("mathlib_rev"):
+        was = (recorded.get("mathlib_rev") or "?")[:12]
+        now = (current.get("mathlib_rev") or "?")[:12]
+        parts.append(f"Mathlib {was} -> {now}")
+    if recorded.get("lean_toolchain") != current.get("lean_toolchain"):
+        parts.append(f"toolchain {recorded.get('lean_toolchain', '?')} -> "
+                     f"{current.get('lean_toolchain', '?')}")
+    if not parts:
+        # Reachable only if the caller's test and this one disagree; say so rather than inventing.
+        return "verified under an environment that differs in some unrecorded way"
+    return "verified under " + ", ".join(parts)
 
 
 def statement_source_unchanged(conclusion_name: str, commit: str | None) -> bool:
@@ -1900,8 +1926,32 @@ def solution_drift(receipt: dict) -> str | None:
     files = [line for line in changed.stdout.splitlines() if line.strip()]
     if not files:
         return None
-    return (f"{project} has changed in {len(files)} file(s) since the verification at "
-            f"{commit[:12]}; the receipt attests to that commit, not to what is there now")
+    return drift_note(project, commit, files)
+
+
+def drift_note(project: str, commit: str, files: list[str]) -> str:
+    """Phrase the drift, naming the files and saying whether any of them is Lean.
+
+    `changed in 1 file(s)` was true and useless: it sent the reader to `git diff` to find out
+    whether the receipt had been undermined or a comment retyped. The Mathlib bump made that
+    concrete -- afterwards EVERY verified solution reported exactly that line, and in every case the
+    single file was `lake-manifest.json`.
+
+    That is not nothing: the manifest fixes which Mathlib the solution builds against, so the
+    receipt really does attest to a different environment, and the receipt's own
+    `environment.mathlib_rev` is the thing to compare. But it is a different situation from a proof
+    having been edited, and the two deserve different reactions from whoever reads the line. So the
+    note says which files moved and whether any Lean source is among them, and stops short of
+    grading it -- deciding what a manifest-only drift is worth is a judgement, not a computation.
+    """
+    names = sorted({pathlib.PurePosixPath(name).name for name in files})
+    shown = ", ".join(names[:4])
+    if len(names) > 4:
+        shown += f", and {len(names) - 4} more"
+    lean = [name for name in names if name.endswith(".lean")]
+    kind = "no Lean source among them" if not lean else f"{len(lean)} of them Lean source"
+    return (f"{project} has changed since the verification at {commit[:12]} "
+            f"({shown}; {kind}); the receipt attests to that commit, not to what is there now")
 
 
 def recorded_fingerprints() -> dict[str, str]:

@@ -44,10 +44,10 @@ adds the environment detail.
 | `ButheNumerics.v1` | stub | `lemma_3_constant_nonpos` | numerical | 0 | - |
 | `ButheNumerics.v1` | stub | `li_minus_pi_below_1e7` | numerical | 0 | - |
 | `ButheNumerics.v1` | stub | `lemma_3_constant_gt_at_10` | numerical | 0 | - |
-| `CH2.v1` | stub | `corollary_1_2_psi` | literature | 1 | - |
-| `CH2.v1` | stub | `corollary_1_2_lambda_sum` | literature | 1 | - |
-| `CH2.v1` | stub | `corollary_1_3_psi` | literature | 2 | - |
-| `CH2.v1` | stub | `corollary_1_3_lambda_sum` | literature | 2 | - |
+| `CH2.v1` | awaiting-solution | `corollary_1_2_psi` | literature | 1 | - |
+| `CH2.v1` | awaiting-solution | `corollary_1_2_lambda_sum` | literature | 1 | - |
+| `CH2.v1` | awaiting-solution | `corollary_1_3_psi` | literature | 2 | - |
+| `CH2.v1` | awaiting-solution | `corollary_1_3_lambda_sum` | literature | 2 | - |
 | `CH2.v2` | active | `proposition_2_4_upper` | lean-comparator-stale | 0 | #64 |
 | `CH2.v2` | active | `proposition_2_4_lower` | lean-comparator-stale | 0 | #64 |
 | `CH2.v3` | active | `extremal_majorant` | lean-comparator | 0 | #64 |
@@ -115,25 +115,25 @@ node now claims, and only a fresh verification restores it.
 
 | Conclusion | State | Why |
 |---|---|---|
-| `CH2.v2.proposition_2_4_lower` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `CH2.v2.proposition_2_4_upper` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| `CH2.v2.proposition_2_4_lower` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `CH2.v2.proposition_2_4_upper` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | `CH2.v4.contour_shift` | drifted | its own statement changed since verification |
 | `CH2.v4.contour_shift_holomorphic` | drifted | its own statement changed since verification |
-| `DudekPlatt.v2.ramanujan_inequality_3915` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `DudekPlatt.v3.criterion` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `FKS2.v1.corollary_14` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `FKS2.v1.corollary_22` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `FKS2.v1.corollary_23` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `FKS2.v1.corollary_26` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `FKS2.v2.proposition_13` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `FKS2.v2.theorem_3` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `Lcm.v1.lcmUpto_not_highlyAbundant` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `Lcm.v2.lcmUpto_not_highlyAbundant_of_primeGap` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `PrimeInterval.v1.classicalBound_hasPrimeInInterval` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `PrimeInterval.v1.eTheta_criterion` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `PrimeInterval.v1.numericalBound_hasPrimeInInterval` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `PrimeInterval.v1.theta_characterisation` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
-| `ZeroFreeHeight.v1.classical_region_descends` | yellow | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| `DudekPlatt.v2.ramanujan_inequality_3915` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `DudekPlatt.v3.criterion` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `FKS2.v1.corollary_14` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `FKS2.v1.corollary_22` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `FKS2.v1.corollary_23` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `FKS2.v1.corollary_26` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `FKS2.v2.proposition_13` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `FKS2.v2.theorem_3` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `Lcm.v1.lcmUpto_not_highlyAbundant` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `Lcm.v2.lcmUpto_not_highlyAbundant_of_primeGap` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `PrimeInterval.v1.classicalBound_hasPrimeInInterval` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `PrimeInterval.v1.eTheta_criterion` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `PrimeInterval.v1.numericalBound_hasPrimeInInterval` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `PrimeInterval.v1.theta_characterisation` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
+| `ZeroFreeHeight.v1.classical_region_descends` | yellow | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 
 ## Leverage
 

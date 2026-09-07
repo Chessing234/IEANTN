@@ -43,7 +43,7 @@ def theta_characterisation : Prop :=
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.theta_characterisation.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.theta_characterisation.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -81,7 +81,7 @@ def eTheta_criterion : Prop :=
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.eTheta_criterion.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.eTheta_criterion.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -118,7 +118,7 @@ def numericalBound_hasPrimeInInterval : Prop :=
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.numericalBound_hasPrimeInInterval.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.numericalBound_hasPrimeInInterval.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -160,7 +160,7 @@ def classicalBound_hasPrimeInInterval : Prop :=
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.classicalBound_hasPrimeInInterval.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.classicalBound_hasPrimeInInterval.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |

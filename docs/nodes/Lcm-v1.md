@@ -46,7 +46,7 @@ def lcmUpto_not_highlyAbundant : Prop :=
 | Solution | [`Solutions/Lcm.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/Lcm.v1) |
 | Receipt | [`Lcm.v1.lcmUpto_not_highlyAbundant.json`](https://github.com/teorth/IEANTN/blob/main/receipts/Lcm.v1.lcmUpto_not_highlyAbundant.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | identified |
 | Assumes | [`Dusart2018.v1.proposition_5_4`](Dusart2018-v1.md#proposition_5_4) |
 | Assumed by | nothing yet |
