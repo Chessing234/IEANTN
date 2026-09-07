@@ -42,7 +42,8 @@ def theta_characterisation : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L36) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.theta_characterisation.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.theta_characterisation.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -79,7 +80,8 @@ def eTheta_criterion : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L47) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.eTheta_criterion.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.eTheta_criterion.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -115,7 +117,8 @@ def numericalBound_hasPrimeInInterval : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L58) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.numericalBound_hasPrimeInInterval.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.numericalBound_hasPrimeInInterval.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -156,7 +159,8 @@ def classicalBound_hasPrimeInInterval : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/PrimeInterval/v1/Conclusions.lean#L72) |
 | Solution | [`Solutions/PrimeInterval.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/PrimeInterval.v1) |
 | Receipt | [`PrimeInterval.v1.classicalBound_hasPrimeInInterval.json`](https://github.com/teorth/IEANTN/blob/main/receipts/PrimeInterval.v1.classicalBound_hasPrimeInInterval.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |

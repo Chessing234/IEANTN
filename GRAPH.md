@@ -59,29 +59,29 @@ graph LR
   NButhe2016_v1["<b>Buthe2016.v1</b><br/>4 claims<br/><i>weakest: cited</i>"]
   NButheNumerics_v1["<b>ButheNumerics.v1</b><br/>3 claims<br/><i>weakest: computation</i>"]
   NCH2_v1["<b>CH2.v1</b><br/>4 claims<br/><i>weakest: cited</i>"]
-  NCH2_v2["<b>CH2.v2</b><br/>2 claims<br/><i>weakest: verified</i>"]
-  NCH2_v3["<b>CH2.v3</b><br/>2 claims<br/><i>weakest: verified</i>"]
-  NCH2_v4["<b>CH2.v4</b><br/>2 claims<br/><i>weakest: verified</i>"]
+  NCH2_v2["<b>CH2.v2</b><br/>2 claims<br/><i>weakest: verified, stale</i>"]
+  NCH2_v3["<b>CH2.v3</b><br/>2 claims<br/><i>weakest: verified, stale</i>"]
+  NCH2_v4["<b>CH2.v4</b><br/>2 claims<br/><i>weakest: verified, stale</i>"]
   NChengGraham2004_v1["<b>ChengGraham2004.v1</b><br/><i>nothing stated yet</i>"]
   NContourIntegration_v1["<b>ContourIntegration.v1</b><br/>1 claim<br/><i>weakest: unjustified</i>"]
   NDudekPlatt_v1["<b>DudekPlatt.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
-  NDudekPlatt_v2["<b>DudekPlatt.v2</b><br/>1 claim<br/><i>weakest: verified</i>"]
-  NDudekPlatt_v3["<b>DudekPlatt.v3</b><br/>1 claim<br/><i>weakest: verified</i>"]
+  NDudekPlatt_v2["<b>DudekPlatt.v2</b><br/>1 claim<br/><i>weakest: verified, stale</i>"]
+  NDudekPlatt_v3["<b>DudekPlatt.v3</b><br/>1 claim<br/><i>weakest: verified, stale</i>"]
   NDudekPlattNumerics_v1["<b>DudekPlattNumerics.v1</b><br/>1 claim<br/><i>weakest: computation</i>"]
   NDudekPlattNumerics_v2["<b>DudekPlattNumerics.v2</b><br/>1 claim<br/><i>weakest: computation</i>"]
   NDusart2018_v1["<b>Dusart2018.v1</b><br/>1 claim<br/><i>weakest: cited</i>"]
   NFKBJ_v1["<b>FKBJ.v1</b><br/>1 claim<br/><i>weakest: computation</i>"]
   NFKS_v1["<b>FKS.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
-  NFKS2_v1["<b>FKS2.v1</b><br/>4 claims<br/><i>weakest: verified</i>"]
-  NFKS2_v2["<b>FKS2.v2</b><br/>2 claims<br/><i>weakest: verified</i>"]
+  NFKS2_v1["<b>FKS2.v1</b><br/>4 claims<br/><i>weakest: verified, stale</i>"]
+  NFKS2_v2["<b>FKS2.v2</b><br/>2 claims<br/><i>weakest: verified, stale</i>"]
   NFKS2Numerics_v1["<b>FKS2Numerics.v1</b><br/>5 claims<br/><i>weakest: computation</i>"]
   NGammaAsymptotics_v1["<b>GammaAsymptotics.v1</b><br/>1 claim<br/><i>weakest: unjustified</i>"]
   NGammaAsymptotics_v2["<b>GammaAsymptotics.v2</b><br/>1 claim<br/><i>weakest: unjustified</i>"]
   NHiary2016_v1["<b>Hiary2016.v1</b><br/>1 claim<br/><i>weakest: cited</i>"]
   NKLN_v1["<b>KLN.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
   NKadiri2005_v1["<b>Kadiri2005.v1</b><br/>1 claim<br/><i>weakest: cited</i>"]
-  NLcm_v1["<b>Lcm.v1</b><br/>1 claim<br/><i>weakest: verified</i>"]
-  NLcm_v2["<b>Lcm.v2</b><br/>1 claim<br/><i>weakest: verified</i>"]
+  NLcm_v1["<b>Lcm.v1</b><br/>1 claim<br/><i>weakest: verified, stale</i>"]
+  NLcm_v2["<b>Lcm.v2</b><br/>1 claim<br/><i>weakest: verified, stale</i>"]
   NLowZeroes_v1["<b>LowZeroes.v1</b><br/>1 claim<br/><i>weakest: computation</i>"]
   NMT_v1["<b>MT.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
   NMTY_v1["<b>MTY.v1</b><br/><i>nothing stated yet</i>"]
@@ -89,13 +89,13 @@ graph LR
   NPlatt2017_v1["<b>Platt2017.v1</b><br/>1 claim<br/><i>weakest: computation</i>"]
   NPlattTrudgian_v1["<b>PlattTrudgian.v1</b><br/>1 claim<br/><i>weakest: cited</i>"]
   NPlattTrudgian2021_v1["<b>PlattTrudgian2021.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
-  NPrimeInterval_v1["<b>PrimeInterval.v1</b><br/>4 claims<br/><i>weakest: verified</i>"]
+  NPrimeInterval_v1["<b>PrimeInterval.v1</b><br/>4 claims<br/><i>weakest: verified, stale</i>"]
   NRosserSchoenfeld_v1["<b>RosserSchoenfeld.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
   NTrudgian2011_v1["<b>Trudgian2011.v1</b><br/>1 claim<br/><i>weakest: cited</i>"]
   NWedeniwski_v1["<b>Wedeniwski.v1</b><br/>1 claim<br/><i>weakest: asserted</i>"]
   NZeroCount_v1["<b>ZeroCount.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
-  NZeroFreeHeight_v1["<b>ZeroFreeHeight.v1</b><br/>1 claim<br/><i>weakest: verified</i>"]
-  NZetaLogDeriv_v1["<b>ZetaLogDeriv.v1</b><br/>1 claim<br/><i>weakest: verified</i>"]
+  NZeroFreeHeight_v1["<b>ZeroFreeHeight.v1</b><br/>1 claim<br/><i>weakest: verified, stale</i>"]
+  NZetaLogDeriv_v1["<b>ZetaLogDeriv.v1</b><br/>1 claim<br/><i>weakest: verified, stale</i>"]
   NBKLNW_v1 -->|8| NFKS2_v1
   NButhe_v1 -->|2| NBKLNW_v1
   NButhe_v2 -->|2| NButhe_v1
@@ -150,7 +150,7 @@ graph LR
   class NWedeniwski_v1 asserted;
   class NBKLNW_v1,NButhe_v1,NButhe2016_v1,NCH2_v1,NDudekPlatt_v1,NDusart2018_v1,NFKS_v1,NHiary2016_v1,NKLN_v1,NKadiri2005_v1,NMT_v1,NPlattTrudgian_v1,NPlattTrudgian2021_v1,NRosserSchoenfeld_v1,NTrudgian2011_v1,NZeroCount_v1 literature;
   class NButheNumerics_v1,NDudekPlattNumerics_v1,NDudekPlattNumerics_v2,NFKBJ_v1,NFKS2Numerics_v1,NLowZeroes_v1,NPlatt2015_v1,NPlatt2017_v1 numerical;
-  class NCH2_v2,NCH2_v3,NCH2_v4,NDudekPlatt_v2,NDudekPlatt_v3,NFKS2_v1,NFKS2_v2,NLcm_v1,NLcm_v2,NPrimeInterval_v1,NZeroFreeHeight_v1,NZetaLogDeriv_v1 lean_comparator;
+  class NCH2_v2,NCH2_v3,NCH2_v4,NDudekPlatt_v2,NDudekPlatt_v3,NFKS2_v1,NFKS2_v2,NLcm_v1,NLcm_v2,NPrimeInterval_v1,NZeroFreeHeight_v1,NZetaLogDeriv_v1 lean_comparator_stale;
   click NBKLNW_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/BKLNW-v1.md" _blank
   click NButhe_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/Buthe-v1.md" _blank
   click NButhe_v2 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/Buthe-v2.md" _blank
@@ -245,16 +245,16 @@ graph LR
     CH2_v1_corollary_1_3_psi["<b>corollary_1_3_psi</b><br/><i>cited</i>"]
   end
   subgraph sgCH2_v2["CH2.v2"]
-    CH2_v2_proposition_2_4_lower["<b>proposition_2_4_lower</b><br/><i>verified</i>"]
-    CH2_v2_proposition_2_4_upper["<b>proposition_2_4_upper</b><br/><i>verified</i>"]
+    CH2_v2_proposition_2_4_lower["<b>proposition_2_4_lower</b><br/><i>verified, stale</i>"]
+    CH2_v2_proposition_2_4_upper["<b>proposition_2_4_upper</b><br/><i>verified, stale</i>"]
   end
   subgraph sgCH2_v3["CH2.v3"]
-    CH2_v3_extremal_majorant["<b>extremal_majorant</b><br/><i>verified</i>"]
-    CH2_v3_extremal_minorant["<b>extremal_minorant</b><br/><i>verified</i>"]
+    CH2_v3_extremal_majorant["<b>extremal_majorant</b><br/><i>verified, stale</i>"]
+    CH2_v3_extremal_minorant["<b>extremal_minorant</b><br/><i>verified, stale</i>"]
   end
   subgraph sgCH2_v4["CH2.v4"]
-    CH2_v4_contour_shift["<b>contour_shift</b><br/><i>verified</i>"]
-    CH2_v4_contour_shift_holomorphic["<b>contour_shift_holomorphic</b><br/><i>verified</i>"]
+    CH2_v4_contour_shift["<b>contour_shift</b><br/><i>verified, stale</i>"]
+    CH2_v4_contour_shift_holomorphic["<b>contour_shift_holomorphic</b><br/><i>verified, stale</i>"]
   end
   subgraph sgContourIntegration_v1["ContourIntegration.v1"]
     ContourIntegration_v1_residue_theorem_rectangle["<b>residue_theorem_rectangle</b><br/><i>unjustified</i>"]
@@ -264,10 +264,10 @@ graph LR
     DudekPlatt_v1_ramanujan_inequality["<b>ramanujan_inequality</b><br/><i>cited</i>"]
   end
   subgraph sgDudekPlatt_v2["DudekPlatt.v2"]
-    DudekPlatt_v2_ramanujan_inequality_3915["<b>ramanujan_inequality_3915</b><br/><i>verified</i>"]
+    DudekPlatt_v2_ramanujan_inequality_3915["<b>ramanujan_inequality_3915</b><br/><i>verified, stale</i>"]
   end
   subgraph sgDudekPlatt_v3["DudekPlatt.v3"]
-    DudekPlatt_v3_criterion["<b>criterion</b><br/><i>verified</i>"]
+    DudekPlatt_v3_criterion["<b>criterion</b><br/><i>verified, stale</i>"]
   end
   subgraph sgDudekPlattNumerics_v1["DudekPlattNumerics.v1"]
     DudekPlattNumerics_v1_pi_two_sided_paper["<b>pi_two_sided_paper</b><br/><i>computation</i>"]
@@ -286,14 +286,14 @@ graph LR
     FKS_v1_psi_classical_bound["<b>psi_classical_bound</b><br/><i>cited</i>"]
   end
   subgraph sgFKS2_v1["FKS2.v1"]
-    FKS2_v1_corollary_14["<b>corollary_14</b><br/><i>verified</i>"]
-    FKS2_v1_corollary_22["<b>corollary_22</b><br/><i>verified</i>"]
-    FKS2_v1_corollary_23["<b>corollary_23</b><br/><i>verified</i>"]
-    FKS2_v1_corollary_26["<b>corollary_26</b><br/><i>verified</i>"]
+    FKS2_v1_corollary_14["<b>corollary_14</b><br/><i>verified, stale</i>"]
+    FKS2_v1_corollary_22["<b>corollary_22</b><br/><i>verified, stale</i>"]
+    FKS2_v1_corollary_23["<b>corollary_23</b><br/><i>verified, stale</i>"]
+    FKS2_v1_corollary_26["<b>corollary_26</b><br/><i>verified, stale</i>"]
   end
   subgraph sgFKS2_v2["FKS2.v2"]
-    FKS2_v2_proposition_13["<b>proposition_13</b><br/><i>verified</i>"]
-    FKS2_v2_theorem_3["<b>theorem_3</b><br/><i>verified</i>"]
+    FKS2_v2_proposition_13["<b>proposition_13</b><br/><i>verified, stale</i>"]
+    FKS2_v2_theorem_3["<b>theorem_3</b><br/><i>verified, stale</i>"]
   end
   subgraph sgFKS2Numerics_v1["FKS2Numerics.v1"]
     FKS2Numerics_v1_corollary_22_mid_range["<b>corollary_22_mid_range</b><br/><i>computation</i>"]
@@ -319,10 +319,10 @@ graph LR
     Kadiri2005_v1_zero_free_region["<b>zero_free_region</b><br/><i>cited</i>"]
   end
   subgraph sgLcm_v1["Lcm.v1"]
-    Lcm_v1_lcmUpto_not_highlyAbundant["<b>lcmUpto_not_highlyAbundant</b><br/><i>verified</i>"]
+    Lcm_v1_lcmUpto_not_highlyAbundant["<b>lcmUpto_not_highlyAbundant</b><br/><i>verified, stale</i>"]
   end
   subgraph sgLcm_v2["Lcm.v2"]
-    Lcm_v2_lcmUpto_not_highlyAbundant_of_primeGap["<b>lcmUpto_not_highlyAbundant_of_primeGap</b><br/><i>verified</i>"]
+    Lcm_v2_lcmUpto_not_highlyAbundant_of_primeGap["<b>lcmUpto_not_highlyAbundant_of_primeGap</b><br/><i>verified, stale</i>"]
   end
   subgraph sgLowZeroes_v1["LowZeroes.v1"]
     LowZeroes_v1_sum_inv_ordinates_below_2e4["<b>sum_inv_ordinates_below_2e4</b><br/><i>computation</i>"]
@@ -345,10 +345,10 @@ graph LR
     PlattTrudgian2021_v1_theorem_1_numerical["<b>theorem_1_numerical</b><br/><i>cited</i>"]
   end
   subgraph sgPrimeInterval_v1["PrimeInterval.v1"]
-    PrimeInterval_v1_classicalBound_hasPrimeInInterval["<b>classicalBound_hasPrimeInInterval</b><br/><i>verified</i>"]
-    PrimeInterval_v1_eTheta_criterion["<b>eTheta_criterion</b><br/><i>verified</i>"]
-    PrimeInterval_v1_numericalBound_hasPrimeInInterval["<b>numericalBound_hasPrimeInInterval</b><br/><i>verified</i>"]
-    PrimeInterval_v1_theta_characterisation["<b>theta_characterisation</b><br/><i>verified</i>"]
+    PrimeInterval_v1_classicalBound_hasPrimeInInterval["<b>classicalBound_hasPrimeInInterval</b><br/><i>verified, stale</i>"]
+    PrimeInterval_v1_eTheta_criterion["<b>eTheta_criterion</b><br/><i>verified, stale</i>"]
+    PrimeInterval_v1_numericalBound_hasPrimeInInterval["<b>numericalBound_hasPrimeInInterval</b><br/><i>verified, stale</i>"]
+    PrimeInterval_v1_theta_characterisation["<b>theta_characterisation</b><br/><i>verified, stale</i>"]
   end
   subgraph sgRosserSchoenfeld_v1["RosserSchoenfeld.v1"]
     RosserSchoenfeld_v1_zero_free_region["<b>zero_free_region</b><br/><i>cited</i>"]
@@ -365,10 +365,10 @@ graph LR
     ZeroCount_v1_rvm_error_small["<b>rvm_error_small</b><br/><i>cited</i>"]
   end
   subgraph sgZeroFreeHeight_v1["ZeroFreeHeight.v1"]
-    ZeroFreeHeight_v1_classical_region_descends["<b>classical_region_descends</b><br/><i>verified</i>"]
+    ZeroFreeHeight_v1_classical_region_descends["<b>classical_region_descends</b><br/><i>verified, stale</i>"]
   end
   subgraph sgZetaLogDeriv_v1["ZetaLogDeriv.v1"]
-    ZetaLogDeriv_v1_logDeriv_functional_equation["<b>logDeriv_functional_equation</b><br/><i>verified</i>"]
+    ZetaLogDeriv_v1_logDeriv_functional_equation["<b>logDeriv_functional_equation</b><br/><i>verified, stale</i>"]
   end
   Buthe_v1_theorem_2_theta_lower --> BKLNW_v1_corollary_5_1
   Buthe2016_v1_theorem_2_psi --> BKLNW_v1_table8_psi_bound
@@ -502,7 +502,7 @@ graph LR
   class BRLcm_v1_lcmUpto_not_highlyAbundant__bridge_from_v2,BRPlatt2015_v1_rh_up_to__bridge_from_platt2017,BRRosserSchoenfeld_v1_zero_free_region_classical__bridge_from_shape,BRWedeniwski_v1_rh_up_to__bridge_from_platt2017 bridge;
   class Wedeniwski_v1_rh_up_to asserted;
   class RosserSchoenfeld_v1_zero_free_region_classical bridged;
-  class CH2_v2_proposition_2_4_lower,CH2_v2_proposition_2_4_upper,CH2_v3_extremal_majorant,CH2_v3_extremal_minorant,CH2_v4_contour_shift,CH2_v4_contour_shift_holomorphic,DudekPlatt_v2_ramanujan_inequality_3915,DudekPlatt_v3_criterion,FKS2_v1_corollary_14,FKS2_v1_corollary_22,FKS2_v1_corollary_23,FKS2_v1_corollary_26,FKS2_v2_proposition_13,FKS2_v2_theorem_3,Lcm_v1_lcmUpto_not_highlyAbundant,Lcm_v2_lcmUpto_not_highlyAbundant_of_primeGap,PrimeInterval_v1_classicalBound_hasPrimeInInterval,PrimeInterval_v1_eTheta_criterion,PrimeInterval_v1_numericalBound_hasPrimeInInterval,PrimeInterval_v1_theta_characterisation,ZeroFreeHeight_v1_classical_region_descends,ZetaLogDeriv_v1_logDeriv_functional_equation lean_comparator;
+  class CH2_v2_proposition_2_4_lower,CH2_v2_proposition_2_4_upper,CH2_v3_extremal_majorant,CH2_v3_extremal_minorant,CH2_v4_contour_shift,CH2_v4_contour_shift_holomorphic,DudekPlatt_v2_ramanujan_inequality_3915,DudekPlatt_v3_criterion,FKS2_v1_corollary_14,FKS2_v1_corollary_22,FKS2_v1_corollary_23,FKS2_v1_corollary_26,FKS2_v2_proposition_13,FKS2_v2_theorem_3,Lcm_v1_lcmUpto_not_highlyAbundant,Lcm_v2_lcmUpto_not_highlyAbundant_of_primeGap,PrimeInterval_v1_classicalBound_hasPrimeInInterval,PrimeInterval_v1_eTheta_criterion,PrimeInterval_v1_numericalBound_hasPrimeInInterval,PrimeInterval_v1_theta_characterisation,ZeroFreeHeight_v1_classical_region_descends,ZetaLogDeriv_v1_logDeriv_functional_equation lean_comparator_stale;
   class BKLNW_v1_corollary_5_1,BKLNW_v1_table8_psi_bound,BKLNW_v1_table8_psi_bound_above,BKLNW_v1_theta_error_le_one,Buthe_v1_theorem_2_li_gt_pi,Buthe_v1_theorem_2_li_minus_pi,Buthe_v1_theorem_2_li_minus_riemann_pi,Buthe_v1_theorem_2_psi,Buthe_v1_theorem_2_theta,Buthe_v1_theorem_2_theta_lower,Buthe2016_v1_theorem_2_li_minus_pi,Buthe2016_v1_theorem_2_li_minus_riemann_pi,Buthe2016_v1_theorem_2_psi,Buthe2016_v1_theorem_2_theta,CH2_v1_corollary_1_2_lambda_sum,CH2_v1_corollary_1_2_psi,CH2_v1_corollary_1_3_lambda_sum,CH2_v1_corollary_1_3_psi,DudekPlatt_v1_largest_counterexample_on_rh,DudekPlatt_v1_ramanujan_inequality,Dusart2018_v1_proposition_5_4,FKS_v1_psi_bound_all_x,FKS_v1_psi_classical_bound,Hiary2016_v1_zeta_half_line_bound,KLN_v1_subconvexity_bound,KLN_v1_zero_density,Kadiri2005_v1_zero_free_region,MT_v1_zero_free_region,MT_v1_zero_free_region_sharpened,PlattTrudgian_v1_rh_up_to,PlattTrudgian2021_v1_theorem_1_classical,PlattTrudgian2021_v1_theorem_1_numerical,RosserSchoenfeld_v1_zero_free_region,Trudgian2011_v1_integral_S_bound,ZeroCount_v1_rvm_error_bound,ZeroCount_v1_rvm_error_small literature;
   class Buthe_v2_lemma_3_bounds,Buthe_v2_lemma_3_positivity,ContourIntegration_v1_residue_theorem_rectangle,GammaAsymptotics_v1_digamma_sub_log_isBigO,GammaAsymptotics_v2_digamma_sub_log_isBigO_strip none_yet;
   class ButheNumerics_v1_lemma_3_constant_gt_at_10,ButheNumerics_v1_lemma_3_constant_nonpos,ButheNumerics_v1_li_minus_pi_below_1e7,DudekPlattNumerics_v1_pi_two_sided_paper,DudekPlattNumerics_v2_pi_two_sided_pnt,FKBJ_v1_rh_up_to,FKS2Numerics_v1_corollary_22_mid_range,FKS2Numerics_v1_corollary_23_mid_range,FKS2Numerics_v1_nu_asymp_e30_le,FKS2Numerics_v1_table6_row2_floor,FKS2Numerics_v1_theta_asymp_ge_one_below_e30,LowZeroes_v1_sum_inv_ordinates_below_2e4,Platt2015_v1_rh_up_to,Platt2017_v1_rh_up_to numerical;
@@ -655,27 +655,27 @@ A line is one claim, indented under whatever assumes it.
     - [`GammaAsymptotics.v2.digamma_sub_log_isBigO_strip`](docs/nodes/GammaAsymptotics-v2.md#digamma_sub_log_isBigO_strip) — unjustified
   - [`PlattTrudgian.v1.rh_up_to`](docs/nodes/PlattTrudgian-v1.md#rh_up_to) — cited — *sources known, not all drawable*
 
-- [`CH2.v2.proposition_2_4_lower`](docs/nodes/CH2-v2.md#proposition_2_4_lower) — verified
+- [`CH2.v2.proposition_2_4_lower`](docs/nodes/CH2-v2.md#proposition_2_4_lower) — verified, stale
 
-- [`CH2.v2.proposition_2_4_upper`](docs/nodes/CH2-v2.md#proposition_2_4_upper) — verified
+- [`CH2.v2.proposition_2_4_upper`](docs/nodes/CH2-v2.md#proposition_2_4_upper) — verified, stale
 
-- [`CH2.v3.extremal_majorant`](docs/nodes/CH2-v3.md#extremal_majorant) — verified
+- [`CH2.v3.extremal_majorant`](docs/nodes/CH2-v3.md#extremal_majorant) — verified, stale
 
-- [`CH2.v3.extremal_minorant`](docs/nodes/CH2-v3.md#extremal_minorant) — verified
+- [`CH2.v3.extremal_minorant`](docs/nodes/CH2-v3.md#extremal_minorant) — verified, stale
 
-- [`CH2.v4.contour_shift`](docs/nodes/CH2-v4.md#contour_shift) — verified
+- [`CH2.v4.contour_shift`](docs/nodes/CH2-v4.md#contour_shift) — verified, stale
   - [`ContourIntegration.v1.residue_theorem_rectangle`](docs/nodes/ContourIntegration-v1.md#residue_theorem_rectangle) — unjustified
 
-- [`CH2.v4.contour_shift_holomorphic`](docs/nodes/CH2-v4.md#contour_shift_holomorphic) — verified
+- [`CH2.v4.contour_shift_holomorphic`](docs/nodes/CH2-v4.md#contour_shift_holomorphic) — verified, stale
 
 - [`DudekPlatt.v1.largest_counterexample_on_rh`](docs/nodes/DudekPlatt-v1.md#largest_counterexample_on_rh) — cited — *sources known, not all drawable*
 
 - [`DudekPlatt.v1.ramanujan_inequality`](docs/nodes/DudekPlatt-v1.md#ramanujan_inequality) — cited
   - [`DudekPlattNumerics.v1.pi_two_sided_paper`](docs/nodes/DudekPlattNumerics-v1.md#pi_two_sided_paper) — computation — *sources known, not all drawable*
-  - [`DudekPlatt.v3.criterion`](docs/nodes/DudekPlatt-v3.md#criterion) — verified
+  - [`DudekPlatt.v3.criterion`](docs/nodes/DudekPlatt-v3.md#criterion) — verified, stale
 
-- [`DudekPlatt.v2.ramanujan_inequality_3915`](docs/nodes/DudekPlatt-v2.md#ramanujan_inequality_3915) — verified
-  - [`DudekPlatt.v3.criterion`](docs/nodes/DudekPlatt-v3.md#criterion) — verified
+- [`DudekPlatt.v2.ramanujan_inequality_3915`](docs/nodes/DudekPlatt-v2.md#ramanujan_inequality_3915) — verified, stale
+  - [`DudekPlatt.v3.criterion`](docs/nodes/DudekPlatt-v3.md#criterion) — verified, stale
   - [`DudekPlattNumerics.v2.pi_two_sided_pnt`](docs/nodes/DudekPlattNumerics-v2.md#pi_two_sided_pnt) — computation — *sources not traced*
 
 - [`FKS.v1.psi_bound_all_x`](docs/nodes/FKS-v1.md#psi_bound_all_x) — cited
@@ -688,7 +688,7 @@ A line is one claim, indented under whatever assumes it.
     - [`PlattTrudgian.v1.rh_up_to`](docs/nodes/PlattTrudgian-v1.md#rh_up_to) — cited — *sources known, not all drawable*
   - [`PlattTrudgian.v1.rh_up_to`](docs/nodes/PlattTrudgian-v1.md#rh_up_to) — cited *(above)* — *sources known, not all drawable*
 
-- [`FKS2.v1.corollary_14`](docs/nodes/FKS2-v1.md#corollary_14) — verified
+- [`FKS2.v1.corollary_14`](docs/nodes/FKS2-v1.md#corollary_14) — verified, stale
   - [`FKS.v1.psi_classical_bound`](docs/nodes/FKS-v1.md#psi_classical_bound) — cited
     - [`KLN.v1.subconvexity_bound`](docs/nodes/KLN-v1.md#subconvexity_bound) — cited
       - [`Hiary2016.v1.zeta_half_line_bound`](docs/nodes/Hiary2016-v1.md#zeta_half_line_bound) — cited — *sources known, not all drawable*
@@ -705,30 +705,9 @@ A line is one claim, indented under whatever assumes it.
     - [`Buthe.v1.theorem_2_theta_lower`](docs/nodes/Buthe-v1.md#theorem_2_theta_lower) — cited *(above)* — *sources known, not all drawable*
   - [`FKS2Numerics.v1.nu_asymp_e30_le`](docs/nodes/FKS2Numerics-v1.md#nu_asymp_e30_le) — computation
   - [`FKS2Numerics.v1.theta_asymp_ge_one_below_e30`](docs/nodes/FKS2Numerics-v1.md#theta_asymp_ge_one_below_e30) — computation
-  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified
+  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified, stale
 
-- [`FKS2.v1.corollary_22`](docs/nodes/FKS2-v1.md#corollary_22) — verified
-  - [`FKS.v1.psi_classical_bound`](docs/nodes/FKS-v1.md#psi_classical_bound) — cited
-    - [`KLN.v1.subconvexity_bound`](docs/nodes/KLN-v1.md#subconvexity_bound) — cited
-      - [`Hiary2016.v1.zeta_half_line_bound`](docs/nodes/Hiary2016-v1.md#zeta_half_line_bound) — cited — *sources known, not all drawable*
-    - [`MT.v1.zero_free_region_sharpened`](docs/nodes/MT-v1.md#zero_free_region_sharpened) — cited
-      - [`Kadiri2005.v1.zero_free_region`](docs/nodes/Kadiri2005-v1.md#zero_free_region) — cited
-        - [`RosserSchoenfeld.v1.zero_free_region_classical`](docs/nodes/RosserSchoenfeld-v1.md#zero_free_region_classical) — bridged
-        - [`Wedeniwski.v1.rh_up_to`](docs/nodes/Wedeniwski-v1.md#rh_up_to) — asserted — *sources not traced*
-      - [`PlattTrudgian.v1.rh_up_to`](docs/nodes/PlattTrudgian-v1.md#rh_up_to) — cited — *sources known, not all drawable*
-    - [`PlattTrudgian.v1.rh_up_to`](docs/nodes/PlattTrudgian-v1.md#rh_up_to) — cited *(above)* — *sources known, not all drawable*
-  - [`BKLNW.v1.corollary_5_1`](docs/nodes/BKLNW-v1.md#corollary_5_1) — cited
-    - [`Buthe.v1.theorem_2_theta_lower`](docs/nodes/Buthe-v1.md#theorem_2_theta_lower) — cited — *sources known, not all drawable*
-      - [`FKBJ.v1.rh_up_to`](docs/nodes/FKBJ-v1.md#rh_up_to) — computation — *sources known, not all drawable*
-  - [`BKLNW.v1.theta_error_le_one`](docs/nodes/BKLNW-v1.md#theta_error_le_one) — cited
-    - [`Buthe.v1.theorem_2_theta_lower`](docs/nodes/Buthe-v1.md#theorem_2_theta_lower) — cited *(above)* — *sources known, not all drawable*
-  - [`FKS2Numerics.v1.nu_asymp_e30_le`](docs/nodes/FKS2Numerics-v1.md#nu_asymp_e30_le) — computation
-  - [`FKS2Numerics.v1.theta_asymp_ge_one_below_e30`](docs/nodes/FKS2Numerics-v1.md#theta_asymp_ge_one_below_e30) — computation
-  - [`FKS2Numerics.v1.corollary_22_mid_range`](docs/nodes/FKS2Numerics-v1.md#corollary_22_mid_range) — computation
-  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified
-  - [`FKS2.v2.theorem_3`](docs/nodes/FKS2-v2.md#theorem_3) — verified
-
-- [`FKS2.v1.corollary_23`](docs/nodes/FKS2-v1.md#corollary_23) — verified
+- [`FKS2.v1.corollary_22`](docs/nodes/FKS2-v1.md#corollary_22) — verified, stale
   - [`FKS.v1.psi_classical_bound`](docs/nodes/FKS-v1.md#psi_classical_bound) — cited
     - [`KLN.v1.subconvexity_bound`](docs/nodes/KLN-v1.md#subconvexity_bound) — cited
       - [`Hiary2016.v1.zeta_half_line_bound`](docs/nodes/Hiary2016-v1.md#zeta_half_line_bound) — cited — *sources known, not all drawable*
@@ -746,12 +725,10 @@ A line is one claim, indented under whatever assumes it.
   - [`FKS2Numerics.v1.nu_asymp_e30_le`](docs/nodes/FKS2Numerics-v1.md#nu_asymp_e30_le) — computation
   - [`FKS2Numerics.v1.theta_asymp_ge_one_below_e30`](docs/nodes/FKS2Numerics-v1.md#theta_asymp_ge_one_below_e30) — computation
   - [`FKS2Numerics.v1.corollary_22_mid_range`](docs/nodes/FKS2Numerics-v1.md#corollary_22_mid_range) — computation
-  - [`FKS2Numerics.v1.table6_row2_floor`](docs/nodes/FKS2Numerics-v1.md#table6_row2_floor) — computation
-  - [`FKS2Numerics.v1.corollary_23_mid_range`](docs/nodes/FKS2Numerics-v1.md#corollary_23_mid_range) — computation
-  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified
-  - [`FKS2.v2.theorem_3`](docs/nodes/FKS2-v2.md#theorem_3) — verified
+  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified, stale
+  - [`FKS2.v2.theorem_3`](docs/nodes/FKS2-v2.md#theorem_3) — verified, stale
 
-- [`FKS2.v1.corollary_26`](docs/nodes/FKS2-v1.md#corollary_26) — verified
+- [`FKS2.v1.corollary_23`](docs/nodes/FKS2-v1.md#corollary_23) — verified, stale
   - [`FKS.v1.psi_classical_bound`](docs/nodes/FKS-v1.md#psi_classical_bound) — cited
     - [`KLN.v1.subconvexity_bound`](docs/nodes/KLN-v1.md#subconvexity_bound) — cited
       - [`Hiary2016.v1.zeta_half_line_bound`](docs/nodes/Hiary2016-v1.md#zeta_half_line_bound) — cited — *sources known, not all drawable*
@@ -771,15 +748,38 @@ A line is one claim, indented under whatever assumes it.
   - [`FKS2Numerics.v1.corollary_22_mid_range`](docs/nodes/FKS2Numerics-v1.md#corollary_22_mid_range) — computation
   - [`FKS2Numerics.v1.table6_row2_floor`](docs/nodes/FKS2Numerics-v1.md#table6_row2_floor) — computation
   - [`FKS2Numerics.v1.corollary_23_mid_range`](docs/nodes/FKS2Numerics-v1.md#corollary_23_mid_range) — computation
-  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified
-  - [`FKS2.v2.theorem_3`](docs/nodes/FKS2-v2.md#theorem_3) — verified
+  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified, stale
+  - [`FKS2.v2.theorem_3`](docs/nodes/FKS2-v2.md#theorem_3) — verified, stale
+
+- [`FKS2.v1.corollary_26`](docs/nodes/FKS2-v1.md#corollary_26) — verified, stale
+  - [`FKS.v1.psi_classical_bound`](docs/nodes/FKS-v1.md#psi_classical_bound) — cited
+    - [`KLN.v1.subconvexity_bound`](docs/nodes/KLN-v1.md#subconvexity_bound) — cited
+      - [`Hiary2016.v1.zeta_half_line_bound`](docs/nodes/Hiary2016-v1.md#zeta_half_line_bound) — cited — *sources known, not all drawable*
+    - [`MT.v1.zero_free_region_sharpened`](docs/nodes/MT-v1.md#zero_free_region_sharpened) — cited
+      - [`Kadiri2005.v1.zero_free_region`](docs/nodes/Kadiri2005-v1.md#zero_free_region) — cited
+        - [`RosserSchoenfeld.v1.zero_free_region_classical`](docs/nodes/RosserSchoenfeld-v1.md#zero_free_region_classical) — bridged
+        - [`Wedeniwski.v1.rh_up_to`](docs/nodes/Wedeniwski-v1.md#rh_up_to) — asserted — *sources not traced*
+      - [`PlattTrudgian.v1.rh_up_to`](docs/nodes/PlattTrudgian-v1.md#rh_up_to) — cited — *sources known, not all drawable*
+    - [`PlattTrudgian.v1.rh_up_to`](docs/nodes/PlattTrudgian-v1.md#rh_up_to) — cited *(above)* — *sources known, not all drawable*
+  - [`BKLNW.v1.corollary_5_1`](docs/nodes/BKLNW-v1.md#corollary_5_1) — cited
+    - [`Buthe.v1.theorem_2_theta_lower`](docs/nodes/Buthe-v1.md#theorem_2_theta_lower) — cited — *sources known, not all drawable*
+      - [`FKBJ.v1.rh_up_to`](docs/nodes/FKBJ-v1.md#rh_up_to) — computation — *sources known, not all drawable*
+  - [`BKLNW.v1.theta_error_le_one`](docs/nodes/BKLNW-v1.md#theta_error_le_one) — cited
+    - [`Buthe.v1.theorem_2_theta_lower`](docs/nodes/Buthe-v1.md#theorem_2_theta_lower) — cited *(above)* — *sources known, not all drawable*
+  - [`FKS2Numerics.v1.nu_asymp_e30_le`](docs/nodes/FKS2Numerics-v1.md#nu_asymp_e30_le) — computation
+  - [`FKS2Numerics.v1.theta_asymp_ge_one_below_e30`](docs/nodes/FKS2Numerics-v1.md#theta_asymp_ge_one_below_e30) — computation
+  - [`FKS2Numerics.v1.corollary_22_mid_range`](docs/nodes/FKS2Numerics-v1.md#corollary_22_mid_range) — computation
+  - [`FKS2Numerics.v1.table6_row2_floor`](docs/nodes/FKS2Numerics-v1.md#table6_row2_floor) — computation
+  - [`FKS2Numerics.v1.corollary_23_mid_range`](docs/nodes/FKS2Numerics-v1.md#corollary_23_mid_range) — computation
+  - [`FKS2.v2.proposition_13`](docs/nodes/FKS2-v2.md#proposition_13) — verified, stale
+  - [`FKS2.v2.theorem_3`](docs/nodes/FKS2-v2.md#theorem_3) — verified, stale
 
 - [`GammaAsymptotics.v1.digamma_sub_log_isBigO`](docs/nodes/GammaAsymptotics-v1.md#digamma_sub_log_isBigO) — unjustified
 
-- [`Lcm.v1.lcmUpto_not_highlyAbundant`](docs/nodes/Lcm-v1.md#lcmUpto_not_highlyAbundant) — verified
+- [`Lcm.v1.lcmUpto_not_highlyAbundant`](docs/nodes/Lcm-v1.md#lcmUpto_not_highlyAbundant) — verified, stale
   - [`Dusart2018.v1.proposition_5_4`](docs/nodes/Dusart2018-v1.md#proposition_5_4) — cited — *sources not traced*
 
-- [`Lcm.v2.lcmUpto_not_highlyAbundant_of_primeGap`](docs/nodes/Lcm-v2.md#lcmUpto_not_highlyAbundant_of_primeGap) — verified
+- [`Lcm.v2.lcmUpto_not_highlyAbundant_of_primeGap`](docs/nodes/Lcm-v2.md#lcmUpto_not_highlyAbundant_of_primeGap) — verified, stale
 
 - [`LowZeroes.v1.sum_inv_ordinates_below_2e4`](docs/nodes/LowZeroes-v1.md#sum_inv_ordinates_below_2e4) — computation
 
@@ -794,13 +794,13 @@ A line is one claim, indented under whatever assumes it.
     - [`Platt2017.v1.rh_up_to`](docs/nodes/Platt2017-v1.md#rh_up_to) — computation — *sources known, not all drawable*
       - [`Trudgian2011.v1.integral_S_bound`](docs/nodes/Trudgian2011-v1.md#integral_S_bound) — cited — *sources not traced*
 
-- [`PrimeInterval.v1.classicalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#classicalBound_hasPrimeInInterval) — verified
+- [`PrimeInterval.v1.classicalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#classicalBound_hasPrimeInInterval) — verified, stale
 
-- [`PrimeInterval.v1.eTheta_criterion`](docs/nodes/PrimeInterval-v1.md#eTheta_criterion) — verified
+- [`PrimeInterval.v1.eTheta_criterion`](docs/nodes/PrimeInterval-v1.md#eTheta_criterion) — verified, stale
 
-- [`PrimeInterval.v1.numericalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#numericalBound_hasPrimeInInterval) — verified
+- [`PrimeInterval.v1.numericalBound_hasPrimeInInterval`](docs/nodes/PrimeInterval-v1.md#numericalBound_hasPrimeInInterval) — verified, stale
 
-- [`PrimeInterval.v1.theta_characterisation`](docs/nodes/PrimeInterval-v1.md#theta_characterisation) — verified
+- [`PrimeInterval.v1.theta_characterisation`](docs/nodes/PrimeInterval-v1.md#theta_characterisation) — verified, stale
 
 - [`RosserSchoenfeld.v1.zero_free_region`](docs/nodes/RosserSchoenfeld-v1.md#zero_free_region) — cited — *sources not traced*
 
@@ -808,9 +808,9 @@ A line is one claim, indented under whatever assumes it.
 
 - [`ZeroCount.v1.rvm_error_small`](docs/nodes/ZeroCount-v1.md#rvm_error_small) — cited
 
-- [`ZeroFreeHeight.v1.classical_region_descends`](docs/nodes/ZeroFreeHeight-v1.md#classical_region_descends) — verified
+- [`ZeroFreeHeight.v1.classical_region_descends`](docs/nodes/ZeroFreeHeight-v1.md#classical_region_descends) — verified, stale
 
-- [`ZetaLogDeriv.v1.logDeriv_functional_equation`](docs/nodes/ZetaLogDeriv-v1.md#logDeriv_functional_equation) — verified
+- [`ZetaLogDeriv.v1.logDeriv_functional_equation`](docs/nodes/ZetaLogDeriv-v1.md#logDeriv_functional_equation) — verified, stale
 
 ## What the network takes on trust
 

@@ -70,7 +70,8 @@ noncomputable def criterion : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/DudekPlatt/v3/Conclusions.lean#L129) |
 | Solution | [`Solutions/DudekPlatt.v3`](https://github.com/teorth/IEANTN/tree/main/Solutions/DudekPlatt.v3) |
 | Receipt | [`DudekPlatt.v3.criterion.json`](https://github.com/teorth/IEANTN/blob/main/receipts/DudekPlatt.v3.criterion.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | [`DudekPlatt.v1.ramanujan_inequality`](DudekPlatt-v1.md#ramanujan_inequality), [`DudekPlatt.v2.ramanujan_inequality_3915`](DudekPlatt-v2.md#ramanujan_inequality_3915) |

@@ -1723,6 +1723,47 @@ class TestStaleness(FixtureRepo):
         light, _ = ieantn.assess("A.v1.main", self._receipt({"A.v1.main": "d"}), {})
         self.assertEqual(light, "BROKEN")
 
+    def test_a_moved_fingerprint_with_unchanged_source_is_churn_not_broken(self) -> None:
+        """A Mathlib bump moves the digest without touching the Lean; that is not a severed edge.
+
+        The digest is of the ELABORATED statement, so a renamed instance upstream is enough to
+        move it. Grading that BROKEN makes every bump look like someone rewrote a theorem.
+        """
+        receipt = self._receipt({"A.v1.main": "old"})
+        receipt["repository"] = {"commit": "c" * 40}
+        with unittest.mock.patch.object(ieantn, "statement_source_unchanged", lambda *_: True):
+            light, detail = ieantn.assess("A.v1.main", receipt, {"A.v1.main": "new"})
+        self.assertEqual(light, "churn")
+        self.assertIn("Lean source is unchanged", detail)
+
+    def test_a_moved_fingerprint_with_changed_source_is_still_broken(self) -> None:
+        receipt = self._receipt({"A.v1.main": "old"})
+        receipt["repository"] = {"commit": "c" * 40}
+        with unittest.mock.patch.object(ieantn, "statement_source_unchanged", lambda *_: False):
+            light, _ = ieantn.assess("A.v1.main", receipt, {"A.v1.main": "new"})
+        self.assertEqual(light, "BROKEN")
+
+    def test_broken_wins_over_churn_when_both_are_present(self) -> None:
+        """One severed edge is fatal however many merely re-elaborated alongside it."""
+        receipt = self._receipt({"A.v1.main": "old", "B.v1.main": "old"})
+        receipt["repository"] = {"commit": "c" * 40}
+        # `A` re-elaborated; `B` was genuinely edited.
+        with unittest.mock.patch.object(
+            ieantn, "statement_source_unchanged", lambda name, _: name == "A.v1.main"
+        ):
+            light, detail = ieantn.assess(
+                "A.v1.main", receipt, {"A.v1.main": "new", "B.v1.main": "new"}
+            )
+        self.assertEqual(light, "BROKEN")
+        self.assertIn("B.v1.main", detail)
+
+    def test_an_unanswerable_source_question_grades_broken(self) -> None:
+        """No `repository.commit` means git cannot be asked, and silence must not read as safe."""
+        light, _ = ieantn.assess(
+            "A.v1.main", self._receipt({"A.v1.main": "old"}), {"A.v1.main": "new"}
+        )
+        self.assertEqual(light, "BROKEN")
+
     def test_environment_drift_is_yellow_not_broken(self) -> None:
         light, _ = ieantn.assess(
             "A.v1.main",

@@ -1760,13 +1760,28 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str]) -> 
     * an **environment** that has moved is ordinary staleness. Graduated, and expected.
     """
     recorded = receipt.get("statement") or {}
+    commit = (receipt.get("repository") or {}).get("commit")
+    churn: str | None = None
     for name, digest in sorted(recorded.items()):
         now = fingerprints.get(name)
         if now is None:
             return "BROKEN", f"`{name}` no longer exists"
         if now != digest:
             which = "its own statement" if name == conclusion_key else f"`{name}`"
+            # A fingerprint is a digest of the ELABORATED statement, so a Mathlib bump can move it
+            # with the Lean source untouched -- a renamed instance is enough. That is not a severed
+            # edge and must not be graded as one, or every bump manufactures BROKEN edges that look
+            # like someone quietly rewrote a theorem. When the source is demonstrably unchanged the
+            # verdict is `churn`; when it changed, or cannot be checked, it stays BROKEN.
+            if statement_source_unchanged(name, commit):
+                churn = churn or (
+                    f"{which} re-elaborates differently under the current environment, though its "
+                    "Lean source is unchanged since verification"
+                )
+                continue
             return "BROKEN", f"{which} changed since verification"
+    if churn is not None:
+        return "churn", churn
 
     environment = receipt.get("environment") or {}
     current = current_environment()
@@ -1779,6 +1794,39 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str]) -> 
     if distance is not None and distance > CACHE_WINDOW_RELEASES:
         return "orange", f"{detail} ({distance} releases; likely outside the cache window)"
     return "yellow", detail
+
+
+def statement_source_unchanged(conclusion_name: str, commit: str | None) -> bool:
+    """Whether a conclusion's `Conclusions.lean` is untouched since the verified commit.
+
+    This is what separates a Mathlib bump from a rewritten theorem. Both move a fingerprint, since
+    the digest is taken of the *elaborated* statement; only one of them means the verified
+    implication no longer reaches what the node claims.
+
+    Deliberately conservative. It answers `True` only when git can be asked and says the file did
+    not change: no `repository.commit` (schema 1 receipts), a commit missing locally, or a failed
+    `git` call all give `False`, so an unanswerable question grades as `BROKEN` rather than as
+    churn. Being wrong in that direction costs a re-verification; being wrong in the other hides a
+    severed edge.
+    """
+    if not commit:
+        return False
+    node_id, _, _ = conclusion_name.rpartition(".")
+    family, _, version = node_id.partition(".")
+    if not family or not version:
+        return False
+    path = f"IEANTN/Nodes/{family}/{version}/Conclusions.lean"
+    known = subprocess.run(
+        ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
+        cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+    if known.returncode != 0:
+        return False
+    changed = subprocess.run(
+        ["git", "diff", "--name-only", commit, "--", path],
+        cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+    if changed.returncode != 0:
+        return False
+    return not [line for line in changed.stdout.splitlines() if line.strip()]
 
 
 def solution_drift(receipt: dict) -> str | None:
@@ -1858,6 +1906,7 @@ _RECEIPT_DISPLAY = {
     "green": "lean-comparator",
     "yellow": "lean-comparator-stale",
     "orange": "lean-comparator-stale",
+    "churn": "lean-comparator-stale",
     "BROKEN": "lean-comparator-drifted",
 }
 
@@ -1880,7 +1929,7 @@ def status() -> bool:
     """The traffic light for every conclusion."""
     nodes = load_nodes()
     fingerprints = compute_fingerprints()
-    lights = {"green": 0, "yellow": 0, "orange": 0, "BROKEN": 0, "-": 0}
+    lights = {"green": 0, "yellow": 0, "orange": 0, "churn": 0, "BROKEN": 0, "-": 0}
 
     print("Conclusion status")
     print("=" * 78)
@@ -1915,6 +1964,13 @@ def status() -> bool:
     if lights["BROKEN"]:
         print("\nA BROKEN receipt is not staleness: the verified implication no longer connects")
         print("to what the node now claims. Re-verify, or make a new version.")
+    if lights["churn"]:
+        print("\n`churn` is a fingerprint that moved while the Lean source did not -- the mark of")
+        print("an environment bump rather than an edited theorem, since the digest is taken of the")
+        print("ELABORATED statement and a renamed instance is enough to move it. Re-verify and")
+        print("re-fingerprint; do NOT read it as someone having rewritten a statement. It is not")
+        print("green either: a changed definition upstream could in principle change what the")
+        print("statement means, and only a fresh run settles that.")
     return True
 
 

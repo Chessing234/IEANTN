@@ -55,7 +55,8 @@ def classical_region_descends : Prop :=
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZeroFreeHeight/v1/Conclusions.lean#L69) |
 | Solution | [`Solutions/ZeroFreeHeight.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZeroFreeHeight.v1) |
 | Receipt | [`ZeroFreeHeight.v1.classical_region_descends.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZeroFreeHeight.v1.classical_region_descends.json) |
-| Evidence | verified (`lean-comparator`) |
+| Evidence | verified, stale (`lean-comparator`) |
+| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
