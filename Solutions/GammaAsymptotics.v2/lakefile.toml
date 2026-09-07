@@ -1,5 +1,5 @@
 name = "solution_GammaAsymptotics_v2"
-defaultTargets = ["RealAsymptotic", "Periodic", "GaussSeries", "Recurrence", "ComplexToReal", "Oscillation", "RealIdentity", "Solution"]
+defaultTargets = ["RealAsymptotic", "Periodic", "GaussSeries", "Recurrence", "ComplexToReal", "Oscillation", "RealIdentity", "Analytic", "Solution"]
 
 [[require]]
 name = "IEANTN"
@@ -32,6 +32,10 @@ roots = ["Oscillation"]
 [[lean_lib]]
 name = "RealIdentity"
 roots = ["RealIdentity"]
+
+[[lean_lib]]
+name = "Analytic"
+roots = ["Analytic"]
 
 [[lean_lib]]
 name = "Solution"

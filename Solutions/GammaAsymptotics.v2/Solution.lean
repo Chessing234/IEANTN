@@ -8,6 +8,7 @@ import Periodic
 import GaussSeries
 import Recurrence
 import RealIdentity
+import Analytic
 import IEANTN.Nodes.GammaAsymptotics.v2.Conclusions
 
 /-!
@@ -41,16 +42,24 @@ the order of work. The plan is now:
    * **so `ψ = G` on the positive reals** — `RealIdentity.lean`, **done**, by
      `eq_zero_of_periodic_of_nat_of_oscillation`. *This is the Gauss representation, the fact
      Mathlib's `Digamma.lean` lists as a `TODO`, and the obstruction the node docstring named.*
-   * c. `G` is analytic off the non-positive integers — **to do**;
-   * g. the identity theorem carries `ψ = G` from the positive reals, which have a limit point,
-        to all of `ℂ` — **to do**, and needs (c).
+   * c. `G` is analytic on the right half-plane — `Analytic.lean`, **done**, from
+        `Complex.differentiableOn_tsum_of_summable_norm` and a bound uniform on a neighbourhood;
+   * g. the identity theorem carries `ψ = G` from the positive reals, which accumulate at `1`, to
+        the whole right half-plane — `Analytic.lean`, **done**.
+   **Stage 2 is complete**: `digamma_eq_gaussSum` gives `ψ(s) = -γ + ∑ₖ (1/(k+1) - 1/(k+s))`
+   whenever `Re s > 0`.
 3. **The strip bound.** With the representation in hand, `‖ψ w - log w‖ ≤ C_H / ‖w‖` for
-   `Re w ≥ 1`, `|Im w| ≤ H` — **to do**.
+   `Re w ≥ 1`, `|Im w| ≤ H` — **to do, and all that is left**.
 
 Step (c) moved after the real identity rather than before it, because nothing up to and including
 the identity needs `G` to be analytic — the whole argument runs on the real axis, where `G` is
 just a convergent series of real terms. Analyticity is needed only to *transport* the identity,
 which is step (g)'s business.
+
+**The transport is to the right half-plane, not the slit plane `ℂ \ {0,-1,-2,…}`.** The identity
+is true on the latter and the restriction is deliberate: `Re s > 0` is everything the conclusion
+needs, and on a half-plane the uniform bound the series lemma wants is one line, because
+`‖k + s‖ ≥ Re (k + s) = k + Re s`. `Analytic.lean` records what the slit-plane version would take.
 
 The two steps that looked hardest going in — the real asymptotic and the periodic-vanishing
 argument — were the two that finished first, and neither used the representation. What was

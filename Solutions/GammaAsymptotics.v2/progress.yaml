@@ -5,7 +5,7 @@
 # judgement and should read like it.
 
 solution: Solutions/GammaAsymptotics.v2/
-state: in-progress   # one hole, the conclusion itself; the Gauss representation holds on the reals
+state: in-progress   # one hole, the conclusion itself; STAGE 2 COMPLETE, only the estimate is left
 
 # --------------------------------------------------------------------------------------------
 # WHAT THE MATHLIB BUMP CHANGED, and what the node still records.
@@ -34,7 +34,7 @@ stale_mathlib_facts: >-
   make such a claim is a candidate for the same rot, and none of them were audited here.
 
 shape: >-
-  One conclusion, one hole, three supporting files. The node states
+  One conclusion, one hole, eight supporting files. The node states
   `forall H, exists C, forall w, 1 <= Re w -> |Im w| <= H -> ||psi w - log w|| <= C / ||w||`, and
   the constant is allowed to depend on the height. That dependence is the whole difference between
   this node and GammaAsymptotics.v1, which asks for a constant uniform in the height and is left
@@ -201,21 +201,56 @@ steps:
 
   - id: "2c"
     name: Analyticity of G
-    state: todo
+    file: Analytic.lean
+    state: done
     what: >-
-      G is analytic off the non-positive integers, by differentiableOn_tsum_of_summable_norm with
-      the O(1/k^2) bound from 2a made locally uniform.
+      G is differentiable, hence analytic, at every point of the right half-plane, by
+      Complex.differentiableOn_tsum_of_summable_norm. That lemma wants a bound UNIFORM ON A SET, and
+      differentiability is local, so the set is a neighbourhood of s0: the slab Re s > delta
+      intersected with a ball about the origin, which bounds ||s|| and keeps Re s off 0 at once.
+      The bound is ||gaussTerm s k|| <= (M+1)/(delta (k+1)^2), and the half-plane is what makes it a
+      single line with no case split on k: ||k+s|| >= Re(k+s) = k + Re s >= k + delta, and then
+      (k+1)(k+delta) >= delta (k+1)^2 because delta <= 1.
       MOVED AFTER THE REAL IDENTITY rather than before it. Nothing up to and including the identity
       needs G to be analytic: the whole argument runs on the real axis, where G is a convergent
       series of real terms. Analyticity is needed only to TRANSPORT the identity, which is 2g.
+    exports:
+      - rightHalfPlane
+      - isOpen_rightHalfPlane
+      - isPreconnected_rightHalfPlane
+      - ne_neg_natCast_of_mem
+      - norm_gaussTerm_le_of_re
+      - summable_gaussTerm_bound
+      - differentiableOn_gaussTerm
+      - differentiableAt_gaussSum
+      - differentiableOn_gaussSum
+      - analyticOnNhd_gaussSum
 
   - id: "2g"
     name: To the complex plane
-    state: todo
+    file: Analytic.lean
+    state: done
     what: >-
-      psi = G on the positive reals -- now PROVED rather than planned, see 2-real -- and that set
-      has a limit point; both sides are analytic on the connected slit plane; the identity theorem
-      does the rest. Needs 2c.
+      psi = G on the positive reals (2-real), and those accumulate at 1; both sides are analytic on
+      the right half-plane, which is convex hence preconnected; AnalyticOnNhd.
+      eqOn_of_preconnected_of_frequently_eq does the rest. psi's analyticity comes from Gamma being
+      differentiable and nonzero there, so logDeriv Gamma = deriv Gamma / Gamma is a quotient of
+      analytic functions with nonvanishing denominator.
+    the_domain_is_a_deliberate_restriction: >-
+      THE IDENTITY IS TRUE ON THE SLIT PLANE C \ {0,-1,-2,...} AND ONLY THE HALF-PLANE IS PROVED.
+      Two reasons, both recorded in Analytic.lean rather than left implicit. It is everything the
+      node needs -- the conclusion quantifies over Re w >= 1. And on a half-plane the uniform bound
+      is one line, whereas inside the slit plane the poles must be handled separately: one gets
+      ||s+k|| > r for every k from closedBall s0 r inside U together with -k outside U, then splits
+      the comparison series at k about 2||s0|| where the two bounds cross. That is the shape a
+      Mathlib version should take. ANYONE EXTENDING THIS CHANGES ONLY Analytic.lean: everything
+      before it is already stated in the general case, and Stage 3 only evaluates at Re w >= 1.
+    exports:
+      - differentiableOn_Gamma_rightHalfPlane
+      - differentiableOn_digamma
+      - analyticOnNhd_digamma
+      - frequently_digamma_eq_gaussSum
+      - digamma_eq_gaussSum
 
   - id: "3"
     name: The strip bound
@@ -231,10 +266,12 @@ consumer: >-
 upstream: >-
   Every file here is stated about Mathlib objects only; nothing in stages 1 and 2 imports anything
   from IEANTN. Three asks, in the order they are worth making.
-  ONE: the representation itself, psi(x) = -gamma + sum_k (1/(k+1) - 1/(k+x)). This is the TODO in
-  Mathlib/Analysis/SpecialFunctions/Gamma/Digamma.lean. The real case is now PROVED here
-  (digamma_eq_gaussSum_of_pos); the complex case needs 2c and 2g, which is where the identity
-  theorem comes in, so it is worth waiting for those before opening a PR.
+  ONE: the representation itself, psi(s) = -gamma + sum_k (1/(k+1) - 1/(k+s)). This is the TODO in
+  Mathlib/Analysis/SpecialFunctions/Gamma/Digamma.lean. PROVED HERE for every s with Re s > 0
+  (digamma_eq_gaussSum), and on the positive reals with no analyticity used at all
+  (digamma_eq_gaussSum_of_pos). Before sending it, extend Analytic.lean to the slit plane
+  C \ {0,-1,-2,...}: a Mathlib version should not carry a half-plane restriction that exists only
+  because this repository's consumer never leaves it. See 2g for exactly what that costs.
   TWO: drop `private` from HasDerivAt.complex_of_real in NumberTheory/Harmonic/GammaDeriv.lean. It
   is the fact that a complex-differentiable function agreeing with a real one on R has that
   function's derivative there, it is four lines, and it is exactly what ComplexToReal.lean needs and
