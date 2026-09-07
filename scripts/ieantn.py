@@ -834,11 +834,44 @@ def solution_holes(node: str) -> tuple[bool, list[str], dict[str, bool]] | None:
     finally:
         probe.unlink(missing_ok=True)
     seen = (checked.stdout or "") + (checked.stderr or "")
-    proved = {}
-    for name in names:
-        line = next((l for l in seen.splitlines() if l.startswith(f"'{name}'")), "")
-        proved[name] = bool(line) and "sorryAx" not in line
+    records = axiom_records(seen, names)
+    proved = {name: (name in records and "sorryAx" not in records[name]) for name in names}
     return (True, holes, proved)
+
+
+def axiom_records(output: str, names: list[str]) -> dict[str, str]:
+    """Join each `#print axioms` report back into one string, per declaration.
+
+    `#PRINT AXIOMS WRAPS`, and reading only the line that starts with the declaration name is
+    therefore wrong. Lean pretty-prints the axiom list at the usual width, so a long name pushes
+    the tail onto continuation lines:
+
+        'Family.v2.challenge_some_rather_long_conclusion_name' depends on axioms: [propext,
+         sorryAx,
+         Classical.choice,
+         Quot.sound]
+
+    A single-line check misses `sorryAx` here -- and note WHEN it misses it: adding `sorryAx` to
+    the list is itself part of what pushes the line over the width, so the failure mode is to
+    report an unproved theorem as proved, which is the only direction that matters. That happened:
+    a solution whose sole compared theorem was a bare `sorry` was reported as free of `sorryAx`,
+    by the routine whose entire purpose is to preview Comparator's verdict.
+
+    A record runs from the line beginning with the quoted name until the brackets balance, which
+    also handles `'foo' does not depend on any axioms` -- no brackets, so it closes at once.
+    """
+    records: dict[str, str] = {}
+    current: str | None = None
+    for raw in output.splitlines():
+        started = next((n for n in names if raw.startswith(f"'{n}'")), None)
+        if started is not None:
+            current = started
+            records[current] = raw.rstrip()
+        elif current is not None:
+            records[current] += " " + raw.strip()
+        if current is not None and records[current].count("[") == records[current].count("]"):
+            current = None
+    return records
 
 
 def progress(node: str, write: bool) -> bool:

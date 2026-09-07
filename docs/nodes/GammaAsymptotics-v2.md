@@ -43,6 +43,7 @@ def digamma_sub_log_isBigO_strip : Prop :=
 | Lean name | `GammaAsymptotics.v2.digamma_sub_log_isBigO_strip` |
 | Challenge | `GammaAsymptotics.v2.challenge_digamma_sub_log_isBigO_strip` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/GammaAsymptotics/v2/Conclusions.lean#L76) |
+| Solution | [`Solutions/GammaAsymptotics.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/GammaAsymptotics.v2) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
@@ -59,7 +60,7 @@ Recorded by the node itself, not derived.
 - Stated but not proved. Nothing downstream may treat it as established, and CH2.v1's ladder bounds inherit that.
 - ONE ASYMPTOTIC ONLY, and a weak one. The node is named for the class because it is intended to grow: the -1/(2w) term, the sector version, a bound on Gamma itself, and Stirling's formula in the complex plane are all wanted and none is here. A consumer needing any of them will not find it.
 - THE CONSTANT IS EXISTENTIAL. A consumer needing an explicit numerical constant -- which an explicit estimate eventually will -- cannot get one from this statement and will need a sharper conclusion stated alongside it.
-- Re w >= 1 excludes the left half-plane entirely, where digamma has its poles. An application that needs psi there must combine this with the reflection formula psi(1-w) - psi(w) = pi cot(pi w), which a more recent Mathlib than this repository's pin has merged (leanprover-community/mathlib4#42349). So that gap closes on a bump rather than needing a conclusion here -- but note the reflection formula alone proves nothing about growth, in either half-plane, so it does not shorten the work below. CH2.v1 does not need the left half-plane: its ladder argument evaluates psi at 1-s with Re(1-s) >= 2, which is already inside the stated range.
+- Re w >= 1 excludes the left half-plane entirely, where digamma has its poles. An application that needs psi there must combine this with the reflection formula psi(1-w) - psi(w) = pi cot(pi w). THAT IS NOW AVAILABLE: this entry previously said it awaited a more recent Mathlib than this repository's pin, and the bump that brought it (leanprover-community/mathlib4#42349) has since happened, so it is Complex.digamma_one_sub on the current pin. But note the reflection formula alone proves nothing about growth, in either half-plane, so having it does not shorten the work below. CH2.v1 does not need the left half-plane: its ladder argument evaluates psi at 1-s with Re(1-s) >= 2, which is already inside the stated range.
 - No novelty is claimed. The expansion is classical.
 
 ## How this node was made

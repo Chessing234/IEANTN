@@ -1,0 +1,170 @@
+# Build plan for GammaAsymptotics.v2 -- the digamma asymptotic on a horizontal strip.
+#
+# Best-practice file, not a schema CI enforces -- see docs/SOLUTIONS.md. `remaining_holes` on the
+# node's formalization.yaml is derived from the build by `ieantn.py progress`; everything here is
+# judgement and should read like it.
+
+solution: Solutions/GammaAsymptotics.v2/
+state: in-progress   # one hole, the conclusion itself; five of the eight sub-steps closed
+
+# --------------------------------------------------------------------------------------------
+# WHAT THE MATHLIB BUMP CHANGED, and what the node still records.
+# --------------------------------------------------------------------------------------------
+stale_mathlib_facts: >-
+  The node's formalization.yaml states, under review.notes, that
+  Analysis/SpecialFunctions/Gamma/Digamma.lean "is 64 lines and contains the definition,
+  digamma_zero, digamma_one, digamma_one_half, digamma_apply_add_one and meromorphic_digamma, and
+  no bound of any kind". THAT WAS CHECKED WHEN WRITTEN AND IS NOW OUT OF DATE. On this
+  repository's pin (mathlib 71a80585) the file is 153 lines and additionally carries
+  digamma_apply_add_nat, digamma_nat_add_one (psi(n+1) = H_n - gamma), Euler's reflection formula
+  digamma_one_sub, and the duplication formula digamma_two_mul.
+  The operative half of the original observation survives: there is still NO BOUND OF ANY KIND, so
+  the conclusion is still open, and Gauss' representation is still a TODO in that file.
+  Two consequences. (i) digamma_nat_add_one IS step 2e's psi side, so that step is two rewrites
+  rather than an induction. (ii) The node's limitations entry saying the reflection formula awaited
+  "a more recent Mathlib than this repository's pin" is overtaken -- that bump has happened and
+  Complex.digamma_one_sub is on the current pin.
+  BOTH HAVE BEEN CORRECTED ON THE NODE in the same commit that added this solution, and the old
+  wording is preserved there beside the new. Neither touches the conclusion, so no fingerprint
+  moves; they are review notes and limitations, which are prose.
+  THE GENERAL LESSON, and the reason it is written down twice rather than fixed silently: a bump
+  moves what the repository can assume, and recorded claims about Mathlib's contents go stale
+  without any Lean file changing and without any check failing. Nothing here verifies a sentence
+  about what some upstream file contains; only someone going to look does. Every node whose notes
+  make such a claim is a candidate for the same rot, and none of them were audited here.
+
+shape: >-
+  One conclusion, one hole, three supporting files. The node states
+  `forall H, exists C, forall w, 1 <= Re w -> |Im w| <= H -> ||psi w - log w|| <= C / ||w||`, and
+  the constant is allowed to depend on the height. That dependence is the whole difference between
+  this node and GammaAsymptotics.v1, which asks for a constant uniform in the height and is left
+  open deliberately.
+
+# --------------------------------------------------------------------------------------------
+# What the node docstring says, and what step 1 adds to it.
+# --------------------------------------------------------------------------------------------
+what_the_node_docstring_gets_right: >-
+  IEANTN/Nodes/GammaAsymptotics/v2/Conclusions.lean says both versions need the Gauss/Weierstrass
+  representation, which Mathlib lists as a TODO. That claim is about THIS NODE'S CONCLUSION, which
+  is a statement about complex w, and it stands: nothing below closes the complex strip bound
+  without the representation, and the route in `steps` still goes through it.
+what_step_1_adds: >-
+  The docstring's argument for that claim runs through kappa(u) := lim (psi(u+n) - log(u+n)), a
+  1-periodic function it says cannot be pinned to zero without the series. ON THE REALS THAT IS NOT
+  SO. Step 1 gives |psi(x) - log x| <= 1/x for every real x > 0 from Real.convexOn_log_Gamma alone,
+  with the constant explicit and equal to 1, and kappa == 0 on the reals falls straight out of it
+  by letting n -> infinity -- no series, no integral representation, about a hundred lines.
+  So the obstruction the docstring describes is real but is located one step later than it says:
+  not in pinning kappa, but in getting from the real line to a complex strip. The docstring is
+  worth adjusting on that point when this node is next edited for another reason; it is not worth
+  touching the file for on its own, and it does not change what the conclusion claims.
+
+# --------------------------------------------------------------------------------------------
+# The route, step by step.
+# --------------------------------------------------------------------------------------------
+steps:
+  - id: "1"
+    name: The real asymptotic
+    file: RealAsymptotic.lean
+    state: done
+    what: >-
+      |psi(x) - log x| <= 1/x for real x > 0. log Gamma is convex, so its derivative is monotone;
+      the slope of log Gamma across [x, x+1] is exactly log x, because Gamma(x+1) = x Gamma(x); and
+      the mean value theorem puts that slope between the derivative at x and at x+1, which differ by
+      1/x. Mathlib has no Real.digamma, so the derivative is spelled deriv (fun t => log (Gamma t)).
+    exports:
+      - differentiableAt_log_Gamma
+      - log_Gamma_add_one_sub
+      - deriv_log_Gamma_add_one
+      - monotoneOn_deriv_log_Gamma
+      - deriv_log_Gamma_le_log_le
+      - abs_deriv_log_Gamma_sub_log_le
+
+  - id: "2a"
+    name: The Gauss series converges
+    file: GaussSeries.lean
+    state: done
+    what: >-
+      gaussTerm s k = 1/(k+1) - 1/(k+s) = (s-1)/((k+1)(k+s)), which is O(1/k^2) once k is past
+      2||s||. Summability by comparison with a p-series.
+    exports: [gaussTerm, gaussTerm_eq, summable_gaussTerm]
+
+  - id: "2f-lemma"
+    name: The vanishing lemma
+    file: Periodic.lean
+    state: done
+    what: >-
+      A 1-periodic real function that vanishes at the naturals and varies by O(1/n) across unit
+      intervals far out is identically zero on the positive reals. Periodicity pushes any point
+      arbitrarily far right, where the oscillation bound is arbitrarily tight and a zero always sits
+      within distance one.
+    why_it_is_stated_alone: >-
+      THE NAIVE VERSION DOES NOT WORK, and an earlier draft of the node docstring believed it did:
+      periodicity spreads E(1) = 0 to the integers and NOWHERE ELSE, since a 1-periodic function
+      vanishing on Z is otherwise unconstrained. The oscillation hypothesis is what reaches between
+      the integers. Stating the lemma about arbitrary real functions, with no Gamma in sight, is
+      what makes that separation auditable.
+    exports: [eq_zero_of_periodic_of_nat_of_oscillation]
+
+  - id: "2b"
+    name: The recurrence for G
+    file: Recurrence.lean
+    state: done
+    what: >-
+      G(s+1) = G(s) + 1/s, where G s := -gamma + sum_k gaussTerm s k. Termwise the difference is
+      1/(k+s) - 1/(k+1+s): the 1/(k+1) that carries the divergence cancels, and what is left
+      telescopes, with partial sums 1/s - 1/(n+s). Paired with Complex.digamma_apply_add_one this
+      is the first hypothesis of the vanishing lemma.
+    exports: [gaussSum, hasSum_sub_succ, tendsto_inv_natCast_add, gaussSum_add_one]
+
+  - id: "2c"
+    name: Analyticity of G
+    state: todo
+    what: >-
+      G is analytic off the non-positive integers, by differentiableOn_tsum_of_summable_norm with
+      the O(1/k^2) bound from 2a made locally uniform.
+
+  - id: "2d"
+    name: E is 1-periodic
+    state: todo
+    what: "E := psi - G is 1-periodic, from 2b and Complex.digamma_apply_add_one."
+
+  - id: "2e"
+    name: E vanishes at the naturals
+    file: Recurrence.lean
+    state: done
+    what: >-
+      psi(n+1) = G(n+1), both sides being -gamma + H_n: the left by Complex.digamma_nat_add_one, the
+      right by induction from 2b. This is the second hypothesis of the vanishing lemma.
+    exports: [gaussTerm_one, gaussSum_one, gaussSum_nat_add_one, digamma_eq_gaussSum_nat_add_one]
+
+  - id: "2f"
+    name: The oscillation bound
+    state: todo
+    what: >-
+      |E(a) - E(b)| = O(1/n) for a, b >= n at distance at most 1. Stage 1 gives the psi side; the G
+      side is |G(a) - G(b)| <= |a-b| * sum_k 1/(k+n)^2 by comparison with a telescoping series.
+      With 2d and 2e this closes E = 0 on the positive reals.
+
+  - id: "2g"
+    name: To the complex plane
+    state: todo
+    what: >-
+      psi = G on the positive reals, a set with a limit point; both sides are analytic on the
+      connected slit plane; the identity theorem does the rest.
+
+  - id: "3"
+    name: The strip bound
+    state: todo
+    what: >-
+      With the representation in hand, ||psi w - log w|| <= C_H / ||w|| for Re w >= 1, |Im w| <= H.
+
+# --------------------------------------------------------------------------------------------
+consumer: >-
+  CH2.v1 evaluates psi only at 1 - s for s on the ladder, and every piece of that set has
+  |Im s| <= T. The strip is not a compromise for that consumer; it is everything it ever asked for.
+
+upstream: >-
+  Steps 1, 2a and 2f-lemma are stated about Mathlib objects only and have no IEANTN import between
+  them. Once 2g lands, the natural Mathlib contribution is the representation itself -- the TODO in
+  Mathlib/Analysis/SpecialFunctions/Gamma/Digamma.lean -- with step 1 a plausible second PR.
