@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | Kind | standard |
-| Status | awaiting-verification |
+| Status | active |
 | Maintainers | Terence Tao |
 | Licence | Apache-2.0 |
 | Review | self-assessed |
@@ -44,14 +44,19 @@ def digamma_sub_log_isBigO_strip : Prop :=
 | Challenge | `GammaAsymptotics.v2.challenge_digamma_sub_log_isBigO_strip` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/GammaAsymptotics/v2/Conclusions.lean#L76) |
 | Solution | [`Solutions/GammaAsymptotics.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/GammaAsymptotics.v2) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`GammaAsymptotics.v2.digamma_sub_log_isBigO_strip.json`](https://github.com/teorth/IEANTN/blob/main/receipts/GammaAsymptotics.v2.digamma_sub_log_isBigO_strip.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | [`CH2.v1.corollary_1_2_lambda_sum`](CH2-v1.md#corollary_1_2_lambda_sum), [`CH2.v1.corollary_1_2_psi`](CH2-v1.md#corollary_1_2_psi) |
 
-**Justification `unjustified`** — **designated** — none-yet
+**Justification `unjustified`** — none-yet
 
 > Imports `none`, and that is a real none: w is universally quantified with every condition a hypothesis, so a Lean proof is the whole justification. THIS IS v1 WITH A HEIGHT RESTRICTION, and the restriction is the point. v1's recorded route -- iterate digamma_apply_add_one from a compact box in Re w in [1,2] -- DOES NOT PROVE v1. It pushes rightward and controls Re w -> infinity at bounded height; it says nothing about w = 1 + it as t -> infinity, which no compact box reaches. That was noticed only when someone went to carry the route out. THE STRIP DOES NOT RESCUE THE ELEMENTARY ROUTE EITHER, and an earlier version of this note claimed it did. Writing w = u + n with Re u in [1,2], the recurrence gives psi(w) = psi(u) + sum_{j<n} 1/(u+j), and comparing that sum with the harmonic series leaves psi(w) - log w -> psi(u) + gamma + sum_{j>=0} (1/(u+j) - 1/(1+j)) =: kappa(u), a 1-periodic analytic function. Pinning kappa == 0 IS the Gauss representation. psi(1) = -gamma gives kappa(1) = 0 and periodicity spreads it to the integers and no further; the trigamma route meets the same obstruction one derivative down. SO THE REAL TARGET IS THE GAUSS/WEIERSTRASS SERIES, psi(u) = -gamma + sum_{k>=0} (1/(k+1) - 1/(k+u)), which Mathlib does not have and lists as a TODO in the file defining digamma. Once it exists v2 follows directly; v1 needs a further uniformity argument as Im w -> infinity. That series is the thing worth formalizing, and it is a Mathlib contribution in its own right rather than a step private to this repository. THE CONSTANT MAY DEPEND ON H AND MUST. A bound uniform in H is exactly v1.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34154842293
 
 ## Limitations
 

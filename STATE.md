@@ -15,9 +15,9 @@ adds the environment detail.
 |---|---:|
 | `asserted` | 1 |
 | `bridged` | 1 |
-| `lean-comparator` | 22 |
+| `lean-comparator` | 23 |
 | `literature` | 36 |
-| `none-yet` | 5 |
+| `none-yet` | 4 |
 | `numerical` | 14 |
 
 ## Nodes
@@ -78,7 +78,7 @@ adds the environment detail.
 | `FKS2Numerics.v1` | stub | `corollary_22_mid_range` | numerical | 0 | - |
 | `FKS2Numerics.v1` | stub | `corollary_23_mid_range` | numerical | 0 | - |
 | `GammaAsymptotics.v1` | awaiting-solution | `digamma_sub_log_isBigO` | none-yet | 0 | #64 |
-| `GammaAsymptotics.v2` | awaiting-verification | `digamma_sub_log_isBigO_strip` | none-yet | 0 | #64 |
+| `GammaAsymptotics.v2` | active | `digamma_sub_log_isBigO_strip` | lean-comparator | 0 | #64 |
 | `Hiary2016.v1` | stub | `zeta_half_line_bound` | literature | 0 | - |
 | `KLN.v1` | active | `subconvexity_bound` | literature | 1 | - |
 | `KLN.v1` | active | `zero_density` | literature | 1 | - |

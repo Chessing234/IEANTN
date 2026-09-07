@@ -9,7 +9,7 @@ node:
   family: GammaAsymptotics
   version: v2
   kind: standard
-  status: awaiting-verification
+  status: active
 
 project:
   name: "Growth of the Gamma function and its logarithmic derivative"
@@ -67,11 +67,10 @@ conclusions:
       uniformity argument as Im w -> infinity. That series is the thing worth formalizing, and it
       is a Mathlib contribution in its own right rather than a step private to this repository.
       THE CONSTANT MAY DEPEND ON H AND MUST. A bound uniform in H is exactly v1.
-  designated: unjustified
-  progress:
-    solution: Solutions/GammaAsymptotics.v2/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34154842293'
+  designated: comparator
 sources:
 - title: "The digamma asymptotic expansion"
   authors: ["folklore"]

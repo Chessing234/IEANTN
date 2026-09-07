@@ -1,0 +1,28 @@
+{
+  "challenge": "GammaAsymptotics.v2.challenge_digamma_sub_log_isBigO_strip",
+  "conclusion": "GammaAsymptotics.v2.digamma_sub_log_isBigO_strip",
+  "environment": {
+    "lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
+    "mathlib_rev": "71a80585ee495fc24472fd0eaffc89d94e4fd8d6"
+  },
+  "repository": {
+    "commit": "1e24154b33a55126ba14e90825ac2dcd4b196dea"
+  },
+  "run": {
+    "recorded_at": "2026-09-07T21:25:06Z",
+    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/34154842293"
+  },
+  "schema": 2,
+  "solution": {
+    "project": "Solutions/GammaAsymptotics.v2"
+  },
+  "statement": {
+    "GammaAsymptotics.v2.digamma_sub_log_isBigO_strip": "2933d1b5fe8c739d2a61d31b81fa7a19197a34762d2cbae46bbd9101c5f2c070"
+  },
+  "tools": {
+    "comparator": "10dd2b33dc43751af3257f4d684535375306f162",
+    "landrun": "811cfff51ceaf3d9843708aa6d22e9b84ccac8b4",
+    "lean4export": "cacf989bd75f608700820f6afc595f32e7a99a4d",
+    "nanoda": "68d5ca9db226849b41a6fff59d796ff19d0a8840"
+  }
+}
