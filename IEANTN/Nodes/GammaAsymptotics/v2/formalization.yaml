@@ -9,7 +9,7 @@ node:
   family: GammaAsymptotics
   version: v2
   kind: standard
-  status: awaiting-solution
+  status: awaiting-verification
 
 project:
   name: "Growth of the Gamma function and its logarithmic derivative"
@@ -71,7 +71,7 @@ conclusions:
   progress:
     solution: Solutions/GammaAsymptotics.v2/
     state: in-progress
-    remaining_holes: 1
+    remaining_holes: 0
 sources:
 - title: "The digamma asymptotic expansion"
   authors: ["folklore"]

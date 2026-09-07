@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | Kind | standard |
-| Status | awaiting-solution |
+| Status | awaiting-verification |
 | Maintainers | Terence Tao |
 | Licence | Apache-2.0 |
 | Review | self-assessed |
