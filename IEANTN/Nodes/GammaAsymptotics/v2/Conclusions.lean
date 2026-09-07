@@ -33,8 +33,23 @@ nothing about `w = 1 + it` as `t → ∞`, which no compact box reaches. Closing
 version needs a Binet or Gauss integral representation, and Mathlib has neither: its `Digamma`
 file is sixty-four lines, and `BohrMollerup`'s `logGammaSeq` is real-variable only.
 
-So the strip is exactly the region the elementary argument covers. `v1` was not merely
-over-general; it was over-general in the direction that carries all the difficulty.
+So `v1` was over-general in the direction that carries all the difficulty.
+
+**But the strip does not rescue the elementary route either, and an earlier draft of this file
+claimed it did.** Writing `w = u + n` with `Re u ∈ [1, 2]`, the recurrence gives
+`ψ(w) = ψ(u) + Σ_{j<n} 1/(u+j)`, and comparing that sum with the harmonic series leaves
+
+  `ψ(w) - log w → ψ(u) + γ + Σ_{j≥0} (1/(u+j) - 1/(1+j)) =: κ(u)`,
+
+a 1-periodic analytic function. Pinning `κ ≡ 0` *is* the Gauss representation. `ψ(1) = -γ` gives
+`κ(1) = 0` and periodicity spreads that to the integers, but no further; the trigamma route meets
+the same obstruction one derivative down.
+
+So **both versions need the Gauss/Weierstrass representation**
+`ψ(u) = -γ + Σ_{k≥0} (1/(k+1) - 1/(k+u))`, which Mathlib does not have and lists as a `TODO` in
+the file defining `digamma`. What the strip still buys is real but narrower: once that
+representation exists, `v2` follows from it directly, while `v1` needs a further uniformity
+argument as `Im w → ∞`.
 
 ## What the consumer needs
 
