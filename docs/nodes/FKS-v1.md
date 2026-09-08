@@ -41,6 +41,9 @@ A note here once put the rescaled `A` at `≈ 121.0916` and called the discrepan
 figure was wrong — it is `121.09602` — and so was the gloss: the difference is not a benign
 rounding but a gap in the direction that breaks the derivation.
 
+The two conclusions `rescaled_A_exceeds_printed` and `rescaled_C_is_short_of_two` record those
+gaps as claims rather than only as comments.
+
 Keeping the printed form means the transcription can be checked against the paper by eye.
 
 ```lean
@@ -53,7 +56,7 @@ def psi_bound_all_x : Prop :=
 |---|---|
 | Lean name | `FKS.v1.psi_bound_all_x` |
 | Challenge | `FKS.v1.challenge_psi_bound_all_x` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L57) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L60) |
 | Evidence | cited (`literature`) |
 | Sources traced | identified |
 | Assumes | [`KLN.v1.subconvexity_bound`](KLN-v1.md#subconvexity_bound), [`MT.v1.zero_free_region_sharpened`](MT-v1.md#zero_free_region_sharpened), [`PlattTrudgian.v1.rh_up_to`](PlattTrudgian-v1.md#rh_up_to) |
@@ -90,7 +93,7 @@ def psi_classical_bound : Prop :=
 |---|---|
 | Lean name | `FKS.v1.psi_classical_bound` |
 | Challenge | `FKS.v1.challenge_psi_classical_bound` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L76) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L79) |
 | Evidence | cited (`literature`) |
 | Sources traced | identified |
 | Assumes | [`KLN.v1.subconvexity_bound`](KLN-v1.md#subconvexity_bound), [`MT.v1.zero_free_region_sharpened`](MT-v1.md#zero_free_region_sharpened), [`PlattTrudgian.v1.rh_up_to`](PlattTrudgian-v1.md#rh_up_to) |
@@ -117,7 +120,7 @@ def rescaled_A_exceeds_printed : Prop :=
 |---|---|
 | Lean name | `FKS.v1.rescaled_A_exceeds_printed` |
 | Challenge | `FKS.v1.challenge_rescaled_A_exceeds_printed` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L84) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L87) |
 | Evidence | computation (`numerical`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
@@ -143,7 +146,7 @@ def rescaled_C_is_short_of_two : Prop :=
 |---|---|
 | Lean name | `FKS.v1.rescaled_C_is_short_of_two` |
 | Challenge | `FKS.v1.challenge_rescaled_C_is_short_of_two` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L91) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v1/Conclusions.lean#L94) |
 | Evidence | computation (`numerical`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
