@@ -1781,30 +1781,22 @@ lemma re_zOf (l : CH2.LadderParams) (w : ℂ) : (l.zOf w).re = w.im / l.T := by
   rw [zOf_eq, Complex.div_ofReal_re]
   simp
 
-/-- **`prop_5_2`'s `hsimple` hypothesis, closed on the set where the port actually uses it.**
+/-- **The order of the integrand, off the real axis, splits as `(weight) + (order of F)`.**
 
-`Rpos` and `RposBar` sit at `|Im s| ≥ δ > 0`, so `Re (zOf s) = Im s / T` has a definite sign on a
-whole neighbourhood and `Phi_lambda` is locally `Phi_circ ± Phi_star` — analytic, by
-`zOf_ne_weight_pole`. The order of the product is then the order of `F`, exactly as in
-`hasSimplePolesOn_circ_ladder`.
+Shared by `hsimple` and `hfin`, which want opposite halves of it: the first that the sum is at
+least `-1`, the second that a negative sum forces `F` to have a pole.
 
-On `l.R` this is unprovable by an order computation, which is why `prop_5_2`'s hypothesis was
-weakened to this set: across the real axis the integrand is genuinely discontinuous, hence not
-meromorphic, and `meromorphicOrderAt` returns its junk value there. -/
-theorem hasSimplePolesOn_lambda_ladder (l : CH2.LadderParams) {lam ε x : ℝ}
-    (hlam : 0 < lam) (hx : 0 < x) :
-    HasSimplePolesOn (fun s ↦ CH2.Phi_lambda lam ε (l.zOf s) * F s * (x : ℂ) ^ s)
-      (l.Rpos ∪ l.RposBar) := by
+Away from the axis `Real.sign (Re (zOf s))` is locally constant, because `Re (zOf s) = Im s / T`,
+so `Phi_lambda` is locally `Phi_circ ± Phi_star`, which `zOf_ne_weight_pole` makes analytic. The
+`x ^ s` factor is analytic and non-vanishing and so contributes `0`. -/
+theorem meromorphicOrderAt_integrand (l : CH2.LadderParams) {lam ε x : ℝ}
+    (hlam : 0 < lam) (hx : 0 < x) {z : ℂ} (hzre : z.re ≤ 1) (him : z.im ≠ 0) :
+    ∃ o : WithTop ℤ, 0 ≤ o ∧
+      meromorphicOrderAt (fun s ↦ CH2.Phi_lambda lam ε (l.zOf s) * F s * (x : ℂ) ^ s) z
+        = o + meromorphicOrderAt F z := by
   have hT : 0 < l.T := l.hT
-  have hδ0 : 0 < l.δ := l.hδ.1
-  intro z hz
   have hxc : ((x : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx.ne'
-  -- `z` has `Re z ≤ 1` and `Im z` of a definite sign, bounded away from `0`.
-  obtain ⟨hzre, hsign⟩ : z.re ≤ 1 ∧ (0 < z.im ∨ z.im < 0) := by
-    rcases hz with h | h
-    · exact ⟨h.1, Or.inl (lt_of_lt_of_le hδ0 h.2.1)⟩
-    · exact ⟨h.1, Or.inr (lt_of_le_of_lt h.2.2 (neg_lt_zero.mpr hδ0))⟩
-  -- The sign is locally constant, so the weight is locally `Phi_circ ± Phi_star`.
+  have hsign : 0 < z.im ∨ z.im < 0 := (lt_or_gt_of_ne him).symm
   set σ : ℂ := if 0 < z.im then 1 else -1 with hσ_def
   have hlocal : ∀ᶠ w in nhds z, CH2.Phi_lambda lam ε (l.zOf w)
       = CH2.Phi_circ lam ε (l.zOf w) + σ * CH2.Phi_star lam ε (l.zOf w) := by
@@ -1823,10 +1815,16 @@ theorem hasSimplePolesOn_lambda_ladder (l : CH2.LadderParams) {lam ε x : ℝ}
       push_cast
       ring
     · have hwim : w.im < 0 := hw.2 h
-      rw [if_neg (asymm h), Real.sign_of_neg (by exact div_neg_of_neg_of_pos hwim hT)]
+      rw [if_neg (asymm h), Real.sign_of_neg (div_neg_of_neg_of_pos hwim hT)]
       push_cast
       ring
-  -- Rewrite the order along that local identity.
+  have hPhi : AnalyticAt ℂ
+      (fun w ↦ CH2.Phi_circ lam ε (l.zOf w) + σ * CH2.Phi_star lam ε (l.zOf w)) z :=
+    (analyticAt_Phi_circ_zOf l hlam hzre).add
+      (analyticAt_const.mul (analyticAt_Phi_star_zOf l hlam hzre))
+  have hpow : AnalyticAt ℂ (fun w : ℂ ↦ (x : ℂ) ^ w) z := analyticAt_const_cpow hx z
+  have hpowne : ((x : ℂ) ^ z) ≠ 0 := by simp [hxc]
+  have hFm : MeromorphicAt F z := meromorphicOn_F z (Set.mem_univ z)
   have hcongr : meromorphicOrderAt (fun s ↦ CH2.Phi_lambda lam ε (l.zOf s) * F s * (x : ℂ) ^ s) z
       = meromorphicOrderAt
           (((fun s ↦ CH2.Phi_circ lam ε (l.zOf s) + σ * CH2.Phi_star lam ε (l.zOf s)) * F)
@@ -1834,28 +1832,123 @@ theorem hasSimplePolesOn_lambda_ladder (l : CH2.LadderParams) {lam ε x : ℝ}
     refine meromorphicOrderAt_congr ?_
     filter_upwards [nhdsWithin_le_nhds hlocal] with w hw
     simp only [Pi.mul_apply, hw]
-  rw [hcongr]
-  -- Same computation as for `Phi_circ`: analytic weight, `F`, and a non-vanishing `x ^ s`.
-  have hΦ : AnalyticAt ℂ
-      (fun w ↦ CH2.Phi_circ lam ε (l.zOf w) + σ * CH2.Phi_star lam ε (l.zOf w)) z :=
-    (analyticAt_Phi_circ_zOf l hlam hzre).add
-      (analyticAt_const.mul (analyticAt_Phi_star_zOf l hlam hzre))
-  have hpow : AnalyticAt ℂ (fun w : ℂ ↦ (x : ℂ) ^ w) z := analyticAt_const_cpow hx z
-  have hpowne : ((x : ℂ) ^ z) ≠ 0 := by simp [hxc]
-  have hFm : MeromorphicAt F z := meromorphicOn_F z (Set.mem_univ z)
-  rw [meromorphicOrderAt_mul (hΦ.meromorphicAt.mul hFm) hpow.meromorphicAt,
-    meromorphicOrderAt_mul hΦ.meromorphicAt hFm]
-  have h1 : (0 : WithTop ℤ) ≤ meromorphicOrderAt
-      (fun w ↦ CH2.Phi_circ lam ε (l.zOf w) + σ * CH2.Phi_star lam ε (l.zOf w)) z :=
-    meromorphicOrderAt_nonneg_of_analyticAt hΦ
-  have h2 : ((-1 : ℤ) : WithTop ℤ) ≤ meromorphicOrderAt F z :=
-    hasSimplePolesOn_F_univ z (Set.mem_univ z)
   have h3 : meromorphicOrderAt (fun w : ℂ ↦ (x : ℂ) ^ w) z = 0 := by
     rw [hpow.meromorphicOrderAt_eq, hpow.analyticOrderAt_eq_zero.mpr hpowne]
     simp
-  rw [h3, add_zero]
+  refine ⟨meromorphicOrderAt
+      (fun w ↦ CH2.Phi_circ lam ε (l.zOf w) + σ * CH2.Phi_star lam ε (l.zOf w)) z,
+    meromorphicOrderAt_nonneg_of_analyticAt hPhi, ?_⟩
+  rw [hcongr, meromorphicOrderAt_mul (hPhi.meromorphicAt.mul hFm) hpow.meromorphicAt,
+    meromorphicOrderAt_mul hPhi.meromorphicAt hFm, h3, add_zero]
+
+/-- **`prop_5_2`'s `hsimple` hypothesis, closed on the set where the port actually uses it.**
+
+`Rpos` and `RposBar` sit at `|Im s| ≥ δ > 0`, off the axis, so `meromorphicOrderAt_integrand`
+applies and the order is at least `0 + (-1)`.
+
+On `l.R` this is unprovable by an order computation, which is why `prop_5_2`'s hypothesis was
+weakened to this set: across the real axis the integrand is genuinely discontinuous, hence not
+meromorphic, and `meromorphicOrderAt` returns its junk value there. -/
+theorem hasSimplePolesOn_lambda_ladder (l : CH2.LadderParams) {lam ε x : ℝ}
+    (hlam : 0 < lam) (hx : 0 < x) :
+    HasSimplePolesOn (fun s ↦ CH2.Phi_lambda lam ε (l.zOf s) * F s * (x : ℂ) ^ s)
+      (l.Rpos ∪ l.RposBar) := by
+  have hd0 : 0 < l.δ := l.hδ.1
+  intro z hz
+  obtain ⟨hzre, him⟩ : z.re ≤ 1 ∧ z.im ≠ 0 := by
+    rcases hz with h | h
+    · exact ⟨h.1, ne_of_gt (lt_of_lt_of_le hd0 h.2.1)⟩
+    · exact ⟨h.1, ne_of_lt (lt_of_le_of_lt h.2.2 (neg_lt_zero.mpr hd0))⟩
+  obtain ⟨o, ho, heq⟩ := meromorphicOrderAt_integrand l hlam hx hzre him
+  rw [heq]
+  have h2 : ((-1 : ℤ) : WithTop ℤ) ≤ meromorphicOrderAt F z :=
+    hasSimplePolesOn_F_univ z (Set.mem_univ z)
   calc ((-1 : ℤ) : WithTop ℤ) ≤ meromorphicOrderAt F z := h2
     _ = 0 + meromorphicOrderAt F z := (zero_add _).symm
-    _ ≤ _ := by gcongr
+    _ ≤ o + meromorphicOrderAt F z := by gcongr
+
+/-- The band `{0 ≤ Re ≤ 1, a ≤ |Im| ≤ b}` is compact.
+
+`isCompact_strip_band` is the special case `b = a + 1`, kept because
+`exists_ordinate_free_height` uses it in that form. -/
+lemma isCompact_band (a b : ℝ) :
+    IsCompact {z : ℂ | 0 ≤ z.re ∧ z.re ≤ 1 ∧ a ≤ |z.im| ∧ |z.im| ≤ b} := by
+  rw [Metric.isCompact_iff_isClosed_bounded]
+  constructor
+  · have hEq : {z : ℂ | 0 ≤ z.re ∧ z.re ≤ 1 ∧ a ≤ |z.im| ∧ |z.im| ≤ b}
+        = {z : ℂ | 0 ≤ z.re} ∩ ({z : ℂ | z.re ≤ 1} ∩
+            ({z : ℂ | a ≤ |z.im|} ∩ {z : ℂ | |z.im| ≤ b})) := by
+      ext z; constructor
+      · rintro ⟨h1, h2, h3, h4⟩; exact ⟨h1, h2, h3, h4⟩
+      · rintro ⟨h1, h2, h3, h4⟩; exact ⟨h1, h2, h3, h4⟩
+    rw [hEq]
+    exact (isClosed_le continuous_const Complex.continuous_re).inter
+      ((isClosed_le Complex.continuous_re continuous_const).inter
+        ((isClosed_le continuous_const Complex.continuous_im.abs).inter
+          (isClosed_le Complex.continuous_im.abs continuous_const)))
+  · refine (Metric.isBounded_iff_subset_closedBall 0).mpr ⟨1 + |b|, fun z hz ↦ ?_⟩
+    obtain ⟨h0, h1, _, h3⟩ := hz
+    simp only [Metric.mem_closedBall, dist_zero_right]
+    calc ‖z‖ ≤ |z.re| + |z.im| := Complex.norm_le_abs_re_add_abs_im z
+      _ ≤ 1 + |b| := by
+          have hre : |z.re| = z.re := abs_of_nonneg h0
+          have him : |z.im| ≤ |b| := h3.trans (le_abs_self b)
+          rw [hre]; linarith
+
+/-- **`prop_5_2`'s `hfin` hypothesis, closed — and it needed no modification.**
+
+`RC = {Re z ≤ 1, |Im z| ≤ δ}` is exactly the band around the real axis, so `R \ RC` sits at
+`δ < |Im z| ≤ T`. THAT IS WHAT MAKES THE STATEMENT TRUE, and it is not incidental: `R` is
+unbounded to the left and contains every trivial zero of `ζ` — infinitely many, all at `Im = 0`.
+`RC` removes exactly those, so no exclusion had to be added to the hypothesis.
+
+Off the axis the argument is short. A pole of the integrand is a pole of `F`, by
+`meromorphicOrderAt_integrand`, since the weight contributes a non-negative order; a pole of `F`
+is a zero of `ζ`; and a zero of `ζ` off the real axis lies in `0 ≤ Re ≤ 1`. With `δ < |Im| ≤ T`
+that is a compact band missing `s = 1`, where `ζ` has finitely many zeros. -/
+theorem finite_poles_ladder (l : CH2.LadderParams) {lam ε x : ℝ}
+    (hlam : 0 < lam) (hx : 0 < x) :
+    {z ∈ l.R \ l.RC |
+      meromorphicOrderAt (fun s ↦ CH2.Phi_lambda lam ε (l.zOf s) * F s * (x : ℂ) ^ s) z
+        < 0}.Finite := by
+  have hT : 0 < l.T := l.hT
+  have hd0 : 0 < l.δ := l.hδ.1
+  have h1K : (1 : ℂ) ∉ {z : ℂ | 0 ≤ z.re ∧ z.re ≤ 1 ∧ l.δ ≤ |z.im| ∧ |z.im| ≤ l.T} := by
+    intro h
+    have hm := h.2.2.1
+    simp only [Complex.one_im, abs_zero] at hm
+    linarith
+  refine Set.Finite.subset
+    (finite_zeros_riemannZeta_of_isCompact (isCompact_band l.δ l.T) h1K) ?_
+  rintro z ⟨⟨hzR, hzRC⟩, hord⟩
+  have hzre : z.re ≤ 1 := hzR.1
+  have hzT : |z.im| ≤ l.T := hzR.2
+  have hdlt : l.δ < |z.im| := by
+    by_contra hc
+    exact hzRC ⟨hzre, not_lt.mp hc⟩
+  have him : z.im ≠ 0 := by
+    intro h
+    rw [h] at hdlt
+    simp only [abs_zero] at hdlt
+    linarith
+  obtain ⟨o, ho, heq⟩ := meromorphicOrderAt_integrand l hlam hx hzre him
+  rw [heq] at hord
+  have hFord : meromorphicOrderAt F z < 0 := by
+    by_contra hc
+    push_neg at hc
+    refine absurd hord (not_lt.mpr ?_)
+    calc (0 : WithTop ℤ) = 0 + 0 := (add_zero 0).symm
+      _ ≤ o + meromorphicOrderAt F z := by gcongr
+  have hz1zero : riemannZeta₁ z = 0 := by
+    by_contra hc
+    exact absurd hFord (not_lt.mpr (meromorphicOrderAt_nonneg_of_analyticAt (analyticAt_F hc)))
+  have hz1 : z ≠ 1 := by
+    intro h
+    rw [h] at him
+    simp only [Complex.one_im] at him
+    exact him rfl
+  have hzeta : riemannZeta z = 0 := (riemannZeta_eq_zero_iff_riemannZeta₁ hz1).mpr hz1zero
+  obtain ⟨hre0, hre1⟩ := re_mem_Icc_of_riemannZeta_eq_zero hzeta him
+  exact ⟨⟨hre0, hre1, hdlt.le, hzT⟩, hzeta⟩
 
 end CH2ZetaInstance
