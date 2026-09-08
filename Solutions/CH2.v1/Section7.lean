@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Terence Tao
 -/
 import Mathlib.Analysis.Complex.Trigonometric
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 
 /-!
 # Section 7 groundwork: elementary bounds on `coth`
@@ -89,5 +90,71 @@ theorem coth_pos {y : ℝ} (hy : 0 < y) : 0 < Real.cosh y / Real.sinh y := by
     have h1 : Real.exp (-y) < Real.exp y := Real.exp_lt_exp.mpr (by linarith)
     linarith
   exact div_pos (Real.cosh_pos y) hs
+
+/-! ### Towards `lem:sibelius`
+
+`F(z) = 1/π - (1-z) cot(π(1-z))` is the function §7 compares the weights against, and
+`lem:sibelius` is what it proves about it. Part (a) says `F` is decreasing on `(0,1]` with
+`0 < F(x) < 1/(πx)`; parts (b) and (c) are perturbation bounds off the real axis.
+
+This section does the upper bound of (a), which is the part that needs no series. The paper's
+argument in one line: `cot π(1-x) = -cot πx`, so `F(x) = 1/π + (1-x) cot πx`, and
+`cot πx < 1/(πx)` gives `F(x) < 1/π + (1-x)/(πx) = 1/(πx)`.
+
+`F` is defined here on the reals. The complex `F` is what (b) and (c) need and comes with them. -/
+
+/-- **`cot u < 1/u` on `(0, π)`.**
+
+Equivalent to `u cos u < sin u` there, which splits at `π/2`: below it `lt_tan` gives
+`u < tan u = sin u / cos u` with `cos u > 0`; at or above it `cos u ≤ 0` while `sin u > 0`, so the
+inequality is immediate.
+
+Mathlib has `lt_tan` and no cotangent counterpart; this looks like a reasonable addition there. -/
+theorem cot_lt_inv {u : ℝ} (h0 : 0 < u) (hpi : u < Real.pi) : Real.cot u < 1 / u := by
+  have hsin : 0 < Real.sin u := Real.sin_pos_of_pos_of_lt_pi h0 hpi
+  rw [Real.cot_eq_cos_div_sin, div_lt_div_iff₀ hsin h0]
+  rcases lt_or_ge u (Real.pi / 2) with h | h
+  · have hcos : 0 < Real.cos u :=
+      Real.cos_pos_of_mem_Ioo ⟨by linarith [Real.pi_pos], h⟩
+    have htan := Real.lt_tan h0 h
+    rw [Real.tan_eq_sin_div_cos, lt_div_iff₀ hcos] at htan
+    nlinarith
+  · have hcos : Real.cos u ≤ 0 :=
+      Real.cos_nonpos_of_pi_div_two_le_of_le h (by linarith [Real.pi_pos])
+    nlinarith
+
+/-- `cot (π - θ) = -cot θ`, from `sin (π - θ) = sin θ` and `cos (π - θ) = -cos θ`. -/
+theorem cot_pi_sub (θ : ℝ) : Real.cot (Real.pi - θ) = -Real.cot θ := by
+  rw [Real.cot_eq_cos_div_sin, Real.cot_eq_cos_div_sin, Real.sin_pi_sub, Real.cos_pi_sub]
+  ring
+
+/-- The comparison function of §7, `F(z) = 1/π - (1-z) cot(π(1-z))`, on the reals. -/
+noncomputable def Fweight (x : ℝ) : ℝ := 1 / Real.pi - (1 - x) * Real.cot (Real.pi * (1 - x))
+
+/-- `F(x) = 1/π + (1-x) cot(πx)`, the form the estimates use. -/
+theorem Fweight_eq (x : ℝ) :
+    Fweight x = 1 / Real.pi + (1 - x) * Real.cot (Real.pi * x) := by
+  have h : Real.pi * (1 - x) = Real.pi - Real.pi * x := by ring
+  rw [Fweight, h, cot_pi_sub]
+  ring
+
+/-- **`lem:sibelius` (a), upper bound**: `F(x) < 1/(πx)` for `x ∈ (0,1)`.
+
+The two factors of `1/(πx)` come from different places and add exactly: `1/π` from the constant
+term, and `(1-x)/(πx)` from bounding `cot πx`, and `1/π + (1-x)/(πx) = 1/(πx)`. -/
+theorem Fweight_lt_inv {x : ℝ} (h0 : 0 < x) (h1 : x < 1) :
+    Fweight x < 1 / (Real.pi * x) := by
+  have hpi := Real.pi_pos
+  have hpx0 : 0 < Real.pi * x := by positivity
+  have hpxpi : Real.pi * x < Real.pi := by nlinarith
+  have hcot : Real.cot (Real.pi * x) < 1 / (Real.pi * x) := cot_lt_inv hpx0 hpxpi
+  have hsub : (0 : ℝ) < 1 - x := by linarith
+  rw [Fweight_eq]
+  have hmul : (1 - x) * Real.cot (Real.pi * x) < (1 - x) * (1 / (Real.pi * x)) :=
+    mul_lt_mul_of_pos_left hcot hsub
+  have hsum : 1 / Real.pi + (1 - x) * (1 / (Real.pi * x)) = 1 / (Real.pi * x) := by
+    field_simp
+    ring
+  linarith
 
 end CH2Section7
