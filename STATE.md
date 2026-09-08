@@ -15,9 +15,9 @@ adds the environment detail.
 |---|---:|
 | `asserted` | 1 |
 | `bridged` | 1 |
-| `lean-comparator` | 23 |
+| `lean-comparator` | 29 |
 | `literature` | 36 |
-| `none-yet` | 10 |
+| `none-yet` | 4 |
 | `numerical` | 14 |
 
 ## Nodes
@@ -106,12 +106,12 @@ adds the environment detail.
 | `ZeroCount.v1` | stub | `rvm_error_small` | literature | 0 | #64 |
 | `ZeroFreeHeight.v1` | active | `classical_region_descends` | lean-comparator-stale | 0 | #30 |
 | `ZetaLogDeriv.v1` | active | `logDeriv_functional_equation` | lean-comparator | 0 | #64 |
-| `ZetaZeroes.v1` | awaiting-verification | `no_nontrivial_zeroes_left` | none-yet | 0 | - |
-| `ZetaZeroes.v1` | awaiting-verification | `zeroes_off_axis_in_strip` | none-yet | 0 | - |
-| `ZetaZeroes.v1` | awaiting-verification | `finite_zeroes_on_compact` | none-yet | 0 | - |
-| `ZetaZeroes.v1` | awaiting-verification | `exists_ordinate_free_height` | none-yet | 0 | - |
-| `ZetaZeroes.v1` | awaiting-verification | `zeta_eq_zeta1_div` | none-yet | 0 | - |
-| `ZetaZeroes.v1` | awaiting-verification | `zeta_eq_zero_iff_zeta1` | none-yet | 0 | - |
+| `ZetaZeroes.v1` | active | `no_nontrivial_zeroes_left` | lean-comparator | 0 | - |
+| `ZetaZeroes.v1` | active | `zeroes_off_axis_in_strip` | lean-comparator | 0 | - |
+| `ZetaZeroes.v1` | active | `finite_zeroes_on_compact` | lean-comparator | 0 | - |
+| `ZetaZeroes.v1` | active | `exists_ordinate_free_height` | lean-comparator | 0 | - |
+| `ZetaZeroes.v1` | active | `zeta_eq_zeta1_div` | lean-comparator | 0 | - |
+| `ZetaZeroes.v1` | active | `zeta_eq_zero_iff_zeta1` | lean-comparator | 0 | - |
 
 ## Receipts needing attention
 

@@ -9,7 +9,7 @@ node:
   family: ZetaZeroes
   version: v1
   kind: standard
-  status: awaiting-verification
+  status: active
 
 project:
   name: "Location and finiteness of the zeroes of the Riemann zeta function"
@@ -59,11 +59,10 @@ conclusions:
       A PROOF EXISTS ALREADY, inside Solutions/CH2.v1/ZetaInstance as
       riemannZeta_ne_zero_of_re_neg, written when a ladder argument needed it. This node exists
       to state it where other consumers can reach it.
-  designated: unjustified
-  progress:
-    solution: Solutions/ZetaZeroes.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065'
+  designated: comparator
 - id: zeroes_off_axis_in_strip
   declaration: ZetaZeroes.v1.zeroes_off_axis_in_strip
   challenge: ZetaZeroes.v1.challenge_zeroes_off_axis_in_strip
@@ -77,11 +76,10 @@ conclusions:
       riemannZeta_ne_zero_of_one_le_re: to the right there are no zeroes, to the left the only
       ones are real, so anything with Im /= 0 is caught in 0 <= Re <= 1.
       Proved already as re_mem_Icc_of_riemannZeta_eq_zero in Solutions/CH2.v1/ZetaInstance.
-  designated: unjustified
-  progress:
-    solution: Solutions/ZetaZeroes.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065'
+  designated: comparator
 - id: finite_zeroes_on_compact
   declaration: ZetaZeroes.v1.finite_zeroes_on_compact
   challenge: ZetaZeroes.v1.challenge_finite_zeroes_on_compact
@@ -102,11 +100,10 @@ conclusions:
       complement.
       Proved already as finite_zeros_riemannZeta_of_isCompact in
       Solutions/CH2.v1/ZetaInstance.
-  designated: unjustified
-  progress:
-    solution: Solutions/ZetaZeroes.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065'
+  designated: comparator
 - id: exists_ordinate_free_height
   declaration: ZetaZeroes.v1.exists_ordinate_free_height
   challenge: ZetaZeroes.v1.challenge_exists_ordinate_free_height
@@ -124,11 +121,10 @@ conclusions:
       Note |Im z| rather than Im z. A contour has two horizontal pieces and both must miss the
       zeroes; the zeroes are symmetric about the real axis, so the two demands coincide.
       Proved already as exists_ordinate_free_height in Solutions/CH2.v1/ZetaInstance.
-  designated: unjustified
-  progress:
-    solution: Solutions/ZetaZeroes.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065'
+  designated: comparator
 - id: zeta_eq_zeta1_div
   declaration: ZetaZeroes.v1.zeta_eq_zeta1_div
   challenge: ZetaZeroes.v1.challenge_zeta_eq_zeta1_div
@@ -143,11 +139,10 @@ conclusions:
       because it is the bridge every argument needs that wants to replace zeta by an entire
       function -- which is to say every argument that wants the identity theorem.
       Proved already as riemannZeta_eq_riemannZeta₁_div in Solutions/CH2.v1/ZetaInstance.
-  designated: unjustified
-  progress:
-    solution: Solutions/ZetaZeroes.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065'
+  designated: comparator
 - id: zeta_eq_zero_iff_zeta1
   declaration: ZetaZeroes.v1.zeta_eq_zero_iff_zeta1
   challenge: ZetaZeroes.v1.challenge_zeta_eq_zero_iff_zeta1
@@ -164,12 +159,11 @@ conclusions:
       s = 1 is excluded because riemannZeta_1 1 = 1 /= 0 while zeta has a pole there, so the
       two sides say different things at that one point.
       Proved already as riemannZeta_eq_zero_iff_riemannZeta₁ in Solutions/CH2.v1/ZetaInstance.
-  designated: unjustified
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065'
+  designated: comparator
 
-  progress:
-    solution: Solutions/ZetaZeroes.v1/
-    state: in-progress
-    remaining_holes: 0
 sources:
 - title: "Location of the zeroes of the Riemann zeta function"
   authors: ["folklore"]
