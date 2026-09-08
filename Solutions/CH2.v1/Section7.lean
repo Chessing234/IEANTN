@@ -272,4 +272,44 @@ theorem strictAntiOn_Fweight : StrictAntiOn Fweight (Set.Ioo 0 1) := by
     linarith
   linarith
 
+/-! ### The complex `F`, and why it is `s coth s` in disguise
+
+Parts (b) and (c) of `lem:sibelius` are perturbation bounds off the real axis, so they need `F` as
+a function on `ℂ`. Both proofs turn on one substitution, which is worth isolating because it
+explains the shape of everything downstream.
+
+Writing `s = iπ(1-z)`, so that `π(1-z) = -is`,
+
+  `(1-z) cot(π(1-z)) = (s/(iπ)) · (i coth s) = (s coth s)/π`,
+
+so `F(z) = (1 - s coth s)/π`. **`F` is `1 - s coth s` up to an affine change of variable**, which
+is why `lem:cothder` — a statement about `(s coth s)'` — is what part (b) reaches for, and why the
+bound it produces is `|F'(z)| ≤ |π(1-z)|`.
+-/
+
+/-- The comparison function of §7 as a function on `ℂ`. -/
+noncomputable def Fc (z : ℂ) : ℂ :=
+  1 / (Real.pi : ℂ) - (1 - z) * Complex.cot ((Real.pi : ℂ) * (1 - z))
+
+/-- `F(z) = (1 - u cot u)/π` with `u = π(1-z)`: the constant and the product share a denominator. -/
+theorem Fc_eq (z : ℂ) :
+    Fc z = (1 - ((Real.pi : ℂ) * (1 - z)) * Complex.cot ((Real.pi : ℂ) * (1 - z)))
+      / (Real.pi : ℂ) := by
+  have hpi : ((Real.pi : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  rw [Fc]
+  field_simp
+
+/-- **`u cot u = s coth s` with `s = u i`.**
+
+`cosh (u i) = cos u` and `sinh (u i) = (sin u) i`, so `coth (u i) = -i cot u` and the two factors
+of `i` cancel. This is the substitution that turns every statement about `F` into one about
+`s coth s`, and conversely — including `lem:cothder`, which part (b) uses to bound `F'`. -/
+theorem mul_cot_eq_mul_coth (u : ℂ) :
+    u * Complex.cot u
+      = (u * Complex.I) * (Complex.cosh (u * Complex.I) / Complex.sinh (u * Complex.I)) := by
+  rw [Complex.cosh_mul_I, Complex.sinh_mul_I, Complex.cot_eq_cos_div_sin]
+  rcases eq_or_ne (Complex.sin u) 0 with h | h
+  · simp [h]
+  · field_simp
+
 end CH2Section7
