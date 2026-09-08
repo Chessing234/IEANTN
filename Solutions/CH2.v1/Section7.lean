@@ -157,4 +157,43 @@ theorem Fweight_lt_inv {x : ℝ} (h0 : 0 < x) (h1 : x < 1) :
     ring
   linarith
 
+/-- **`lem:sibelius` (a), positivity**: `0 < F(x)` for `x ∈ (0,1)`.
+
+The paper gets this from the expansion `F(z) = (2/π) Σₙ ζ(2n)(1-z)^{2n}`, whose coefficients are
+positive. **Mathlib has no such expansion** — it has Euler's partial fractions (`cot_series_rep`)
+and the Bernoulli generating function, but not `π cot πz = 1/z - 2 Σ ζ(2n) z^{2n-1}` — so that
+route would have been a small project of its own.
+
+It is not needed. Reading `F` in its original form `1/π - w cot(πw)` with `w = 1 - x`, positivity
+is exactly `w cot(πw) < 1/π`, which is `cot_lt_inv` at `πw` multiplied by `w`. The same inequality
+that gave the upper bound gives the lower one, at the reflected point. -/
+theorem Fweight_pos {x : ℝ} (h0 : 0 < x) (h1 : x < 1) : 0 < Fweight x := by
+  have hpi := Real.pi_pos
+  have hw0 : (0 : ℝ) < 1 - x := by linarith
+  have hwp : (0 : ℝ) < Real.pi * (1 - x) := by positivity
+  have hw1 : Real.pi * (1 - x) < Real.pi := by nlinarith
+  have hcot := cot_lt_inv hwp hw1
+  have hmul : (1 - x) * Real.cot (Real.pi * (1 - x)) < (1 - x) * (1 / (Real.pi * (1 - x))) :=
+    mul_lt_mul_of_pos_left hcot hw0
+  have heq : (1 - x) * (1 / (Real.pi * (1 - x))) = 1 / Real.pi := by
+    field_simp
+  rw [Fweight]
+  rw [heq] at hmul
+  linarith
+
+/-- **`u cot u` is strictly decreasing on `(0, π)`.**
+
+The remaining half of `lem:sibelius` (a) reduces to this, and it too avoids the `ζ(2n)` expansion.
+Differentiating, `(u cot u)' = (sin u cos u - u)/sin²u = (sin 2u - 2u)/(2 sin²u)`, which is
+negative because `sin t < t` for `t > 0` — a fact Mathlib has as `Real.sin_lt`.
+
+Stated as the derivative bound rather than as `StrictAntiOn`, because that is the form the
+monotonicity argument consumes and it keeps the analytic content separate from the plumbing. -/
+theorem deriv_mul_cot_neg {u : ℝ} (h0 : 0 < u) (hpi : u < Real.pi) :
+    Real.sin u * Real.cos u - u < 0 := by
+  have hsin2 : Real.sin (2 * u) = 2 * (Real.sin u * Real.cos u) := by
+    rw [Real.sin_two_mul]; ring
+  have hlt : Real.sin (2 * u) < 2 * u := Real.sin_lt (by linarith)
+  linarith [hsin2 ▸ hlt]
+
 end CH2Section7
