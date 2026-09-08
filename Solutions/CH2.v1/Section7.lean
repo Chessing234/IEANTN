@@ -1341,4 +1341,303 @@ theorem norm_deriv_Acomp_le_const
     ‖deriv Acomp z‖ ≤ 1.78 :=
   le_trans (norm_deriv_Acomp_le hcs hz hx0 hx hy) (numeric_bound hcs)
 
+/-! ### Integrating the derivative bound: `|A(x+iy) - A(x)| ≤ 1.78 |y|`
+
+The first half of `lem:sibelius` (c)'s conclusion. The mean value inequality is applied on the
+**vertical segment** `{w | Re w = x, |Im w| ≤ ½}` rather than on the rectangle: the rectangle minus
+the origin is not convex, and the segment is, while still avoiding the origin as long as `x > 0` —
+which part (c) assumes anyway. -/
+
+/-- On the rectangle, `‖z‖ ≤ 1/√2`. -/
+theorem norm_le_rcorner {z : ℂ} (hx0 : 0 ≤ z.re) (hx : z.re ≤ 1 / 2) (hy : |z.im| ≤ 1 / 2) :
+    ‖z‖ ≤ rcorner := by
+  have him : z.im * z.im ≤ 1 / 4 := by
+    have h := abs_nonneg z.im
+    have h2 : |z.im| * |z.im| ≤ (1 / 2) * (1 / 2) := mul_le_mul hy hy h (by norm_num)
+    rw [abs_mul_abs_self] at h2
+    linarith
+  have hnormsq : ‖z‖ ^ 2 ≤ 1 / 2 := by
+    rw [Complex.sq_norm, Complex.normSq_apply]
+    nlinarith
+  nlinarith [norm_nonneg z, rcorner_pos, rcorner_sq]
+
+/-- The vertical segment through `x` inside the rectangle. -/
+def vertSeg (x : ℝ) : Set ℂ := {w : ℂ | w.re = x ∧ |w.im| ≤ 1 / 2}
+
+theorem convex_vertSeg (x : ℝ) : Convex ℝ (vertSeg x) := by
+  intro a ha b hb u v hu hv huv
+  refine ⟨?_, ?_⟩
+  · have : (u • a + v • b).re = u * a.re + v * b.re := by simp
+    rw [this, ha.1, hb.1, ← add_mul, huv, one_mul]
+  · have him : (u • a + v • b).im = u * a.im + v * b.im := by simp
+    rw [him]
+    calc |u * a.im + v * b.im| ≤ |u * a.im| + |v * b.im| := abs_add_le _ _
+      _ = u * |a.im| + v * |b.im| := by
+          rw [abs_mul, abs_mul, abs_of_nonneg hu, abs_of_nonneg hv]
+      _ ≤ u * (1 / 2) + v * (1 / 2) :=
+          add_le_add (mul_le_mul_of_nonneg_left ha.2 hu) (mul_le_mul_of_nonneg_left hb.2 hv)
+      _ = 1 / 2 := by rw [← add_mul, huv, one_mul]
+
+/-- **`|A(x+iy) - A(x)| ≤ 1.78 |y|`** for `x ∈ (0,½]`, `|y| ≤ ½`. -/
+theorem norm_Acomp_sub_le
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x y : ℝ} (hx0 : 0 < x) (hx : x ≤ 1 / 2) (hy : |y| ≤ 1 / 2) :
+    ‖Acomp ((x : ℂ) + (y : ℂ) * Complex.I) - Acomp (x : ℂ)‖ ≤ 1.78 * |y| := by
+  set S : Set ℂ := vertSeg x with hS
+  have hmemA : (x : ℂ) ∈ S := by
+    refine ⟨by simp, ?_⟩
+    simp only [Complex.ofReal_im, abs_zero]
+    norm_num
+  have hmemB : (x : ℂ) + (y : ℂ) * Complex.I ∈ S := by
+    refine ⟨by simp, ?_⟩
+    simpa using hy
+  have hbound : ∀ w ∈ S, ‖(ContinuousLinearMap.smulRight (1 : ℂ →L[ℂ] ℂ) (deriv Acomp w))‖
+      ≤ 1.78 := by
+    intro w hw
+    have hre : w.re = x := hw.1
+    have hw0 : w ≠ 0 := by
+      intro hcon
+      rw [hcon] at hre
+      simp at hre
+      linarith [hre ▸ hx0]
+    have hb := norm_deriv_Acomp_le_const hcs hw0 (by rw [hre]; linarith)
+      (by rw [hre]; linarith) hw.2
+    rw [ContinuousLinearMap.norm_smulRight_apply, norm_one, one_mul]
+    exact hb
+  have hderiv : ∀ w ∈ S, HasFDerivWithinAt Acomp
+      (ContinuousLinearMap.smulRight (1 : ℂ →L[ℂ] ℂ) (deriv Acomp w)) S w := by
+    intro w hw
+    have hre : w.re = x := hw.1
+    have hw0 : w ≠ 0 := by
+      intro hcon
+      rw [hcon] at hre
+      simp at hre
+      linarith [hre ▸ hx0]
+    have hnorm : ‖w‖ < 1 :=
+      lt_of_le_of_lt (norm_le_rcorner (by rw [hre]; linarith) (by rw [hre]; linarith) hw.2)
+        rcorner_lt_one
+    have hd := hasDerivAt_Acomp hcs hw0 hnorm
+    have hd' : HasDerivAt Acomp (deriv Acomp w) w := by rw [hd.deriv]; exact hd
+    exact hd'.hasFDerivAt.hasFDerivWithinAt
+  have key := (convex_vertSeg x).norm_image_sub_le_of_norm_hasFDerivWithin_le
+    hderiv hbound hmemA hmemB
+  have hdist : ‖((x : ℂ) + (y : ℂ) * Complex.I) - (x : ℂ)‖ = |y| := by
+    rw [show ((x : ℂ) + (y : ℂ) * Complex.I) - (x : ℂ) = (y : ℂ) * Complex.I by ring,
+      norm_mul, Complex.norm_I, mul_one, Complex.norm_real, Real.norm_eq_abs]
+  rwa [hdist] at key
+
+/-! ### The second half of (c): `|A(x)| ≤ (π/3) x`
+
+The paper reaches this through `A'(0) = -π/3` and the monotonicity of `A'` on `[0,½)`. The series
+gives it directly, and on the whole of `(0,1)` rather than `[0,½]`:
+
+  `-A(x) = (1-x) f(x) = (2/π) x · (1-x) ∑_{n≥0} ζ(2n+2) x^{2n}`,
+
+so the claim is exactly `(1-x) ∑ ζ(2n+2) x^{2n} ≤ ζ(2)`, since `(2/π) ζ(2) = π/3`. Peeling off the
+`n = 0` term leaves `(1-x) ∑_{n≥1} ζ(2n+2) x^{2n} ≤ ζ(2) x`, and there `ζ(2n+2) ≤ ζ(4)` and a
+geometric series suffice: the left side is at most `ζ(4) x²/(1+x)`, and `ζ(4) ≤ ζ(2)` closes it.
+
+Both signs come out of the same series: every coefficient is positive, so `f(x) > 0` and `A(x) < 0`
+on `(0,1)`. -/
+
+/-- `f` at a real point is the real `f`. -/
+theorem fcomp_ofReal (x : ℝ) : fcomp (x : ℂ) = (freal x : ℂ) := by
+  have hcot : Complex.cot ((Real.pi : ℂ) * (x : ℂ)) = (Real.cot (Real.pi * x) : ℂ) := by
+    rw [Complex.ofReal_cot]
+    push_cast
+    ring_nf
+  rw [fcomp, freal, hcot]
+  push_cast
+  ring
+
+/-- The series for `f` at a real point of `(0,1)`. -/
+theorem hasSum_freal
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
+    HasSum (fun n : ℕ ↦ (2 / Real.pi) * zetaReal (2 * (n : ℝ) + 2) * x ^ (2 * n + 1))
+      (freal x) := by
+  have hz : (x : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx0.ne'
+  have hn : ‖(x : ℂ)‖ < 1 := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hx0]; exact hx1
+  have H : HasSum (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * riemannZeta (2 * (n : ℂ) + 2)
+      * (x : ℂ) ^ (2 * n + 1)) (fcomp (x : ℂ)) := hasSum_inv_pi_mul_sub_cot hcs hz hn
+  rw [fcomp_ofReal] at H
+  rw [← Complex.hasSum_ofReal]
+  refine H.congr_fun fun n ↦ ?_
+  rw [riemannZeta_coeff_ofReal]
+  push_cast
+  ring
+
+theorem freal_pos
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) : 0 < freal x := by
+  have H := hasSum_freal hcs hx0 hx1
+  have hterm : ∀ n : ℕ, (0 : ℝ) ≤ (2 / Real.pi) * zetaReal (2 * (n : ℝ) + 2) * x ^ (2 * n + 1) := by
+    intro n
+    have h1 : 0 < zetaReal (2 * (n : ℝ) + 2) := zetaReal_coeff_pos n
+    have h2 : (0 : ℝ) < 2 / Real.pi := by positivity
+    positivity
+  have h0 := H.summable.le_tsum 0 (fun k _ ↦ hterm k)
+  rw [H.tsum_eq] at h0
+  have hpos : (0 : ℝ) < (2 / Real.pi) * zetaReal (2 * ((0 : ℕ) : ℝ) + 2) * x ^ (2 * 0 + 1) := by
+    have h1 : 0 < zetaReal (2 * ((0 : ℕ) : ℝ) + 2) := zetaReal_coeff_pos 0
+    have h2 : (0 : ℝ) < 2 / Real.pi := by positivity
+    positivity
+  linarith
+
+/-- The series with the factor `(2/π) x` divided out: `G(x) = ∑ ζ(2n+2) x^{2n}`. -/
+theorem hasSum_gseries
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
+    HasSum (fun n : ℕ ↦ zetaReal (2 * (n : ℝ) + 2) * x ^ (2 * n))
+      (Real.pi / (2 * x) * freal x) := by
+  have H := (hasSum_freal hcs hx0 hx1).mul_left (Real.pi / (2 * x))
+  refine H.congr_fun fun n ↦ ?_
+  have hpi : Real.pi ≠ 0 := Real.pi_ne_zero
+  have hx : x ≠ 0 := hx0.ne'
+  rw [show x ^ (2 * n + 1) = x ^ (2 * n) * x from pow_succ x (2 * n)]
+  field_simp
+
+/-- **`(1-x) ∑ ζ(2n+2) x^{2n} ≤ ζ(2)`** on `(0,1)`: the tail is geometric with ratio `x²`. -/
+theorem gseries_le
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
+    (1 - x) * (Real.pi / (2 * x) * freal x) ≤ zetaReal 2 := by
+  set G : ℝ := Real.pi / (2 * x) * freal x with hG
+  have H := hasSum_gseries hcs hx0 hx1
+  -- drop the leading term
+  have hlead : zetaReal (2 * ((0 : ℕ) : ℝ) + 2) * x ^ (2 * 0) = zetaReal 2 := by norm_num
+  have Hs : HasSum (fun n : ℕ ↦ zetaReal (2 * ((n : ℝ) + 1) + 2) * x ^ (2 * n + 2))
+      (G - zetaReal 2) := by
+    set F : ℕ → ℝ := fun n ↦ zetaReal (2 * (n : ℝ) + 2) * x ^ (2 * n) with hF
+    have hshift : HasSum (fun n : ℕ ↦ F (n + 1)) (G - zetaReal 2) := by
+      rw [hasSum_nat_add_iff 1]
+      simpa [hF, hlead] using H
+    refine hshift.congr_fun fun n ↦ ?_
+    simp only [hF]
+    push_cast
+    ring
+  -- the geometric majorant
+  have hx2 : x ^ 2 < 1 := by nlinarith
+  have hx2n : (0 : ℝ) ≤ x ^ 2 := by positivity
+  have Hgeo : HasSum (fun n : ℕ ↦ zetaReal 4 * x ^ 2 * (x ^ 2) ^ n)
+      (zetaReal 4 * x ^ 2 * (1 - x ^ 2)⁻¹) :=
+    (hasSum_geometric_of_lt_one hx2n hx2).mul_left _
+  have hle : G - zetaReal 2 ≤ zetaReal 4 * x ^ 2 * (1 - x ^ 2)⁻¹ := by
+    rw [← Hs.tsum_eq, ← Hgeo.tsum_eq]
+    refine Summable.tsum_le_tsum (fun n ↦ ?_) Hs.summable Hgeo.summable
+    have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    have hz : zetaReal (2 * ((n : ℝ) + 1) + 2) ≤ zetaReal 4 := by
+      have := zetaReal_le (s := 4) (t := 2 * ((n : ℝ) + 1) + 2) (by norm_num) (by linarith)
+      exact this
+    have hpow : x ^ (2 * n + 2) = x ^ 2 * (x ^ 2) ^ n := by
+      rw [← pow_mul]
+      ring_nf
+    rw [hpow, mul_assoc]
+    have hpn : (0 : ℝ) ≤ x ^ 2 * (x ^ 2) ^ n := by positivity
+    exact mul_le_mul_of_nonneg_right hz hpn
+  -- and the elementary inequality that finishes it
+  have hz2 : 0 < zetaReal 2 := zetaReal_pos one_lt_two
+  have hz4 : zetaReal 4 ≤ zetaReal 2 := zetaReal_le (by norm_num) (by norm_num)
+  have hz4pos : 0 < zetaReal 4 := zetaReal_pos (by norm_num)
+  have hfac : (0 : ℝ) < 1 - x ^ 2 := by nlinarith
+  have hstep : (1 - x) * (zetaReal 4 * x ^ 2 * (1 - x ^ 2)⁻¹) ≤ zetaReal 2 * x := by
+    rw [inv_eq_one_div, mul_one_div, ← mul_div_assoc, div_le_iff₀ hfac]
+    have hfe : (1 - x ^ 2) = (1 - x) * (1 + x) := by ring
+    rw [hfe]
+    have h1 : (0 : ℝ) ≤ (1 - x) * x := by nlinarith
+    have h2 : (0 : ℝ) ≤ zetaReal 2 - zetaReal 4 := by linarith
+    nlinarith [mul_nonneg h1 hz2.le, mul_nonneg (mul_nonneg h1 hx0.le) h2]
+  nlinarith [hle, hstep]
+
+/-- **`|A(x)| ≤ (π/3) x` on `(0,1)`**, the remaining half of `lem:sibelius` (c).
+
+Stronger than the paper's `[0,½]`: the series argument does not care where in `(0,1)` the point is,
+and `(2/π) ζ(2) = π/3` is what makes the constant exactly `π/3`. -/
+theorem norm_Acomp_real_le
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1) :
+    ‖Acomp (x : ℂ)‖ ≤ Real.pi / 3 * x := by
+  have hz : (x : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx0.ne'
+  have hAf : Acomp (x : ℂ) = ((-(1 - x) * freal x : ℝ) : ℂ) := by
+    rw [Acomp_eq hz, show (1 / ((Real.pi : ℂ) * (x : ℂ)) - Complex.cot ((Real.pi : ℂ) * (x : ℂ)))
+      = fcomp (x : ℂ) from rfl, fcomp_ofReal]
+    push_cast
+    ring
+  have hfp := freal_pos hcs hx0 hx1
+  have hnn : (0 : ℝ) ≤ (1 - x) * freal x := by nlinarith
+  have hnorm : ‖Acomp (x : ℂ)‖ = (1 - x) * freal x := by
+    rw [hAf, Complex.norm_real, Real.norm_eq_abs, abs_of_nonpos (by nlinarith)]
+    ring
+  rw [hnorm]
+  have hG := gseries_le hcs hx0 hx1
+  have hpi : (0 : ℝ) < Real.pi := Real.pi_pos
+  have hexp : (1 - x) * freal x = 2 * x / Real.pi * ((1 - x) * (Real.pi / (2 * x) * freal x)) := by
+    field_simp
+  rw [hexp]
+  have hcoef : (0 : ℝ) < 2 * x / Real.pi := by positivity
+  calc 2 * x / Real.pi * ((1 - x) * (Real.pi / (2 * x) * freal x))
+      ≤ 2 * x / Real.pi * zetaReal 2 := mul_le_mul_of_nonneg_left hG hcoef.le
+    _ = 2 * x / Real.pi * (Real.pi ^ 2 / 6) := by rw [zetaReal_two_eq]
+    _ = Real.pi / 3 * x := by field_simp; ring
+
+/-! ### `lem:sibelius` (c), and the first case of (b)
+
+Both halves of (c) in one place, and the consequence the paper draws immediately: for
+`0 < x ≤ ½` the estimate (b) follows from (c) and nothing else, since `F = A + 1/(πz)` and
+
+  `|1/(x+iy) - 1/x| = |y| / (x |x+iy|)`.
+
+Only the remaining case `½ ≤ x ≤ 1` of (b) needs `lem:cothder` and Phragmén–Lindelöf. -/
+
+/-- **`lem:sibelius` (c)**, both halves. -/
+theorem sibelius_c
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x y : ℝ} (hx0 : 0 < x) (hx : x ≤ 1 / 2) (hy : |y| ≤ 1 / 2) :
+    ‖Acomp (x : ℂ)‖ ≤ Real.pi / 3 * x ∧
+      ‖Acomp ((x : ℂ) + (y : ℂ) * Complex.I) - Acomp (x : ℂ)‖ ≤ 1.78 * |y| :=
+  ⟨norm_Acomp_real_le hcs hx0 (by linarith), norm_Acomp_sub_le hcs hx0 hx hy⟩
+
+/-- **`lem:sibelius` (b) for `0 < x ≤ ½`**: `|F(x+iy) - F(x)| ≤ |y|/(πx|x+iy|) + 1.78|y|`.
+
+`F = A + 1/(πz)`, so this is (c) plus one algebraic identity. -/
+theorem norm_Fc_sub_le
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x y : ℝ} (hx0 : 0 < x) (hx : x ≤ 1 / 2) (hy : |y| ≤ 1 / 2) :
+    ‖Fc ((x : ℂ) + (y : ℂ) * Complex.I) - Fc (x : ℂ)‖
+      ≤ |y| / (Real.pi * x * ‖(x : ℂ) + (y : ℂ) * Complex.I‖) + 1.78 * |y| := by
+  have ha0 : ((x : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx0.ne'
+  have hb0 : ((x : ℂ) + (y : ℂ) * Complex.I) ≠ 0 := by
+    intro hcon
+    have hre : ((x : ℂ) + (y : ℂ) * Complex.I).re = 0 := by rw [hcon]; simp
+    simp at hre
+    linarith
+  have hpi : ((Real.pi : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  have hsplit : Fc ((x : ℂ) + (y : ℂ) * Complex.I) - Fc (x : ℂ)
+      = (Acomp ((x : ℂ) + (y : ℂ) * Complex.I) - Acomp (x : ℂ))
+        + (1 / ((Real.pi : ℂ) * ((x : ℂ) + (y : ℂ) * Complex.I)) - 1 / ((Real.pi : ℂ) * (x : ℂ))) :=
+    by rw [Acomp, Acomp]; ring
+  have hdiff : 1 / ((Real.pi : ℂ) * ((x : ℂ) + (y : ℂ) * Complex.I)) - 1 / ((Real.pi : ℂ) * (x : ℂ))
+      = -((y : ℂ) * Complex.I)
+        / ((Real.pi : ℂ) * (x : ℂ) * ((x : ℂ) + (y : ℂ) * Complex.I)) := by
+    field_simp
+    ring
+  have hnb : ‖(Real.pi : ℂ) * (x : ℂ) * ((x : ℂ) + (y : ℂ) * Complex.I)‖
+      = Real.pi * x * ‖(x : ℂ) + (y : ℂ) * Complex.I‖ := by
+    rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs,
+      Real.norm_eq_abs, abs_of_pos Real.pi_pos, abs_of_pos hx0]
+  have hnn : ‖-((y : ℂ) * Complex.I)‖ = |y| := by
+    rw [norm_neg, norm_mul, Complex.norm_I, mul_one, Complex.norm_real, Real.norm_eq_abs]
+  calc ‖Fc ((x : ℂ) + (y : ℂ) * Complex.I) - Fc (x : ℂ)‖
+      = ‖(Acomp ((x : ℂ) + (y : ℂ) * Complex.I) - Acomp (x : ℂ))
+          + (1 / ((Real.pi : ℂ) * ((x : ℂ) + (y : ℂ) * Complex.I))
+            - 1 / ((Real.pi : ℂ) * (x : ℂ)))‖ := by rw [hsplit]
+    _ ≤ ‖Acomp ((x : ℂ) + (y : ℂ) * Complex.I) - Acomp (x : ℂ)‖
+          + ‖1 / ((Real.pi : ℂ) * ((x : ℂ) + (y : ℂ) * Complex.I))
+            - 1 / ((Real.pi : ℂ) * (x : ℂ))‖ := norm_add_le _ _
+    _ ≤ 1.78 * |y| + |y| / (Real.pi * x * ‖(x : ℂ) + (y : ℂ) * Complex.I‖) := by
+        rw [hdiff, norm_div, hnn, hnb]
+        linarith [norm_Acomp_sub_le hcs hx0 hx hy]
+    _ = |y| / (Real.pi * x * ‖(x : ℂ) + (y : ℂ) * Complex.I‖) + 1.78 * |y| := by ring
+
 end CH2Section7

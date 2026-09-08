@@ -330,8 +330,34 @@ stages:
       corollaries. Decide this by working section 7 backwards, not by stating Theorem 1.1 first.
 
   - stage: "sections 7-8: the specialisation to psi"
-    state: not started -- THIS IS THE REAL WORK
+    state: in progress -- Section7.lean; lem:sibelius (a) and (c) are done, (b) half done
     note: >-
+      DONE SO FAR, in Section7.lean. lem:sibelius (a) in full (F decreasing on (0,1), and
+      0 < F(x) < 1/(pi x)); lem:sibelius (c) in full, both halves; and the case 0 < x <= 1/2 of
+      lem:sibelius (b), which follows from (c) plus |1/(x+iy) - 1/x| = |y|/(x|x+iy|).
+      The route through (c) is worth recording because the paper's is not the shortest.
+      A(z) = -(1-z) f(z) with f(z) = 1/(pi z) - cot(pi z), whose Taylor coefficients are
+      (2/pi) zeta(2n+2) -- the imported CotangentSeries.v1. Multiplying by (1 - z^2) telescopes the
+      series into h(z) = (2/pi) sum a_n z^{2n+3} with a_n = zeta(2n+2) - zeta(2n+4) >= 0, and
+      non-negative coefficients give |h(z)| <= h(||z||) and the same for h'. That turns the
+      two-dimensional maximum of |A'| over [0,1/2] x [-1/2,1/2] into an evaluation at 1/sqrt 2.
+      THE NUMERIC STEP IS TIGHT -- the true constant is 1.7796360636 against 1.78, a margin of
+      3.6e-4 -- and the closed forms are useless for it, since nothing in Mathlib evaluates
+      cot(pi/sqrt 2). SUMMATION BY PARTS IS WHAT MAKES IT CHEAP. With v_n = zeta(2n+2) - 1 and W_n
+      the weight, sum a_n W_n = v_0 W_0 + sum v_{n+1}(W_{n+1} - W_n), and W is decreasing while
+      v >= 0, so every term after the first is negative: truncating is already an upper bound, no
+      tail has to be estimated, and each retained term needs only a LOWER bound on some
+      zeta(2k) - 1, which a handful of Dirichlet terms supplies. No Bernoulli numbers, no closed
+      forms for zeta(6), zeta(8), zeta(10). Five terms plus pi_gt_d6 / pi_lt_d6 close it with 0.001
+      to spare.
+      The second half of (c), |A(x)| <= (pi/3) x, does not follow the paper either: instead of
+      A'(0) = -pi/3 and monotonicity of A', it is the series bound
+      (1-x) sum zeta(2n+2) x^{2n} <= zeta(2), peeling off n = 0 and comparing the rest with a
+      geometric series. That proves it on all of (0,1), not just [0,1/2].
+      STILL TO DO IN SECTION 7: the case 1/2 <= x <= 1 of (b), which needs lem:cothder and
+      Phragmen-Lindelof (Mathlib has PhragmenLindelof.horizontal_strip), and the opening bound
+      coth y <= 1/y + y/3, which needs Euler's hyperbolic expansion.
+      THE REST OF THE STAGE, unchanged.
       Nobody has formalized this, upstream or anywhere. It needs: F instantiated as the pole-free
       part of -zeta'/zeta with PNT+'s hypotheses discharged (MeromorphicOn, ConjSymm,
       HasSimplePolesOn, boundedness on the ladder and contour); the residue sum over zeroes
