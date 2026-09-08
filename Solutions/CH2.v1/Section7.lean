@@ -782,4 +782,219 @@ theorem norm_deriv_hcomp_le
           * z ^ (2 * n + 2)‖ := norm_tsum_le_tsum_norm hsummable
     _ = hderivReal ‖z‖ := by rw [← Hr.tsum_eq]; exact tsum_congr hterm
 
+/-! ### `h` and `h'` are increasing on `[0,1)`, and `h` is differentiable
+
+Two loose ends before `A'` can be assembled. The disc bounds are in terms of `‖z‖`, and the
+rectangle `[0,½] × [-½,½]` has `‖z‖ ≤ 1/√2`, so the bounds are only useful once `hreal` and
+`hderivReal` are known to be increasing — which they are, termwise, because `aₙ ≥ 0`.
+
+And `hcomp` must be differentiable before it has a derivative to speak of. Rather than
+differentiate `cot`, this reuses the series: the sum is holomorphic on the disc by
+`Complex.differentiableOn_tsum_of_summable_norm`, and it agrees with `hcomp` on the punctured disc,
+which is a neighbourhood of every point of it. -/
+
+theorem hreal_mono
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {r s : ℝ} (hr : 0 < r) (hrs : r ≤ s) (hs : s < 1) : hreal r ≤ hreal s := by
+  have Hr := hasSum_hreal hcs hr (lt_of_le_of_lt hrs hs)
+  have Hs := hasSum_hreal hcs (lt_of_lt_of_le hr hrs) hs
+  rw [← Hr.tsum_eq, ← Hs.tsum_eq]
+  refine Summable.tsum_le_tsum (fun n ↦ ?_) Hr.summable Hs.summable
+  have hnn : (0:ℝ) ≤ (2 / Real.pi) * acoeff n := by
+    have := acoeff_nonneg n; positivity
+  exact mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hr.le hrs _) hnn
+
+theorem hderivReal_mono {r s : ℝ} (hr : 0 ≤ r) (hrs : r ≤ s) (hs : s < 1) :
+    hderivReal r ≤ hderivReal s := by
+  have Hr := hasSum_hderivReal hr (lt_of_le_of_lt hrs hs)
+  have Hs := hasSum_hderivReal (hr.trans hrs) hs
+  rw [← Hr.tsum_eq, ← Hs.tsum_eq]
+  refine Summable.tsum_le_tsum (fun n ↦ ?_) Hr.summable Hs.summable
+  have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  have hnn : (0:ℝ) ≤ (2 / Real.pi) * acoeff n * (2 * (n : ℝ) + 3) := by
+    have := acoeff_nonneg n
+    have h3 : (0:ℝ) ≤ 2 * (n : ℝ) + 3 := by linarith
+    positivity
+  exact mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hr hrs _) hnn
+
+/-- `hcomp` is differentiable on the punctured unit disc, by way of its series. -/
+theorem differentiableAt_hcomp
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (h1 : ‖z‖ < 1) : DifferentiableAt ℂ hcomp z := by
+  set R : ℝ := (‖z‖ + 1) / 2 with hR
+  have hzR : ‖z‖ < R := by rw [hR]; linarith
+  have hR1 : R < 1 := by rw [hR]; linarith
+  have hR0 : 0 < R := lt_of_le_of_lt (norm_nonneg z) hzR
+  set F : ℕ → ℂ → ℂ := fun n w ↦ (2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * w ^ (2 * n + 3) with hF
+  have hu : Summable fun n : ℕ ↦ (2 / Real.pi) * acoeff n * R ^ (2 * n + 3) :=
+    (hasSum_hreal hcs hR0 hR1).summable
+  have hdiff : ∀ n : ℕ, DifferentiableOn ℂ (F n) (Metric.ball (0 : ℂ) R) :=
+    fun n ↦ (((differentiable_pow (2 * n + 3)).const_mul _)).differentiableOn
+  have hle : ∀ (n : ℕ), ∀ w ∈ Metric.ball (0 : ℂ) R,
+      ‖F n w‖ ≤ (2 / Real.pi) * acoeff n * R ^ (2 * n + 3) := by
+    intro n w hw
+    rw [mem_ball_zero_iff] at hw
+    have hcast : ‖(2 / (Real.pi : ℂ))‖ * ‖(acoeff n : ℂ)‖ = (2 / Real.pi) * acoeff n := by
+      rw [← norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+        abs_of_nonneg (acoeff_nonneg n),
+        show (2 : ℂ) / (Real.pi : ℂ) = ((2 / Real.pi : ℝ) : ℂ) by push_cast; ring,
+        Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
+    rw [hF]
+    simp only [norm_mul, norm_pow]
+    rw [hcast]
+    have hnn : (0:ℝ) ≤ (2 / Real.pi) * acoeff n := by
+      have := acoeff_nonneg n; positivity
+    exact mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (norm_nonneg w) hw.le _) hnn
+  have hmem : z ∈ Metric.ball (0 : ℂ) R := by rw [mem_ball_zero_iff]; exact hzR
+  have hT : DifferentiableAt ℂ (fun w : ℂ ↦ ∑' n : ℕ, F n w) z :=
+    ((Complex.differentiableOn_tsum_of_summable_norm hu hdiff Metric.isOpen_ball
+      hle).differentiableAt (Metric.isOpen_ball.mem_nhds hmem))
+  have hopen : IsOpen ({w : ℂ | w ≠ 0} ∩ Metric.ball (0 : ℂ) R) :=
+    isOpen_ne.inter Metric.isOpen_ball
+  have heq : (fun w : ℂ ↦ ∑' n : ℕ, F n w) =ᶠ[nhds z] hcomp := by
+    filter_upwards [hopen.mem_nhds ⟨hz, hmem⟩] with w hw
+    exact (hasSum_hcomp hcs hw.1 (lt_trans (mem_ball_zero_iff.mp hw.2) hR1)).tsum_eq
+  exact hT.congr_of_eventuallyEq heq.symm
+
+/-! ### `A'` in terms of `h` and `h'`
+
+`(1+z) A(z) = h(z) - (2/π) ζ(2) z`, since `A(z) = -(1-z) f(z)` and
+`h(z) = (2/π) ζ(2) z - (1-z²) f(z)`. Differentiating the quotient gives the paper's
+
+  `A'(z) = -(2/π) ζ(2)/(1+z)² - h(z)/(1+z)² + h'(z)/(1+z)`,
+
+which is the form the bound uses: `|1+z| ≥ 1` on the rectangle, so all three denominators help. -/
+
+/-- `(1+z) A(z) = h(z) - (2/π) ζ(2) z` on the punctured unit disc. -/
+theorem Acomp_eq_div {z : ℂ} (hz : z ≠ 0) (hz1 : (1 : ℂ) + z ≠ 0) :
+    Acomp z = (hcomp z - (2 / (Real.pi : ℂ)) * riemannZeta 2 * z) / (1 + z) := by
+  have hAf : Acomp z = -(1 - z) * fcomp z := by rw [Acomp_eq hz, fcomp]
+  have hnum : hcomp z - (2 / (Real.pi : ℂ)) * riemannZeta 2 * z = (1 + z) * Acomp z := by
+    rw [hcomp, hAf]; ring
+  rw [hnum, mul_comm, mul_div_assoc, div_self hz1, mul_one]
+
+/-- **`A'(z) = -(2/π) ζ(2)/(1+z)² - h(z)/(1+z)² + h'(z)/(1+z)`**, the paper's (cotaA').
+
+Obtained from `(1+z) A(z) = h(z) - (2/π) ζ(2) z` by differentiating the quotient; `h` is
+differentiable because its series is. This is the form the bound uses: `|1+z| ≥ 1` on the
+rectangle, so all three denominators help rather than hurt. -/
+theorem hasDerivAt_Acomp
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (h1 : ‖z‖ < 1) :
+    HasDerivAt Acomp
+      (-((2 / (Real.pi : ℂ)) * riemannZeta 2) / (1 + z) ^ 2 - hcomp z / (1 + z) ^ 2
+        + deriv hcomp z / (1 + z)) z := by
+  have hz1 : (1 : ℂ) + z ≠ 0 := by
+    intro hcon
+    have hzz : z = -1 := by linear_combination hcon
+    rw [hzz] at h1
+    simp at h1
+  have hh : HasDerivAt hcomp (deriv hcomp z) z := (differentiableAt_hcomp hcs hz h1).hasDerivAt
+  set c : ℂ := (2 / (Real.pi : ℂ)) * riemannZeta 2 with hcdef
+  have hlin : HasDerivAt (fun w : ℂ ↦ c * w) c z := by
+    simpa using (hasDerivAt_id z).const_mul c
+  have hnum : HasDerivAt (fun w : ℂ ↦ hcomp w - c * w) (deriv hcomp z - c) z := hh.sub hlin
+  have hden : HasDerivAt (fun w : ℂ ↦ 1 + w) 1 z := by
+    simpa using (hasDerivAt_id z).const_add (1 : ℂ)
+  have hQ : HasDerivAt (fun w : ℂ ↦ (hcomp w - c * w) / (1 + w))
+      (((deriv hcomp z - c) * (1 + z) - (hcomp z - c * z) * 1) / (1 + z) ^ 2) z :=
+    hnum.div hden hz1
+  have heq : Acomp =ᶠ[nhds z] fun w : ℂ ↦ (hcomp w - c * w) / (1 + w) := by
+    have hopen : IsOpen ({w : ℂ | w ≠ 0} ∩ Metric.ball (0 : ℂ) 1) :=
+      isOpen_ne.inter Metric.isOpen_ball
+    filter_upwards [hopen.mem_nhds ⟨hz, by rw [mem_ball_zero_iff]; exact h1⟩] with w hw
+    have hw1 : (1 : ℂ) + w ≠ 0 := by
+      intro hcon
+      have hww : w = -1 := by linear_combination hcon
+      have := mem_ball_zero_iff.mp hw.2
+      rw [hww] at this
+      simp at this
+    exact Acomp_eq_div hw.1 hw1
+  have hA := hQ.congr_of_eventuallyEq heq
+  have hval : ((deriv hcomp z - c) * (1 + z) - (hcomp z - c * z) * 1) / (1 + z) ^ 2
+      = -c / (1 + z) ^ 2 - hcomp z / (1 + z) ^ 2 + deriv hcomp z / (1 + z) := by
+    field_simp
+    ring
+  rw [hval] at hA
+  exact hA
+
+/-! ### The bound on `|A'|` over the rectangle
+
+Everything assembled. On `[0,½] × [-½,½]` two things hold: `‖z‖ ≤ 1/√2`, the corner furthest from
+the origin, and `‖1+z‖ ≥ 1`, because `Re z ≥ 0`. So each of the three terms of `A'` is bounded by
+its numerator, and each numerator by its value at `1/√2`.
+
+What is left after this is one inequality between real numbers,
+`(2/π) ζ(2) + h(1/√2) + h'(1/√2) < 1.78`, with nothing complex-analytic in it. -/
+
+/-- `1/√2`, the corner of the rectangle furthest from the origin. -/
+noncomputable def rcorner : ℝ := Real.sqrt (1 / 2)
+
+theorem rcorner_sq : rcorner ^ 2 = 1 / 2 := Real.sq_sqrt (by norm_num)
+
+theorem rcorner_pos : 0 < rcorner := Real.sqrt_pos.mpr (by norm_num)
+
+theorem rcorner_lt_one : rcorner < 1 := by nlinarith [rcorner_sq, rcorner_pos]
+
+/-- `‖2ζ(2)/π‖ = 2ζ(2)/π`: the constant is a positive real. -/
+theorem norm_const_zeta_two :
+    ‖(2 / (Real.pi : ℂ)) * riemannZeta 2‖ = (2 / Real.pi) * zetaReal 2 := by
+  rw [riemannZeta_two_ofReal, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+    abs_of_pos (zetaReal_pos one_lt_two),
+    show (2 : ℂ) / (Real.pi : ℂ) = ((2 / Real.pi : ℝ) : ℂ) by push_cast; ring,
+    Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
+
+/-- **`|A'(z)| ≤ (2/π) ζ(2) + h(1/√2) + h'(1/√2)` on the rectangle** `[0,½] × [-½,½]`.
+
+The paper's `1.77963…`; here still as three exact quantities, the numerical evaluation being a
+separate matter. -/
+theorem norm_deriv_Acomp_le
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (hx0 : 0 ≤ z.re) (hx : z.re ≤ 1 / 2) (hy : |z.im| ≤ 1 / 2) :
+    ‖deriv Acomp z‖ ≤ (2 / Real.pi) * zetaReal 2 + hreal rcorner + hderivReal rcorner := by
+  have him : z.im * z.im ≤ 1 / 4 := by
+    have h := abs_nonneg z.im
+    have : |z.im| * |z.im| ≤ (1 / 2) * (1 / 2) := mul_le_mul hy hy h (by norm_num)
+    rw [abs_mul_abs_self] at this
+    linarith
+  have hnormsq : ‖z‖ ^ 2 ≤ 1 / 2 := by
+    rw [Complex.sq_norm, Complex.normSq_apply]
+    nlinarith
+  have hnorm : ‖z‖ ≤ rcorner := by
+    nlinarith [norm_nonneg z, rcorner_pos, rcorner_sq]
+  have h1 : ‖z‖ < 1 := lt_of_le_of_lt hnorm rcorner_lt_one
+  have hz0 : 0 < ‖z‖ := norm_pos_iff.mpr hz
+  have hden : (1 : ℝ) ≤ ‖1 + z‖ := by
+    have hsq : (1 : ℝ) ≤ ‖1 + z‖ ^ 2 := by
+      rw [Complex.sq_norm, Complex.normSq_apply]
+      simp only [Complex.add_re, Complex.one_re, Complex.add_im, Complex.one_im, zero_add]
+      nlinarith
+    nlinarith [norm_nonneg (1 + z)]
+  have hden2 : (1 : ℝ) ≤ ‖1 + z‖ ^ 2 := one_le_pow₀ hden
+  set c : ℂ := (2 / (Real.pi : ℂ)) * riemannZeta 2 with hcdef
+  rw [(hasDerivAt_Acomp hcs hz h1).deriv]
+  have hsplit : ‖-c / (1 + z) ^ 2 - hcomp z / (1 + z) ^ 2 + deriv hcomp z / (1 + z)‖
+      ≤ ‖c‖ / ‖1 + z‖ ^ 2 + ‖hcomp z‖ / ‖1 + z‖ ^ 2 + ‖deriv hcomp z‖ / ‖1 + z‖ := by
+    refine le_trans (norm_add_le _ _) ?_
+    have h2 : ‖-c / (1 + z) ^ 2 - hcomp z / (1 + z) ^ 2‖
+        ≤ ‖c‖ / ‖1 + z‖ ^ 2 + ‖hcomp z‖ / ‖1 + z‖ ^ 2 := by
+      refine le_trans (norm_sub_le _ _) ?_
+      rw [norm_div, norm_div, norm_pow, norm_neg]
+    rw [norm_div]
+    have := norm_div (deriv hcomp z) (1 + z)
+    linarith [h2]
+  refine le_trans hsplit ?_
+  have hc0 : 0 ≤ ‖c‖ := norm_nonneg _
+  have hb1 : ‖c‖ / ‖1 + z‖ ^ 2 ≤ (2 / Real.pi) * zetaReal 2 := by
+    rw [← norm_const_zeta_two, ← hcdef]
+    exact div_le_self hc0 hden2
+  have hb2 : ‖hcomp z‖ / ‖1 + z‖ ^ 2 ≤ hreal rcorner :=
+    le_trans (div_le_self (norm_nonneg _) hden2)
+      (le_trans (norm_hcomp_le hcs hz h1) (hreal_mono hcs hz0 hnorm rcorner_lt_one))
+  have hb3 : ‖deriv hcomp z‖ / ‖1 + z‖ ≤ hderivReal rcorner :=
+    le_trans (div_le_self (norm_nonneg _) hden)
+      (le_trans (norm_deriv_hcomp_le hcs hz h1)
+        (hderivReal_mono hz0.le hnorm rcorner_lt_one))
+  linarith
+
 end CH2Section7
