@@ -1713,4 +1713,57 @@ theorem zOf_ne_weight_pole (l : CH2.LadderParams) {lam : ℝ} (hlam : 0 < lam) {
   have hpos : 0 < l.T * lam / (2 * Real.pi) := by positivity
   linarith
 
+/-- Both weights are analytic at `zOf s` for every `s` in `R`, by `zOf_ne_weight_pole`. -/
+theorem analyticAt_Phi_circ_zOf (l : CH2.LadderParams) {lam ε : ℝ} (hlam : 0 < lam) {s : ℂ}
+    (hs : s.re ≤ 1) : AnalyticAt ℂ (fun w ↦ CH2.Phi_circ lam ε (l.zOf w)) s :=
+  (CH2.Phi_circ.analyticAt_of_not_pole lam ε (l.zOf s)
+    (fun n ↦ zOf_ne_weight_pole l hlam hs n)).comp (analyticAt_zOf l s)
+
+theorem analyticAt_Phi_star_zOf (l : CH2.LadderParams) {lam ε : ℝ} (hlam : 0 < lam) {s : ℂ}
+    (hs : s.re ≤ 1) : AnalyticAt ℂ (fun w ↦ CH2.Phi_star lam ε (l.zOf w)) s :=
+  (CH2.Phi_star.analyticAt_of_not_pole lam ε (l.zOf s)
+    (fun n ↦ zOf_ne_weight_pole l hlam hs n)).comp (analyticAt_zOf l s)
+
+/-- **`prop_5_2`'s `hsimple_circ` hypothesis, closed.**
+
+`Phi_circ` carries no sign factor, so unlike `Phi_lambda` it is analytic across the real axis as
+well, and the order of the product is just the order of `F`, which
+`hasSimplePolesOn_F_univ` already bounds below by `-1`. -/
+theorem hasSimplePolesOn_circ_ladder (l : CH2.LadderParams) {lam ε x : ℝ}
+    (hlam : 0 < lam) (hx : 0 < x) :
+    HasSimplePolesOn
+      (fun s ↦ CH2.Phi_circ |lam| ε ((Real.sign lam : ℂ) * l.zOf s) * F s * (x : ℂ) ^ s) l.R := by
+  intro z hz
+  have hzre : z.re ≤ 1 := hz.1
+  have hxc : ((x : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx.ne'
+  -- `|lam| = lam` and `Real.sign lam = 1`, so the weight is evaluated at `zOf s` itself.
+  have hsimp : (fun s ↦ CH2.Phi_circ |lam| ε ((Real.sign lam : ℂ) * l.zOf s) * F s * (x : ℂ) ^ s)
+      = ((fun s ↦ CH2.Phi_circ lam ε (l.zOf s)) * F) * (fun s : ℂ ↦ (x : ℂ) ^ s) := by
+    funext s
+    simp only [Pi.mul_apply]
+    rw [abs_of_pos hlam, Real.sign_of_pos hlam]
+    norm_num
+  rw [hsimp]
+  -- The three factors, and their orders.
+  have hΦ : AnalyticAt ℂ (fun w ↦ CH2.Phi_circ lam ε (l.zOf w)) z :=
+    analyticAt_Phi_circ_zOf l hlam hzre
+  have hpow : AnalyticAt ℂ (fun w : ℂ ↦ (x : ℂ) ^ w) z := analyticAt_const_cpow hx z
+  have hpowne : ((x : ℂ) ^ z) ≠ 0 := by
+    simp [hxc]
+  have hFm : MeromorphicAt F z := meromorphicOn_F z (Set.mem_univ z)
+  rw [meromorphicOrderAt_mul (hΦ.meromorphicAt.mul hFm) hpow.meromorphicAt,
+    meromorphicOrderAt_mul hΦ.meromorphicAt hFm]
+  have h1 : (0 : WithTop ℤ) ≤ meromorphicOrderAt (fun w ↦ CH2.Phi_circ lam ε (l.zOf w)) z :=
+    meromorphicOrderAt_nonneg_of_analyticAt hΦ
+  have h2 : ((-1 : ℤ) : WithTop ℤ) ≤ meromorphicOrderAt F z :=
+    hasSimplePolesOn_F_univ z (Set.mem_univ z)
+  have h3 : meromorphicOrderAt (fun w : ℂ ↦ (x : ℂ) ^ w) z = 0 := by
+    rw [hpow.meromorphicOrderAt_eq, hpow.analyticOrderAt_eq_zero.mpr hpowne]
+    simp
+  rw [h3, add_zero]
+  calc ((-1 : ℤ) : WithTop ℤ) ≤ meromorphicOrderAt F z := h2
+    _ = 0 + meromorphicOrderAt F z := (zero_add _).symm
+    _ ≤ meromorphicOrderAt (fun w ↦ CH2.Phi_circ lam ε (l.zOf w)) z + meromorphicOrderAt F z := by
+        gcongr
+
 end CH2ZetaInstance
