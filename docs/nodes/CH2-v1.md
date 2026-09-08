@@ -49,7 +49,7 @@ def corollary_1_2_psi : Prop :=
 | Solution | [`Solutions/CH2.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v1) |
 | Evidence | cited (`literature`) |
 | Sources traced | traced |
-| Assumes | [`GammaAsymptotics.v2.digamma_sub_log_isBigO_strip`](GammaAsymptotics-v2.md#digamma_sub_log_isBigO_strip) |
+| Assumes | [`GammaAsymptotics.v2.digamma_sub_log_isBigO_strip`](GammaAsymptotics-v2.md#digamma_sub_log_isBigO_strip), [`CotangentSeries.v1.cot_series_zeta_values`](CotangentSeries-v1.md#cot_series_zeta_values) |
 | Assumed by | [`CH2.v1.corollary_1_3_psi`](CH2-v1.md#corollary_1_3_psi) |
 
 **Justification `ch2-paper`** — **designated** — literature, Corollary 1.2, first display
@@ -81,7 +81,7 @@ def corollary_1_2_lambda_sum : Prop :=
 | Solution | [`Solutions/CH2.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v1) |
 | Evidence | cited (`literature`) |
 | Sources traced | traced |
-| Assumes | [`GammaAsymptotics.v2.digamma_sub_log_isBigO_strip`](GammaAsymptotics-v2.md#digamma_sub_log_isBigO_strip) |
+| Assumes | [`GammaAsymptotics.v2.digamma_sub_log_isBigO_strip`](GammaAsymptotics-v2.md#digamma_sub_log_isBigO_strip), [`CotangentSeries.v1.cot_series_zeta_values`](CotangentSeries-v1.md#cot_series_zeta_values) |
 | Assumed by | [`CH2.v1.corollary_1_3_lambda_sum`](CH2-v1.md#corollary_1_3_lambda_sum) |
 
 **Justification `ch2-paper`** — **designated** — literature, Corollary 1.2, second display

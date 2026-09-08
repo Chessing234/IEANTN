@@ -40,6 +40,8 @@ conclusions:
   imports:
   - node: GammaAsymptotics.v2
     conclusion: digamma_sub_log_isBigO_strip
+  - node: CotangentSeries.v1
+    conclusion: cot_series_zeta_values
   imports_status: traced
   justifications:
   - id: ch2-paper
@@ -68,6 +70,8 @@ conclusions:
   imports:
   - node: GammaAsymptotics.v2
     conclusion: digamma_sub_log_isBigO_strip
+  - node: CotangentSeries.v1
+    conclusion: cot_series_zeta_values
   imports_status: traced
   justifications:
   - id: ch2-paper

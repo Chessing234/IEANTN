@@ -5,6 +5,8 @@ Authors: Terence Tao
 -/
 import Mathlib.Analysis.Complex.Trigonometric
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
+import Mathlib.NumberTheory.LSeries.HurwitzZetaValues
+import IEANTN.Nodes.CotangentSeries.v1.Conclusions
 
 /-!
 # Section 7 groundwork: elementary bounds on `coth`
@@ -311,5 +313,37 @@ theorem mul_cot_eq_mul_coth (u : ℂ) :
   rcases eq_or_ne (Complex.sin u) 0 with h | h
   · simp [h]
   · field_simp
+
+/-! ### The Taylor series part (c) works from
+
+`lem:sibelius` (c) studies `A(z) = F(z) - 1/(πz)`, and its first move is to write
+`A(z) = -(1-z) f(z)` with `f(z) = 1/(πz) - cot πz`, whose Taylor series at the origin is
+`(2/π) ∑ ζ(2n) z^{2n-1}`.
+
+That series is `CotangentSeries.v1`, imported rather than proved: it is classical, it is absent
+from Mathlib, and it is not specific to this paper. Here it is divided through by `π` to land in
+the form (c) uses. -/
+
+/-- **The Taylor series of `f(z) = 1/(πz) - cot πz` at the origin**, from the imported expansion.
+
+One division by `π` away from `CotangentSeries.v1.cot_series_zeta_values`, and the form
+`lem:sibelius` (c) starts from. -/
+theorem hasSum_inv_pi_mul_sub_cot
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (h1 : ‖z‖ < 1) :
+    HasSum (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * riemannZeta (2 * (n : ℂ) + 2) * z ^ (2 * n + 1))
+      (1 / ((Real.pi : ℂ) * z) - Complex.cot ((Real.pi : ℂ) * z)) := by
+  have hpi : ((Real.pi : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  have h := hcs z hz h1
+  have hval : (1 / z - (Real.pi : ℂ) * Complex.cot ((Real.pi : ℂ) * z)) / (Real.pi : ℂ)
+      = 1 / ((Real.pi : ℂ) * z) - Complex.cot ((Real.pi : ℂ) * z) := by
+    field_simp
+  have hfun :
+      (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * riemannZeta (2 * (n : ℂ) + 2) * z ^ (2 * n + 1))
+        = fun n : ℕ ↦ (2 * riemannZeta (2 * (n : ℂ) + 2) * z ^ (2 * n + 1)) / (Real.pi : ℂ) := by
+    funext n
+    ring
+  rw [hfun, ← hval]
+  exact h.div_const _
 
 end CH2Section7

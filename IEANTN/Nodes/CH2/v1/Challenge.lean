@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Terence Tao
 -/
 import IEANTN.Nodes.CH2.v1.Conclusions
+import IEANTN.Nodes.CotangentSeries.v1.Conclusions
 import IEANTN.Nodes.GammaAsymptotics.v2.Conclusions
 import IEANTN.Nodes.PlattTrudgian.v1.Conclusions
 
@@ -19,12 +20,14 @@ How each conclusion is justified is recorded in `formalization.yaml`, not here.
 -/
 
 theorem CH2.v1.challenge_corollary_1_2_psi
-    (gammaasymptotics_v2_digamma_sub_log_isbigo_strip : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip) :
+    (gammaasymptotics_v2_digamma_sub_log_isbigo_strip : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    (cotangentseries_v1_cot_series_zeta_values : CotangentSeries.v1.cot_series_zeta_values) :
     CH2.v1.corollary_1_2_psi := by
   sorry
 
 theorem CH2.v1.challenge_corollary_1_2_lambda_sum
-    (gammaasymptotics_v2_digamma_sub_log_isbigo_strip : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip) :
+    (gammaasymptotics_v2_digamma_sub_log_isbigo_strip : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    (cotangentseries_v1_cot_series_zeta_values : CotangentSeries.v1.cot_series_zeta_values) :
     CH2.v1.corollary_1_2_lambda_sum := by
   sorry
 

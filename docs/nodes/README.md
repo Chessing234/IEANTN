@@ -18,6 +18,7 @@ One page per node: what it claims, in Lean and in prose, and everything recorded
 | [`CH2.v4`](CH2-v4.md) | pipeline | 2 | verified, drifted |
 | [`ChengGraham2004.v1`](ChengGraham2004-v1.md) | paper | 0 | — |
 | [`ContourIntegration.v1`](ContourIntegration-v1.md) | standard | 1 | unjustified |
+| [`CotangentSeries.v1`](CotangentSeries-v1.md) | standard | 1 | unjustified |
 | [`DudekPlatt.v1`](DudekPlatt-v1.md) | paper | 2 | cited |
 | [`DudekPlatt.v2`](DudekPlatt-v2.md) | paper | 1 | verified, stale |
 | [`DudekPlatt.v3`](DudekPlatt-v3.md) | pipeline | 1 | verified, stale |

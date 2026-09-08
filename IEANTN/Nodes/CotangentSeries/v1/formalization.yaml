@@ -1,0 +1,124 @@
+# Node metadata for `CotangentSeries.v1`.  See docs/NODES.md.
+#
+# The Taylor expansion of the cotangent in terms of zeta values. Infrastructure rather than a
+# paper: named for the class, and intended to grow as arguments in this repository need more of
+# the elementary special-function expansions Mathlib has not got.
+version: "v0.4"
+
+node:
+  id: CotangentSeries.v1
+  family: CotangentSeries
+  version: v1
+  kind: standard
+  status: awaiting-solution
+
+project:
+  name: "The cotangent expansion in terms of zeta values"
+  description: >-
+    The Taylor expansion pi cot(pi z) = 1/z - 2 sum_{n>=1} zeta(2n) z^{2n-1}, valid for
+    0 < |z| < 1, stated as a HasSum so that convergence is part of the claim.
+    Mathlib supplies the two ends and not the middle. Trigonometric/Cotangent.lean has Euler's
+    partial fractions, pi cot(pi z) = 1/z + sum (1/(z-n) + 1/(z+n)), which describes the POLES;
+    HurwitzZetaValues has riemannZeta_two_mul_nat, giving zeta(2k) via Bernoulli numbers; and
+    Bernoulli.lean has the generating function t/(e^t - 1). What is missing is the expansion at the
+    origin, which is the form every argument wants that needs the COEFFICIENTS rather than the
+    poles. The two are equivalent by expanding each partial fraction geometrically and summing over
+    n first, but that interchange is the work and nothing in Mathlib does it.
+  authors: ["Terence Tao"]
+  license: "Apache-2.0"
+  responsible_maintainers: ["Terence Tao"]
+
+repository:
+  role: substantive-development
+
+classification:
+  arxiv: [math.CA]
+  msc2020: ["33B10", "11M06"]
+
+conclusions:
+  - id: cot_series_zeta_values
+    declaration: CotangentSeries.v1.cot_series_zeta_values
+    challenge: CotangentSeries.v1.challenge_cot_series_zeta_values
+    imports: []
+    imports_status: none
+    justifications:
+      - id: unjustified
+        kind: none-yet
+        note: >-
+          Imports `none`, and that is a real none: z is universally quantified with both conditions
+          hypotheses, so a Lean proof is the whole justification.
+          THE ROUTE. Mathlib's cot_series_rep gives Euler's partial fractions; expanding each term
+          1/(z-n) + 1/(z+n) = -2z/(n^2 - z^2) as a geometric series in (z/n)^2 and interchanging the
+          two summations produces the coefficients 2 zeta(2n). The interchange is the content --
+          the double family is absolutely summable for |z| < 1, and that is what has to be shown.
+          An alternative route runs through the Bernoulli generating function, which Mathlib also
+          has, together with riemannZeta_two_mul_nat to convert Bernoulli numbers into zeta values;
+          which is shorter has not been assessed.
+          CHECKED NUMERICALLY BEFORE BEING STATED, to 30 digits at four points -- two complex, one
+          negative real, one positive real -- with the series truncated at 200 terms. A sign or
+          index error in an expansion of this shape is invisible to the type-checker and would be
+          fatal for every consumer, so agreement of the statement with the mathematics was
+          established independently of any Lean proof.
+    designated: unjustified
+
+sources:
+  - title: "The Taylor expansion of the cotangent"
+    authors: ["folklore"]
+    type: "folklore"
+    id: "cotangent-zeta-expansion"
+    relationship: formalizes
+    note: >-
+      Textbook material, in every account of the zeta function's even values; no particular source
+      is followed and none is claimed. The `folklore` type is used in the sense the schema allows
+      rather than the usual one -- this is not an unproved fact circulating in the literature, it is
+      a classical expansion Mathlib has not got yet.
+      Chirre-Helfgott (arXiv:2512.15709) states it as their equation (mireio), citing DLMF (4.19.6)
+      and Erdelyi et al., and uses it twice in section 7. That paper is the consumer, not the
+      source.
+
+automation:
+  methods:
+    - method: agent
+      models: ["Claude Opus 5 (Anthropic)"]
+      framework: "Claude Code"
+      role: >-
+        Identified the expansion as the missing input to section 7 of CH2, checked Mathlib rather
+        than assuming its absence, chose the HasSum form and the index shift, and verified the
+        statement numerically, under the direction of the maintainer. No proof is claimed.
+
+review:
+  status: self-assessed
+  reviewers: ["Terence Tao"]
+  notes: >-
+    HasSum RATHER THAN AN EQUATION BETWEEN tsums, deliberately. A tsum of a non-summable family is
+    0, so an equation between two of them can hold vacuously rather than expressing convergence.
+    HasSum carries convergence with it, which is what a consumer needs when it wants to
+    differentiate or rearrange.
+    THE INDEX IS SHIFTED so that n starts at 0 and the summand is 2 zeta(2n+2) z^{2n+1}. The
+    paper's sum runs over n >= 1 with summand zeta(2n) z^{2n-1}; the two agree term by term at
+    n and n+1. The shift avoids a subtraction in the exponent, which at n = 0 would be a natural
+    subtraction truncating to 0 and would make the first term wrong.
+    THE HYPOTHESES ARE BOTH NEEDED AND NEITHER IS COSMETIC. z /= 0 is where 1/z lives; ||z|| < 1
+    keeps z inside the disc of convergence, whose radius is set by the nearest poles of cot(pi z) at
+    z = +-1, and simultaneously keeps sin(pi z) away from zero so the left side is not a junk value.
+    WHAT IS NOT HERE. The companion fact a_n = zeta(2n) - zeta(2n+2) >= 0, which CH2 needs
+    alongside this, is a separate statement about zeta decreasing on the reals above 1 and is not
+    included -- it belongs with this node when someone needs it, but stating it now would be
+    guessing at the form.
+
+limitations:
+  - >-
+    STATED BUT NOT PROVED. Nothing downstream may treat it as established. CH2.v1 imports it, so
+    that node's corollaries carry it as a hypothesis and inherit its unjustified status until this
+    one is closed.
+  - >-
+    ONE EXPANSION ONLY, and only at the origin. The node is named for the class because it is
+    intended to grow: the tangent's expansion, the coefficientwise comparisons CH2 also uses
+    (its lem:tremic), and the hyperbolic analogue coth y = 1/y + 2y sum 1/(y^2 + n^2 pi^2) are all
+    wanted and none is here.
+  - >-
+    THE DISC IS THE UNIT DISC, not the natural domain. cot is meromorphic on all of C and this
+    expansion converges only for ||z|| < 1; a consumer needing coefficients further out must
+    continue analytically or use the partial fractions directly.
+  - >-
+    No novelty is claimed. The expansion is classical.
