@@ -53,6 +53,9 @@ A note here once put the rescaled `A` at `≈ 121.0916` and called the discrepan
 figure was wrong — it is `121.09602` — and so was the gloss: the difference is not a benign
 rounding but a gap in the direction that breaks the derivation.
 
+The two conclusions `rescaled_A_exceeds_printed` and `rescaled_C_is_short_of_two` record those
+gaps as claims rather than only as comments.
+
 Keeping the printed form means the transcription can be checked against the paper by eye. -/
 def psi_bound_all_x : Prop :=
   ∀ x > (2 : ℝ), Eψ x < 9.22022 * (Real.log x) ^ ((3 : ℝ) / 2) *
