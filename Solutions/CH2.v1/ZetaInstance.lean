@@ -1951,4 +1951,43 @@ theorem finite_poles_ladder (l : CH2.LadderParams) {lam ε x : ℝ}
   obtain ⟨hre0, hre1⟩ := re_mem_Icc_of_riemannZeta_eq_zero hzeta him
   exact ⟨⟨hre0, hre1, hdlt.le, hzT⟩, hzeta⟩
 
+/-! ### Proposition 5.2, applied
+
+Every hypothesis is now in hand, so the instantiation is a single term. What it says is the
+contour-shift identity of Chirre-Helfgott section 5, specialised to `A(s) = -ζ'(s)/ζ(s)` with its
+pole at `s = 1` removed: the vertical integral at `Re s = 1` differs from the sum of residues
+inside the ladder by at most the two horizontal tails plus the contour term.
+
+`1 < x₀` rather than `prop_5_2`'s `1 ≤ x₀`, because the boundedness hypotheses genuinely need the
+strict inequality — at `x₀ = 1` the damping factor is identically `1` and `ζ'/ζ` is unbounded
+along the ladder. The extra strength is free for the intended consumer, which takes `x₀` well
+above `1`. -/
+theorem prop_5_2_zeta
+    (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    (hdig : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    {l : CH2.LadderParams} (hsig : l.σ = sigmaZeta)
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hdfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {lam ε x₀ x : ℝ} (hlam : 0 < lam) (hε : ε = 1 ∨ ε = -1)
+    (hx₀ : 1 < x₀) (hx : x₀ < x) :
+    ‖(2 * (Real.pi : ℂ) * Complex.I)⁻¹ *
+          l.intVerticalAt 1 (fun s ↦ CH2.Phi_lambda lam ε (l.zOf s) * F s * (x : ℂ) ^ s) -
+        sumResiduesIn (fun s ↦ CH2.Phi_lambda lam ε (l.zOf s) * F s * (x : ℂ) ^ s) (l.R \ l.RC) -
+        l.sumResiduesLim
+          (fun s ↦ CH2.Phi_circ |lam| ε ((Real.sign lam : ℂ) * l.zOf s) * F s * (x : ℂ) ^ s)
+          l.RC‖ ≤
+      (1 / (2 * Real.pi)) *
+        ((1 / l.T) *
+            ((∫ t in Set.Ioi (0 : ℝ), t * ‖F (1 - t + l.T * Complex.I)‖ * x ^ (1 - t)) +
+              ∫ t in Set.Ioi (0 : ℝ), t * ‖F (1 - t - l.T * Complex.I)‖ * x ^ (1 - t)) +
+          2 * ‖l.intC (fun s ↦ CH2.Phi_star |lam| ε ((Real.sign lam : ℂ) * l.zOf s) * F s
+              * (x : ℂ) ^ s)‖) :=
+  CH2.prop_5_2 (fun z _ ↦ meromorphicOn_F z (Set.mem_univ z)) conjSymm_F hlam hε hx₀.le
+    (isBoundedNoPolesOn_ladder hfe hdig hsig hTfree hdfree hx₀)
+    (isBoundedNoPolesOn_ladder_weighted hfe hdig hsig hTfree hdfree hx₀)
+    hx
+    (finite_poles_ladder l hlam (by linarith))
+    (hasSimplePolesOn_lambda_ladder l hlam (by linarith))
+    (hasSimplePolesOn_circ_ladder l hlam (by linarith))
+
 end CH2ZetaInstance
