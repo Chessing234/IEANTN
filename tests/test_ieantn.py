@@ -1120,6 +1120,72 @@ class TestAxiomReportParsing(unittest.TestCase):
         self.assertNotIn("A.v1.main", records)
 
 
+class TestDriftNote(FixtureRepo):
+    """The drift line has to distinguish a retyped comment from an edited proof.
+
+    After the Mathlib bump every verified solution reported `changed in 1 file(s)`, and in every
+    case the file was `lake-manifest.json`. Answering "was the proof touched?" meant running
+    `git diff` by hand, four times.
+    """
+
+    def test_a_manifest_only_drift_says_no_lean_moved(self) -> None:
+        note = ieantn.drift_note("Solutions/CH2.v2", "8338dc7c99eb0000",
+                                 ["Solutions/CH2.v2/lake-manifest.json"])
+        self.assertIn("lake-manifest.json", note)
+        self.assertIn("no Lean source among them", note)
+
+    def test_an_edited_proof_is_called_out_as_lean(self) -> None:
+        note = ieantn.drift_note("Solutions/A.v1", "abcdef123456",
+                                 ["Solutions/A.v1/Solution.lean"])
+        self.assertIn("Solution.lean", note)
+        self.assertIn("1 of them Lean source", note)
+        self.assertNotIn("no Lean source", note)
+
+    def test_many_files_are_summarised_rather_than_listed(self) -> None:
+        note = ieantn.drift_note("Solutions/A.v1", "abcdef123456",
+                                 [f"Solutions/A.v1/F{n}.lean" for n in range(6)])
+        self.assertIn("and 2 more", note)
+        self.assertIn("6 of them Lean source", note)
+
+    def test_the_commit_is_still_named(self) -> None:
+        """It is what the receipt attests to, and the reader needs it to diff for themselves."""
+        note = ieantn.drift_note("Solutions/A.v1", "abcdef1234567890",
+                                 ["Solutions/A.v1/lake-manifest.json"])
+        self.assertIn("abcdef123456", note)
+
+
+class TestEnvironmentGap(unittest.TestCase):
+    """The staleness test is on `mathlib_rev`; the message used to name the toolchain.
+
+    A bump that keeps the toolchain therefore printed the same string on both sides of `now`,
+    which reads as a broken script rather than a stale receipt.
+    """
+
+    CURRENT = {"mathlib_rev": "71a80585ee49", "lean_toolchain": "leanprover/lean4:v4.34.0-rc2"}
+
+    def test_a_mathlib_only_bump_names_mathlib(self) -> None:
+        note = ieantn.environment_gap(
+            {"mathlib_rev": "5b1c36187593", "lean_toolchain": "leanprover/lean4:v4.34.0-rc2"},
+            self.CURRENT)
+        self.assertIn("Mathlib 5b1c36187593 -> 71a80585ee49", note)
+        self.assertNotIn("toolchain", note)
+
+    def test_a_toolchain_move_is_named_too(self) -> None:
+        note = ieantn.environment_gap(
+            {"mathlib_rev": "5b1c36187593", "lean_toolchain": "leanprover/lean4:v4.32.0"},
+            self.CURRENT)
+        self.assertIn("Mathlib", note)
+        self.assertIn("toolchain leanprover/lean4:v4.32.0 -> leanprover/lean4:v4.34.0-rc2", note)
+
+    def test_the_same_value_is_never_printed_on_both_sides(self) -> None:
+        """The defect itself: identical toolchains must not appear as a difference."""
+        note = ieantn.environment_gap(
+            {"mathlib_rev": "5b1c36187593", "lean_toolchain": "leanprover/lean4:v4.34.0-rc2"},
+            self.CURRENT)
+        self.assertNotIn("v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2", note)
+        self.assertEqual(note.count("v4.34.0-rc2"), 0)
+
+
 class TestGraphPage(FixtureRepo):
     """`GRAPH.md`: the network as a page someone can read without cloning anything.
 

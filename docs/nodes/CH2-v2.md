@@ -50,7 +50,7 @@ def proposition_2_4_upper : Prop :=
 | Solution | [`Solutions/CH2.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v2) |
 | Receipt | [`CH2.v2.proposition_2_4_upper.json`](https://github.com/teorth/IEANTN/blob/main/receipts/CH2.v2.proposition_2_4_upper.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
@@ -89,7 +89,7 @@ def proposition_2_4_lower : Prop :=
 | Solution | [`Solutions/CH2.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/CH2.v2) |
 | Receipt | [`CH2.v2.proposition_2_4_lower.json`](https://github.com/teorth/IEANTN/blob/main/receipts/CH2.v2.proposition_2_4_lower.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |

@@ -49,7 +49,7 @@ noncomputable def ramanujan_inequality_3915 : Prop :=
 | Solution | [`Solutions/DudekPlatt.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/DudekPlatt.v2) |
 | Receipt | [`DudekPlatt.v2.ramanujan_inequality_3915.json`](https://github.com/teorth/IEANTN/blob/main/receipts/DudekPlatt.v2.ramanujan_inequality_3915.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | identified |
 | Assumes | [`DudekPlatt.v3.criterion`](DudekPlatt-v3.md#criterion), [`DudekPlattNumerics.v2.pi_two_sided_pnt`](DudekPlattNumerics-v2.md#pi_two_sided_pnt) |
 | Assumed by | nothing yet |

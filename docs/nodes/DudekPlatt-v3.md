@@ -71,7 +71,7 @@ noncomputable def criterion : Prop :=
 | Solution | [`Solutions/DudekPlatt.v3`](https://github.com/teorth/IEANTN/tree/main/Solutions/DudekPlatt.v3) |
 | Receipt | [`DudekPlatt.v3.criterion.json`](https://github.com/teorth/IEANTN/blob/main/receipts/DudekPlatt.v3.criterion.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | [`DudekPlatt.v1.ramanujan_inequality`](DudekPlatt-v1.md#ramanujan_inequality), [`DudekPlatt.v2.ramanujan_inequality_3915`](DudekPlatt-v2.md#ramanujan_inequality_3915) |

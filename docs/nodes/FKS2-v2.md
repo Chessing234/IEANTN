@@ -47,7 +47,7 @@ def proposition_13 : Prop :=
 | Solution | [`Solutions/FKS2.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/FKS2.v2) |
 | Receipt | [`FKS2.v2.proposition_13.json`](https://github.com/teorth/IEANTN/blob/main/receipts/FKS2.v2.proposition_13.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | [`FKS2.v1.corollary_14`](FKS2-v1.md#corollary_14), [`FKS2.v1.corollary_22`](FKS2-v1.md#corollary_22), [`FKS2.v1.corollary_23`](FKS2-v1.md#corollary_23), [`FKS2.v1.corollary_26`](FKS2-v1.md#corollary_26) |
@@ -88,7 +88,7 @@ def theorem_3 : Prop :=
 | Solution | [`Solutions/FKS2.v2`](https://github.com/teorth/IEANTN/tree/main/Solutions/FKS2.v2) |
 | Receipt | [`FKS2.v2.theorem_3.json`](https://github.com/teorth/IEANTN/blob/main/receipts/FKS2.v2.theorem_3.json) |
 | Evidence | verified, stale (`lean-comparator`) |
-| Receipt state | verified under leanprover/lean4:v4.34.0-rc2, now leanprover/lean4:v4.34.0-rc2 |
+| Receipt state | verified under Mathlib 5b1c36187593 -> 71a80585ee49 |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | [`FKS2.v1.corollary_22`](FKS2-v1.md#corollary_22), [`FKS2.v1.corollary_23`](FKS2-v1.md#corollary_23), [`FKS2.v1.corollary_26`](FKS2-v1.md#corollary_26) |
