@@ -50,4 +50,5 @@ One page per node: what it claims, in Lean and in prose, and everything recorded
 | [`ZeroCount.v1`](ZeroCount-v1.md) | paper | 2 | cited |
 | [`ZeroFreeHeight.v1`](ZeroFreeHeight-v1.md) | folklore | 1 | verified, stale |
 | [`ZetaLogDeriv.v1`](ZetaLogDeriv-v1.md) | standard | 1 | verified |
+| [`ZetaZeroes.v1`](ZetaZeroes-v1.md) | standard | 6 | unjustified |
 

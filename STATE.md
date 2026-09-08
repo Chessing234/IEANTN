@@ -7,7 +7,7 @@ column says what a receipt is presently worth, not merely what was claimed for i
 reason a receipt has stopped standing is below, and `python scripts/ieantn.py status`
 adds the environment detail.
 
-44 node version(s), 79 conclusion(s).  3 state nothing yet.
+45 node version(s), 85 conclusion(s).  3 state nothing yet.
 
 ## Evidence
 
@@ -17,7 +17,7 @@ adds the environment detail.
 | `bridged` | 1 |
 | `lean-comparator` | 23 |
 | `literature` | 36 |
-| `none-yet` | 4 |
+| `none-yet` | 10 |
 | `numerical` | 14 |
 
 ## Nodes
@@ -106,6 +106,12 @@ adds the environment detail.
 | `ZeroCount.v1` | stub | `rvm_error_small` | literature | 0 | #64 |
 | `ZeroFreeHeight.v1` | active | `classical_region_descends` | lean-comparator-stale | 0 | #30 |
 | `ZetaLogDeriv.v1` | active | `logDeriv_functional_equation` | lean-comparator | 0 | #64 |
+| `ZetaZeroes.v1` | awaiting-verification | `no_nontrivial_zeroes_left` | none-yet | 0 | - |
+| `ZetaZeroes.v1` | awaiting-verification | `zeroes_off_axis_in_strip` | none-yet | 0 | - |
+| `ZetaZeroes.v1` | awaiting-verification | `finite_zeroes_on_compact` | none-yet | 0 | - |
+| `ZetaZeroes.v1` | awaiting-verification | `exists_ordinate_free_height` | none-yet | 0 | - |
+| `ZetaZeroes.v1` | awaiting-verification | `zeta_eq_zeta1_div` | none-yet | 0 | - |
+| `ZetaZeroes.v1` | awaiting-verification | `zeta_eq_zero_iff_zeta1` | none-yet | 0 | - |
 
 ## Receipts needing attention
 

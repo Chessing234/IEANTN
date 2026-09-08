@@ -1,0 +1,242 @@
+# Node metadata for `ZetaZeroes.v1`.  See docs/NODES.md.
+#
+# Where the zeroes of zeta are, and how many. Infrastructure rather than a paper: named for the
+# class, and intended to grow as contour arguments in this repository ask for more.
+version: "v0.4"
+
+node:
+  id: ZetaZeroes.v1
+  family: ZetaZeroes
+  version: v1
+  kind: standard
+  status: awaiting-verification
+
+project:
+  name: "Location and finiteness of the zeroes of the Riemann zeta function"
+  description: >-
+    Six unconditional facts about where the zeroes of zeta are and how many there are, none of
+    which Mathlib has. The trivial zeroes are the only ones in the left half-plane; a zero off the
+    real axis lies in the closed critical strip; a compact set missing s = 1 contains finitely many
+    zeroes; every unit interval above the origin contains a height free of zero ordinates; and zeta
+    equals riemannZeta_1 divided by s - 1, so the two vanish at exactly the same points away from
+    s = 1.
+    These are the facts every contour argument in explicit analytic number theory reaches for. A
+    contour placing vertical columns at negative abscissas needs the first; one whose horizontal
+    pieces must miss the zeroes needs the fourth; anything summing over zeroes needs the third,
+    since a sum over an infinite zero set is a tsum of a non-summable family and is silently zero.
+    Mathlib supplies the two ends and not the middle. It has non-vanishing on Re s >= 1 and that
+    each -2(n+1) is a zero, but no statement that the trivial zeroes are the only ones out there,
+    no location for the others, and no finiteness anywhere; and it defines riemannZeta_1 for the
+    asymptotic expansion without ever relating it back to zeta.
+  authors: ["Terence Tao"]
+  license: "Apache-2.0"
+  responsible_maintainers: ["Terence Tao"]
+
+repository:
+  role: substantive-development
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11M06", "11M26"]
+
+conclusions:
+- id: no_nontrivial_zeroes_left
+  declaration: ZetaZeroes.v1.no_nontrivial_zeroes_left
+  challenge: ZetaZeroes.v1.challenge_no_nontrivial_zeroes_left
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      Imports `none`, and that is a real none: s is universally quantified with every condition
+      a hypothesis, so a Lean proof is the whole justification.
+      THE ROUTE IS THE FUNCTIONAL EQUATION AND NOTHING ELSE. Writing s = 1 - w with Re w > 1,
+      riemannZeta_one_sub expresses zeta(s) as a product of 2, (2 pi)^-w, Gamma(w), cos(pi w/2)
+      and zeta(w). Every factor but the cosine is nonzero for free -- Gamma never vanishes, and
+      zeta(w) is nonzero because Re w > 1 -- so zeta(s) = 0 forces cos(pi w/2) = 0, hence
+      w = 2k+1 and s = -2k, and Re s < 0 makes k positive. That is the trivial zeroes exactly.
+      A PROOF EXISTS ALREADY, inside Solutions/CH2.v1/ZetaInstance as
+      riemannZeta_ne_zero_of_re_neg, written when a ladder argument needed it. This node exists
+      to state it where other consumers can reach it.
+  designated: unjustified
+  progress:
+    solution: Solutions/ZetaZeroes.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: zeroes_off_axis_in_strip
+  declaration: ZetaZeroes.v1.zeroes_off_axis_in_strip
+  challenge: ZetaZeroes.v1.challenge_zeroes_off_axis_in_strip
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      The complement of the previous conclusion together with Mathlib's
+      riemannZeta_ne_zero_of_one_le_re: to the right there are no zeroes, to the left the only
+      ones are real, so anything with Im /= 0 is caught in 0 <= Re <= 1.
+      Proved already as re_mem_Icc_of_riemannZeta_eq_zero in Solutions/CH2.v1/ZetaInstance.
+  designated: unjustified
+  progress:
+    solution: Solutions/ZetaZeroes.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: finite_zeroes_on_compact
+  declaration: ZetaZeroes.v1.finite_zeroes_on_compact
+  challenge: ZetaZeroes.v1.challenge_finite_zeroes_on_compact
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      THE WORKHORSE, and the conclusion that makes a sum over zeroes mean anything.
+      IEANTN.zetaZeroesSum is a tsum, and a tsum of a non-summable family is 0, so a
+      zero-counting argument that never establishes finiteness can be vacuously true rather
+      than false. This is what rules that out.
+      The route is the identity theorem, applied to riemannZeta_1 rather than to zeta -- zeta
+      has a pole at s = 1 and cannot be fed to it on any set containing that point, which is
+      why the hypothesis excludes it. riemannZeta_1 is entire and riemannZeta_1 1 = 1, so its
+      non-vanishing is codiscrete, and a codiscrete set meets a compact set in a finite
+      complement.
+      Proved already as finite_zeros_riemannZeta_of_isCompact in
+      Solutions/CH2.v1/ZetaInstance.
+  designated: unjustified
+  progress:
+    solution: Solutions/ZetaZeroes.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: exists_ordinate_free_height
+  declaration: ZetaZeroes.v1.exists_ordinate_free_height
+  challenge: ZetaZeroes.v1.challenge_exists_ordinate_free_height
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      What a contour needs when its horizontal pieces must miss the zeroes and the height is a
+      free parameter. The argument is a counting one: a zero with |Im z| in [T0, T0+1] is off
+      the real axis, hence in the closed critical strip, hence in a compact band missing the
+      pole -- of which there are finitely many, and finitely many ordinates cannot exhaust an
+      interval.
+      Note |Im z| rather than Im z. A contour has two horizontal pieces and both must miss the
+      zeroes; the zeroes are symmetric about the real axis, so the two demands coincide.
+      Proved already as exists_ordinate_free_height in Solutions/CH2.v1/ZetaInstance.
+  designated: unjustified
+  progress:
+    solution: Solutions/ZetaZeroes.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: zeta_eq_zeta1_div
+  declaration: ZetaZeroes.v1.zeta_eq_zeta1_div
+  challenge: ZetaZeroes.v1.challenge_zeta_eq_zeta1_div
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      Immediate from riemannZeta_eq_inv_sub_add and the definition of riemannZeta_1, and
+      apparently absent from Mathlib, where riemannZeta_1 is never related back to zeta. Stated
+      because it is the bridge every argument needs that wants to replace zeta by an entire
+      function -- which is to say every argument that wants the identity theorem.
+      Proved already as riemannZeta_eq_riemannZeta₁_div in Solutions/CH2.v1/ZetaInstance.
+  designated: unjustified
+  progress:
+    solution: Solutions/ZetaZeroes.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: zeta_eq_zero_iff_zeta1
+  declaration: ZetaZeroes.v1.zeta_eq_zero_iff_zeta1
+  challenge: ZetaZeroes.v1.challenge_zeta_eq_zero_iff_zeta1
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      The form the bridge is usually used in, and a one-line consequence of the previous
+      conclusion. CH2.v1 runs its entire ladder argument on -logDeriv riemannZeta_1 rather than
+      on -zeta'/zeta precisely so that the identity theorem applies, and this is what transfers
+      zero facts between the two.
+      s = 1 is excluded because riemannZeta_1 1 = 1 /= 0 while zeta has a pole there, so the
+      two sides say different things at that one point.
+      Proved already as riemannZeta_eq_zero_iff_riemannZeta₁ in Solutions/CH2.v1/ZetaInstance.
+  designated: unjustified
+
+  progress:
+    solution: Solutions/ZetaZeroes.v1/
+    state: in-progress
+    remaining_holes: 0
+sources:
+- title: "Location of the zeroes of the Riemann zeta function"
+  authors: ["folklore"]
+  type: "folklore"
+  id: "zeta-zero-location"
+  relationship: formalizes
+  note: >-
+    Textbook material, in every account of the zeta function; no particular source is followed
+    and none is claimed. The `folklore` type is used in the sense the schema allows rather than
+    the usual one -- these are not unproved facts circulating in the literature, they are
+    classical statements Mathlib has not got yet.
+    They were extracted from Chirre-Helfgott (arXiv:2512.15709) only in the sense that a
+    formalization of that paper is what made their absence felt; the paper states none of them,
+    taking them for granted as any analytic number theory paper would.
+
+automation:
+  methods:
+  - method: agent
+    models: ["Claude Opus 5 (Anthropic)"]
+    framework: "Claude Code"
+    role: >-
+      Identified the six statements as the reusable residue of a ladder argument in
+      Solutions/CH2.v1, checked each against Mathlib rather than assuming its absence, and chose
+      the forms, under the direction of the maintainer. The proofs are not new to this node: all
+      six exist in Solutions/CH2.v1/ZetaInstance, written earlier in the same project, and the
+      work here is stating them where other consumers can reach them.
+
+review:
+  status: self-assessed
+  reviewers: ["Terence Tao"]
+  notes: >-
+    THE SCOPE WAS CHOSEN BY WHAT A CONSUMER WOULD IMPORT, not by what was available. Two facts that
+    might have been included were left out deliberately.
+    THE RESIDUES OF zeta'/zeta ARE NOT HERE, and their absence is the sharpest decision in this
+    node. The residue at a zero is minus the multiplicity and at s = 1 it is 1; those are what a
+    residue calculation actually consumes, and they belong beside these statements. They are absent
+    because MATHLIB HAS NO residue AT ALL -- checked, not assumed -- and the one available in
+    PrimeNumberTheoremAnd's port is labelled by its own authors a placeholder valid only for simple
+    poles. A conclusion resting on a placeholder attests to nothing. When they are added they
+    should be stated as limits, (s - rho) * (-zeta'/zeta)(s) -> -m as s -> rho, which is
+    Mathlib-native and is the form consumers use anyway. Mathlib does give the ORDER at a zero,
+    meromorphicOrderAt_logDeriv_eq_neg_one, which is -1 whatever the multiplicity -- the
+    multiplicity lands in the residue, and that is exactly the part it does not compute.
+    NOTHING ABOUT THE CRITICAL LINE IS HERE. RiemannHypothesisUpTo lives in Vocabulary and is a
+    hypothesis consumers carry; this node says where the zeroes are unconditionally, which is what
+    makes it usable by an argument that assumes RH up to a height and by one that does not.
+    MATHLIB WAS CHECKED RATHER THAN ASSUMED for each statement. riemannZeta_ne_zero_of_one_le_re
+    and riemannZeta_neg_two_mul_nat_add_one exist; nothing between them does. riemannZeta_1 is
+    defined in Mathlib/NumberTheory/Harmonic/ZetaAsymp.lean -- note the module, which moved at some
+    point and is not under LSeries -- and is never related back to zeta there.
+
+limitations:
+- >-
+  STATED BUT NOT PROVED, as of this node's creation. Nothing downstream may treat any of the six
+  as established. That said, all six have proofs already written in Solutions/CH2.v1/ZetaInstance,
+  so the gap here is transcription rather than mathematics, and the node should not stay
+  unjustified for long.
+- >-
+  UNCONDITIONAL AND QUALITATIVE. Not one of these is an explicit estimate: finiteness is not a
+  count, and the ordinate-free height is an existence statement with no bound on how far one must
+  look. A consumer needing a zero COUNT wants ZeroCount.v1, whose Riemann-von Mangoldt error
+  bound is the quantitative statement; a consumer needing a zero-free region wants a node that
+  does not exist yet. This node is the qualitative substrate underneath both.
+- >-
+  THE ORDINATE-FREE HEIGHT IS NOT EFFECTIVE. It says a good height exists in [T0, T0+1] and gives
+  no way to find one, because the proof is a counting argument -- finitely many ordinates cannot
+  exhaust an interval -- and produces no witness. An explicit computation that needs a specific
+  admissible height will not get it from here.
+- >-
+  No novelty is claimed. Every statement is classical.
