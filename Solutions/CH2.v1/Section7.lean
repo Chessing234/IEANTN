@@ -1816,4 +1816,90 @@ theorem hasSum_sq_div_sq_sub_quarter :
   field_simp
   ring
 
+/-! ### The hyperbolic partial fractions
+
+`z coth z = 1 + 2 ∑_{n≥1} z²/(z² + n²π²)`, from Mathlib's `cot_series_rep'` under `x = -iz/π`.
+
+The substitution turns `cot` into `coth` — `cot(-iz) = i coth z` — and each pair
+`1/(x-n) + 1/(x+n) = 2x/(x² - n²)` into `2iπz/(z² + n²π²)`; multiplying through by `z/(iπ)` clears
+the factor. The hypothesis is `z ∉ iπℤ`, which on `|Im z| < π` is just `z ≠ 0`. -/
+
+theorem hasSum_coth_pf {z : ℂ} (hz : z ≠ 0) (hy : |z.im| < Real.pi) :
+    HasSum (fun n : ℕ ↦ 2 * z ^ 2 / (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2))
+      (z * Complex.cosh z / Complex.sinh z - 1) := by
+  have hpi : ((Real.pi : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  set x : ℂ := -Complex.I * z / (Real.pi : ℂ) with hxdef
+  have hax : (Real.pi : ℂ) * x = -(z * Complex.I) := by
+    rw [hxdef]; field_simp
+  have hmem : x ∈ Complex.integerComplement := by
+    simp only [Complex.integerComplement, Set.mem_compl_iff, Set.mem_range, not_exists]
+    intro m hm
+    have h2 : z = Complex.I * (Real.pi : ℂ) * (m : ℂ) := by
+      have h1 : (Real.pi : ℂ) * ((m : ℤ) : ℂ) = -(z * Complex.I) := by rw [hm]; exact hax
+      have hI : Complex.I * Complex.I = -1 := Complex.I_mul_I
+      linear_combination (-Complex.I) * h1 + z * hI
+    have him : z.im = Real.pi * (m : ℝ) := by rw [h2]; simp
+    have hm0 : m = 0 := by
+      by_contra hcon
+      have h1 : (1 : ℝ) ≤ |(m : ℝ)| := by
+        have : (1 : ℤ) ≤ |m| := Int.one_le_abs (by exact_mod_cast hcon)
+        exact_mod_cast this
+      rw [him, abs_mul, abs_of_pos Real.pi_pos] at hy
+      nlinarith [Real.pi_pos]
+    rw [hm0] at h2
+    simp at h2
+    exact hz h2
+  have H : HasSum (fun n : ℕ ↦ 1 / (x - ((n : ℂ) + 1)) + 1 / (x + ((n : ℂ) + 1)))
+      ((Real.pi : ℂ) * Complex.cot ((Real.pi : ℂ) * x) - 1 / x) := by
+    rw [cot_series_rep' hmem]
+    exact (summable_cotTerm hmem).hasSum
+  have hcot : Complex.cot ((Real.pi : ℂ) * x)
+      = Complex.I * Complex.cosh z / Complex.sinh z := by
+    rw [hax, Complex.cot_eq_cos_div_sin, Complex.cos_neg, Complex.sin_neg,
+      Complex.cos_mul_I, Complex.sin_mul_I]
+    rcases eq_or_ne (Complex.sinh z) 0 with h | h
+    · simp [h]
+    · rw [div_eq_div_iff (by simp [h, Complex.I_ne_zero]) h]
+      linear_combination (Complex.cosh z * Complex.sinh z) * Complex.I_sq
+  have hxne : x ≠ 0 := by
+    rw [hxdef]
+    exact div_ne_zero (mul_ne_zero (neg_ne_zero.mpr Complex.I_ne_zero) hz) hpi
+  have hzx : z = Complex.I * (Real.pi : ℂ) * x := by
+    rw [hxdef]
+    field_simp
+    linear_combination Complex.I_sq
+  have hinvx : 1 / x = (Real.pi : ℂ) * Complex.I / z := by
+    rw [hxdef]
+    field_simp
+    linear_combination -Complex.I_sq
+  clear_value x
+  have Hs := H.mul_right (z / ((Real.pi : ℂ) * Complex.I))
+  have hval : ((Real.pi : ℂ) * Complex.cot ((Real.pi : ℂ) * x) - 1 / x)
+      * (z / ((Real.pi : ℂ) * Complex.I)) = z * Complex.cosh z / Complex.sinh z - 1 := by
+    rw [hcot, hinvx]
+    rcases eq_or_ne (Complex.sinh z) 0 with h | h
+    · rw [h]
+      simp only [div_zero, mul_zero, zero_sub]
+      field_simp
+    · field_simp
+  rw [hval] at Hs
+  refine Hs.congr_fun fun n ↦ ?_
+  have h1 : x - ((n : ℂ) + 1) ≠ 0 := by
+    simpa [sub_eq_add_neg] using Complex.integerComplement_add_ne_zero hmem (-((n : ℤ) + 1))
+  have h2 : x + ((n : ℂ) + 1) ≠ 0 := by
+    simpa using Complex.integerComplement_add_ne_zero hmem ((n : ℤ) + 1)
+  have hden : x ^ 2 - ((n : ℂ) + 1) ^ 2 ≠ 0 := by
+    intro hcon
+    have hprod : (x - ((n : ℂ) + 1)) * (x + ((n : ℂ) + 1)) = 0 := by linear_combination hcon
+    rcases mul_eq_zero.mp hprod with h | h
+    · exact h1 h
+    · exact h2 h
+  rw [hzx]
+  have hd : (Complex.I * (Real.pi : ℂ) * x) ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2
+      = -((Real.pi : ℂ) ^ 2 * (x ^ 2 - ((n : ℂ) + 1) ^ 2)) := by
+    linear_combination ((Real.pi : ℂ) ^ 2 * x ^ 2) * Complex.I_sq
+  rw [hd]
+  field_simp
+  linear_combination (2 * x * ((n : ℂ) + 1) ^ 2 - 2 * x ^ 3) * Complex.I_sq
+
 end CH2Section7
