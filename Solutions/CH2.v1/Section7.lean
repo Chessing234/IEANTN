@@ -551,4 +551,235 @@ theorem hasSum_hcomp
   push_cast
   ring
 
+/-! ### The maximum of `|h|` on a disc is attained on the positive real axis
+
+The consequence of `aₙ ≥ 0` that part (c) actually uses. Since every coefficient is non-negative,
+the triangle inequality is an equality at a positive real argument:
+
+  `|h(z)| ≤ (2/π) ∑ aₙ ‖z‖^{2n+3} = h(‖z‖)`.
+
+So the two-dimensional maximum of `|A'|` over the rectangle `[0,½] × [-½,½]` is bounded by a
+one-dimensional evaluation at `‖z‖ ≤ 1/√2`, the rectangle's furthest corner from the origin. -/
+
+/-- `f` on the reals. -/
+noncomputable def freal (r : ℝ) : ℝ := 1 / (Real.pi * r) - Real.cot (Real.pi * r)
+
+/-- `h` on the reals, by the same closed form. -/
+noncomputable def hreal (r : ℝ) : ℝ :=
+  (2 / Real.pi) * zetaReal 2 * r - (1 - r ^ 2) * freal r
+
+/-- `ζ(2)` as a real number, an instance of `riemannZeta_coeff_ofReal` at `n = 0`. -/
+theorem riemannZeta_two_ofReal : riemannZeta 2 = (zetaReal 2 : ℂ) := by
+  have h := riemannZeta_coeff_ofReal 0
+  norm_num at h
+  exact h
+
+/-- `h` at a real point is the real `h`. -/
+theorem hcomp_ofReal (r : ℝ) : hcomp (r : ℂ) = (hreal r : ℂ) := by
+  have hcot : Complex.cot ((Real.pi : ℂ) * (r : ℂ)) = (Real.cot (Real.pi * r) : ℂ) := by
+    rw [Complex.ofReal_cot]
+    push_cast
+    ring_nf
+  rw [hcomp, hreal, fcomp, freal, riemannZeta_two_ofReal, hcot]
+  push_cast
+  ring
+
+/-- The series for `h` at a real point of `(0,1)`, with real terms. -/
+theorem hasSum_hreal
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {r : ℝ} (hr0 : 0 < r) (hr1 : r < 1) :
+    HasSum (fun n : ℕ ↦ (2 / Real.pi) * acoeff n * r ^ (2 * n + 3)) (hreal r) := by
+  have hz : (r : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hr0.ne'
+  have hn : ‖(r : ℂ)‖ < 1 := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hr0]; exact hr1
+  have H := hasSum_hcomp hcs hz hn
+  rw [hcomp_ofReal] at H
+  rw [← Complex.hasSum_ofReal]
+  refine H.congr_fun fun n ↦ ?_
+  push_cast
+  ring
+
+/-- **`|h(z)| ≤ h(‖z‖)`.**
+
+Non-negative coefficients, so the triangle inequality loses nothing at a positive real argument.
+This is the step that makes the numerical bound a one-variable computation. -/
+theorem norm_hcomp_le
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (h1 : ‖z‖ < 1) :
+    ‖hcomp z‖ ≤ hreal ‖z‖ := by
+  have hr0 : 0 < ‖z‖ := norm_pos_iff.mpr hz
+  have H := hasSum_hcomp hcs hz h1
+  have Hr := hasSum_hreal hcs hr0 h1
+  have hterm : ∀ n : ℕ, ‖(2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * z ^ (2 * n + 3)‖
+      = (2 / Real.pi) * acoeff n * ‖z‖ ^ (2 * n + 3) := by
+    intro n
+    rw [norm_mul, norm_mul, norm_pow, Complex.norm_real, Real.norm_eq_abs,
+      abs_of_nonneg (acoeff_nonneg n)]
+    congr 1
+    rw [show (2 : ℂ) / (Real.pi : ℂ) = ((2 / Real.pi : ℝ) : ℂ) by push_cast; ring,
+      Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
+  have hsummable : Summable fun n : ℕ ↦ ‖(2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * z ^ (2 * n + 3)‖ := by
+    refine (Hr.summable).congr fun n ↦ (hterm n).symm
+  calc ‖hcomp z‖ = ‖∑' n : ℕ, (2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * z ^ (2 * n + 3)‖ := by
+        rw [H.tsum_eq]
+    _ ≤ ∑' n : ℕ, ‖(2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * z ^ (2 * n + 3)‖ :=
+        norm_tsum_le_tsum_norm hsummable
+    _ = hreal ‖z‖ := by
+        rw [← Hr.tsum_eq]
+        exact tsum_congr hterm
+
+/-! ### `h'`, and the same disc bound for it
+
+`A'` is built from `h` and `h'`, so the bound of the previous section is needed for the derivative
+too. `h` is defined by a closed form, so `deriv hcomp` is an ordinary derivative; what has to be
+established is that it is the termwise derivative of the series, and that is exactly what
+`Complex.hasSum_deriv_of_summable_norm` gives — the terms are entire and uniformly bounded on a
+disc of radius `R` with `‖z‖ < R < 1`.
+
+The coefficients of `h'` are `(2n+3) aₙ`, still non-negative, so `|h'(z)| ≤ h'(‖z‖)` by the same
+argument. -/
+
+/-- `aₙ ≤ ζ(2)`, a crude bound, enough for summability of the differentiated series. -/
+theorem acoeff_le_zetaReal_two (n : ℕ) : acoeff n ≤ zetaReal 2 := by
+  have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  have h1 : zetaReal (2 * (n : ℝ) + 2) ≤ zetaReal 2 := by
+    have := zetaReal_le (s := 2) (t := 2 * (n : ℝ) + 2) one_lt_two (by linarith)
+    simpa using this
+  have h2 : 0 ≤ zetaReal (2 * ((n : ℝ) + 1) + 2) := (zetaReal_pos (by linarith)).le
+  rw [acoeff]
+  linarith
+
+/-- The differentiated series converges on `[0,1)`: `aₙ` is bounded and `∑ (2n+3) r^{2n+2}` is a
+geometric series with a polynomial factor. -/
+theorem summable_hderiv_terms {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
+    Summable fun n : ℕ ↦ (2 / Real.pi) * acoeff n * (2 * (n : ℝ) + 3) * r ^ (2 * n + 2) := by
+  have hs : ‖r ^ 2‖ < 1 := by
+    rw [Real.norm_eq_abs, abs_of_nonneg (by positivity)]
+    nlinarith
+  have g0 : Summable fun n : ℕ ↦ (n : ℝ) ^ 0 * (r ^ 2) ^ n :=
+    summable_pow_mul_geometric_of_norm_lt_one 0 hs
+  have g1 : Summable fun n : ℕ ↦ (n : ℝ) ^ 1 * (r ^ 2) ^ n :=
+    summable_pow_mul_geometric_of_norm_lt_one 1 hs
+  have hmaj : Summable fun n : ℕ ↦ (2 / Real.pi) * zetaReal 2 * r ^ 2 *
+      (2 * ((n : ℝ) ^ 1 * (r ^ 2) ^ n) + 3 * ((n : ℝ) ^ 0 * (r ^ 2) ^ n)) :=
+    (((g1.mul_left 2).add (g0.mul_left 3)).mul_left _)
+  refine Summable.of_nonneg_of_le (fun n ↦ ?_) (fun n ↦ ?_) hmaj
+  · have := acoeff_nonneg n
+    have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    have : (0:ℝ) ≤ r ^ (2 * n + 2) := by positivity
+    positivity
+  · have hz2 : 0 < zetaReal 2 := zetaReal_pos one_lt_two
+    have hpow : r ^ (2 * n + 2) = r ^ 2 * (r ^ 2) ^ n := by
+      rw [← pow_mul]
+      ring_nf
+    have hnn : (0 : ℝ) ≤ (r ^ 2) ^ n := by positivity
+    have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    have hpi : (0 : ℝ) < 2 / Real.pi := by positivity
+    rw [hpow]
+    have hcoef : (2 / Real.pi) * acoeff n * (2 * (n : ℝ) + 3)
+        ≤ (2 / Real.pi) * zetaReal 2 * (2 * (n : ℝ) + 3) := by
+      exact mul_le_mul_of_nonneg_right
+        (mul_le_mul_of_nonneg_left (acoeff_le_zetaReal_two n) hpi.le) (by linarith)
+    have hrhs : (2 / Real.pi) * zetaReal 2 * r ^ 2 *
+        (2 * ((n : ℝ) ^ 1 * (r ^ 2) ^ n) + 3 * ((n : ℝ) ^ 0 * (r ^ 2) ^ n))
+        = (2 / Real.pi) * zetaReal 2 * (2 * (n : ℝ) + 3) * (r ^ 2 * (r ^ 2) ^ n) := by
+      simp only [pow_one, pow_zero, one_mul]
+      ring
+    rw [hrhs]
+    have : (0:ℝ) ≤ r ^ 2 * (r ^ 2) ^ n := by positivity
+    nlinarith [hcoef]
+
+/-- `h'` on the reals, as the termwise derivative of the series for `h`. -/
+noncomputable def hderivReal (r : ℝ) : ℝ :=
+  ∑' n : ℕ, (2 / Real.pi) * acoeff n * (2 * (n : ℝ) + 3) * r ^ (2 * n + 2)
+
+theorem hasSum_hderivReal {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
+    HasSum (fun n : ℕ ↦ (2 / Real.pi) * acoeff n * (2 * (n : ℝ) + 3) * r ^ (2 * n + 2))
+      (hderivReal r) :=
+  (summable_hderiv_terms hr0 hr1).hasSum
+
+/-- **The derivative of `h` is the termwise derivative of its series.**
+
+The terms are entire and, on a disc of radius `R` with `‖z‖ < R < 1`, bounded by the summable
+`(2/π) aₙ R^{2n+3}`; `Complex.hasSum_deriv_of_summable_norm` then differentiates under the sum.
+The sum itself agrees with `hcomp` on the punctured disc, an open set containing `z`, so the two
+derivatives agree. -/
+theorem hasSum_deriv_hcomp
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (h1 : ‖z‖ < 1) :
+    HasSum (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * ((2 * (n : ℝ) + 3 : ℝ) : ℂ)
+      * z ^ (2 * n + 2)) (deriv hcomp z) := by
+  set R : ℝ := (‖z‖ + 1) / 2 with hR
+  have hzR : ‖z‖ < R := by rw [hR]; linarith
+  have hR1 : R < 1 := by rw [hR]; linarith
+  have hR0 : 0 < R := lt_of_le_of_lt (norm_nonneg z) hzR
+  set F : ℕ → ℂ → ℂ := fun n w ↦ (2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * w ^ (2 * n + 3) with hF
+  have hu : Summable fun n : ℕ ↦ (2 / Real.pi) * acoeff n * R ^ (2 * n + 3) :=
+    (hasSum_hreal hcs hR0 hR1).summable
+  have hdiff : ∀ n : ℕ, DifferentiableOn ℂ (F n) (Metric.ball (0 : ℂ) R) := by
+    intro n
+    exact (((differentiable_pow (2 * n + 3)).const_mul _)).differentiableOn
+  have hle : ∀ (n : ℕ), ∀ w ∈ Metric.ball (0 : ℂ) R,
+      ‖F n w‖ ≤ (2 / Real.pi) * acoeff n * R ^ (2 * n + 3) := by
+    intro n w hw
+    rw [mem_ball_zero_iff] at hw
+    have hcast : ‖(2 / (Real.pi : ℂ)) * (acoeff n : ℂ)‖ = (2 / Real.pi) * acoeff n := by
+      rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (acoeff_nonneg n),
+        show (2 : ℂ) / (Real.pi : ℂ) = ((2 / Real.pi : ℝ) : ℂ) by push_cast; ring,
+        Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
+    rw [hF]
+    simp only [norm_mul, norm_pow]
+    rw [show ‖(2 / (Real.pi : ℂ))‖ * ‖(acoeff n : ℂ)‖ = (2 / Real.pi) * acoeff n by
+      rw [← norm_mul]; exact hcast]
+    have hnn : (0:ℝ) ≤ (2 / Real.pi) * acoeff n := by
+      have := acoeff_nonneg n; positivity
+    exact mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (norm_nonneg w) hw.le _) hnn
+  have hmem : z ∈ Metric.ball (0 : ℂ) R := by rw [mem_ball_zero_iff]; exact hzR
+  have key := Complex.hasSum_deriv_of_summable_norm hu hdiff Metric.isOpen_ball hle hmem
+  -- the sum agrees with `hcomp` on the punctured disc
+  have hopen : IsOpen ({w : ℂ | w ≠ 0} ∩ Metric.ball (0 : ℂ) R) :=
+    isOpen_ne.inter Metric.isOpen_ball
+  have heq : (fun w : ℂ ↦ ∑' n : ℕ, F n w) =ᶠ[nhds z] hcomp := by
+    filter_upwards [hopen.mem_nhds ⟨hz, hmem⟩] with w hw
+    have hw1 : ‖w‖ < 1 := lt_trans (mem_ball_zero_iff.mp hw.2) hR1
+    exact (hasSum_hcomp hcs hw.1 hw1).tsum_eq
+  rw [← heq.deriv_eq]
+  refine key.congr_fun fun n ↦ ?_
+  have hd : HasDerivAt (F n)
+      ((2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * (((2 * n + 3 : ℕ) : ℂ) * z ^ (2 * n + 3 - 1))) z := by
+    rw [hF]
+    exact (hasDerivAt_pow (2 * n + 3) z).const_mul _
+  rw [hd.deriv]
+  have : 2 * n + 3 - 1 = 2 * n + 2 := by omega
+  rw [this]
+  push_cast
+  ring
+
+/-- **`|h'(z)| ≤ h'(‖z‖)`**, by the same non-negativity of the coefficients. -/
+theorem norm_deriv_hcomp_le
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (h1 : ‖z‖ < 1) :
+    ‖deriv hcomp z‖ ≤ hderivReal ‖z‖ := by
+  have hr0 : 0 < ‖z‖ := norm_pos_iff.mpr hz
+  have H := hasSum_deriv_hcomp hcs hz h1
+  have Hr := hasSum_hderivReal hr0.le h1
+  have hterm : ∀ n : ℕ, ‖(2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * ((2 * (n : ℝ) + 3 : ℝ) : ℂ)
+      * z ^ (2 * n + 2)‖ = (2 / Real.pi) * acoeff n * (2 * (n : ℝ) + 3) * ‖z‖ ^ (2 * n + 2) := by
+    intro n
+    have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    rw [norm_mul, norm_mul, norm_mul, norm_pow, Complex.norm_real, Complex.norm_real,
+      Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (acoeff_nonneg n),
+      abs_of_nonneg (by linarith : (0:ℝ) ≤ 2 * (n : ℝ) + 3),
+      show (2 : ℂ) / (Real.pi : ℂ) = ((2 / Real.pi : ℝ) : ℂ) by push_cast; ring,
+      Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]
+  have hsummable : Summable fun n : ℕ ↦ ‖(2 / (Real.pi : ℂ)) * (acoeff n : ℂ)
+      * ((2 * (n : ℝ) + 3 : ℝ) : ℂ) * z ^ (2 * n + 2)‖ :=
+    (Hr.summable).congr fun n ↦ (hterm n).symm
+  calc ‖deriv hcomp z‖
+      = ‖∑' n : ℕ, (2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * ((2 * (n : ℝ) + 3 : ℝ) : ℂ)
+          * z ^ (2 * n + 2)‖ := by rw [H.tsum_eq]
+    _ ≤ ∑' n : ℕ, ‖(2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * ((2 * (n : ℝ) + 3 : ℝ) : ℂ)
+          * z ^ (2 * n + 2)‖ := norm_tsum_le_tsum_norm hsummable
+    _ = hderivReal ‖z‖ := by rw [← Hr.tsum_eq]; exact tsum_congr hterm
+
 end CH2Section7
