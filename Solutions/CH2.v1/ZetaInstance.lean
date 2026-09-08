@@ -391,6 +391,63 @@ lemma isCompact_reOne_segment (T : ℝ) : IsCompact {z : ℂ | z.re = 1 ∧ |z.i
           simp only [abs_one]
           linarith
 
+/-- **A closed coordinate box in `ℂ` is compact.**
+
+Every compact piece the ladder is cut into is a box, most of them degenerate: the columns have
+`a = b`, the horizontal rays and the contour have `c = d`, and the `Re s = 1` segment has `a = b`
+again. One lemma covers all of them, which is why this is stated in place of a fourth variant of
+`isCompact_reOne_segment` — that one is kept because it is what `exists_ordinate_free_height`
+already uses. -/
+lemma isCompact_box (a b c d : ℝ) :
+    IsCompact {z : ℂ | a ≤ z.re ∧ z.re ≤ b ∧ c ≤ z.im ∧ z.im ≤ d} := by
+  rw [Metric.isCompact_iff_isClosed_bounded]
+  constructor
+  · have hEq : {z : ℂ | a ≤ z.re ∧ z.re ≤ b ∧ c ≤ z.im ∧ z.im ≤ d}
+        = {z : ℂ | a ≤ z.re} ∩ ({z : ℂ | z.re ≤ b} ∩
+            ({z : ℂ | c ≤ z.im} ∩ {z : ℂ | z.im ≤ d})) := by
+      ext z; constructor
+      · rintro ⟨h1, h2, h3, h4⟩; exact ⟨h1, h2, h3, h4⟩
+      · rintro ⟨h1, h2, h3, h4⟩; exact ⟨h1, h2, h3, h4⟩
+    rw [hEq]
+    exact (isClosed_le continuous_const Complex.continuous_re).inter
+      ((isClosed_le Complex.continuous_re continuous_const).inter
+        ((isClosed_le continuous_const Complex.continuous_im).inter
+          (isClosed_le Complex.continuous_im continuous_const)))
+  · refine (Metric.isBounded_iff_subset_closedBall 0).mpr
+      ⟨(|a| + |b|) + (|c| + |d|), fun z hz ↦ ?_⟩
+    obtain ⟨h1, h2, h3, h4⟩ := hz
+    simp only [Metric.mem_closedBall, dist_zero_right]
+    have hre : |z.re| ≤ |a| + |b| := by
+      rcases le_or_gt 0 z.re with h | h
+      · rw [abs_of_nonneg h]; linarith [le_abs_self b, abs_nonneg a]
+      · rw [abs_of_neg h]; linarith [neg_abs_le a, abs_nonneg b]
+    have him : |z.im| ≤ |c| + |d| := by
+      rcases le_or_gt 0 z.im with h | h
+      · rw [abs_of_nonneg h]; linarith [le_abs_self d, abs_nonneg c]
+      · rw [abs_of_neg h]; linarith [neg_abs_le c, abs_nonneg d]
+    calc ‖z‖ ≤ |z.re| + |z.im| := Complex.norm_le_abs_re_add_abs_im z
+      _ ≤ (|a| + |b|) + (|c| + |d|) := by linarith
+
+/-- `IsBoundedNoPolesOn` restricts to a subset: both halves are pointwise. -/
+lemma isBoundedNoPolesOn_mono {f : ℂ → ℂ} {S T : Set ℂ}
+    (h : CH2.IsBoundedNoPolesOn f T) (hST : S ⊆ T) : CH2.IsBoundedNoPolesOn f S := by
+  obtain ⟨M, hM⟩ := h
+  exact ⟨M, fun z hz ↦ hM z (hST hz)⟩
+
+/-- `IsBoundedNoPolesOn` on a union, by taking the larger bound.
+
+The ladder is a union of seven pieces once split at `Re = -1`, so this is used repeatedly and is
+worth having rather than unfolding the existential each time. -/
+lemma isBoundedNoPolesOn_union {f : ℂ → ℂ} {S T : Set ℂ}
+    (hS : CH2.IsBoundedNoPolesOn f S) (hT : CH2.IsBoundedNoPolesOn f T) :
+    CH2.IsBoundedNoPolesOn f (S ∪ T) := by
+  obtain ⟨M, hM⟩ := hS
+  obtain ⟨N, hN⟩ := hT
+  refine ⟨max M N, fun z hz ↦ ?_⟩
+  rcases hz with h | h
+  · exact ⟨(hM z h).1.trans (le_max_left _ _), (hM z h).2⟩
+  · exact ⟨(hN z h).1.trans (le_max_right _ _), (hN z h).2⟩
+
 /-! ### Isolation of the zeros, for choosing `T` and `δ`
 
 `LadderParams` leaves `T` and `δ` free, and the ladder needs both off the zero ordinates: the
@@ -848,6 +905,52 @@ theorem norm_tan_le_of_im_ne_zero {w : ℂ} (h : w.im ≠ 0) :
     have := Real.sqrt_le_sqrt h2
     rwa [Real.sqrt_sq (abs_nonneg _), Real.sqrt_sq hcos_nn] at this
   exact mul_le_mul hsin_le hsinh_le (abs_nonneg _) hcosh_pos.le
+
+/-- **`‖tan w‖ ≤ 1` when `Re w` is a multiple of `π`.**
+
+The companion to `norm_tan_le_of_im_ne_zero`, and the one the ladder COLUMNS need. That lemma's
+bound is `cosh(Im w)/|sinh(Im w)|`, which diverges as `Im w → 0`, and a column carries
+`|Im z| ≤ T` *including zero*, so it does not reach there at all. The gap was not noticed until
+the two boundedness hypotheses of `prop_5_2` were assembled, because until then nothing asked for
+a `tan` bound on a set meeting the real axis.
+
+Along a column the estimate is easier rather than harder. `sin (Re w) = 0` forces
+`cos²(Re w) = 1`, so `‖sin w‖² = sinh²(Im w)` and `‖cos w‖² = 1 + sinh²(Im w) = cosh²(Im w)`, and
+the quotient is `|tanh (Im w)| ≤ 1` — a bound with no dependence on the height at all. -/
+theorem norm_tan_le_one_of_sin_re_eq_zero {w : ℂ} (h : Real.sin w.re = 0) :
+    ‖Complex.tan w‖ ≤ 1 := by
+  have hcos_sq : Real.cos w.re ^ 2 = 1 := by
+    have := Real.sin_sq_add_cos_sq w.re
+    nlinarith [h]
+  have hs : ‖Complex.sin w‖ ^ 2 = Real.sinh w.im ^ 2 := by
+    rw [norm_sin_sq, h]; ring
+  have hc : ‖Complex.cos w‖ ^ 2 = 1 + Real.sinh w.im ^ 2 := by
+    rw [norm_cos_sq, hcos_sq]
+  have hcpos : 0 < ‖Complex.cos w‖ := by
+    have hsq : (0 : ℝ) < ‖Complex.cos w‖ ^ 2 := by rw [hc]; positivity
+    nlinarith [norm_nonneg (Complex.cos w)]
+  rw [Complex.tan_eq_sin_div_cos, norm_div, div_le_one hcpos]
+  nlinarith [norm_nonneg (Complex.sin w), norm_nonneg (Complex.cos w), hs, hc]
+
+/-- **On a ladder column the tangent factor is bounded by `1`**, uniformly in the column and in
+the height.
+
+The column `Re z = 1 - 2n` makes the argument `π(1-z)/2` have real part exactly `π n`, which is
+where `norm_tan_le_one_of_sin_re_eq_zero` applies. The parity is doing the work again, as it does
+in `cos_ne_zero_on_column`: an odd abscissa would put the real part at a half-integer multiple of
+`π`, where `cos` vanishes and `tan` has its poles. -/
+theorem norm_tan_le_one_on_column {n : ℕ} {z : ℂ} (hz : z.re = sigmaZeta n) :
+    ‖Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖ ≤ 1 := by
+  refine norm_tan_le_one_of_sin_re_eq_zero ?_
+  have hEq : (Real.pi : ℂ) * (1 - z) / 2 = ((Real.pi / 2 : ℝ) : ℂ) * (1 - z) := by
+    push_cast; ring
+  have hre : ((Real.pi : ℂ) * (1 - z) / 2).re = (n : ℝ) * Real.pi := by
+    rw [hEq]
+    simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.sub_re,
+      Complex.sub_im, Complex.one_re, Complex.one_im, hz, sigmaZeta]
+    ring
+  rw [hre]
+  exact Real.sin_nat_mul_pi n
 
 /-! ### The growth bound on `F`
 
