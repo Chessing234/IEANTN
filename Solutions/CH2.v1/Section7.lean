@@ -469,4 +469,86 @@ theorem zetaReal_coeff_pos (n : ℕ) : 0 < zetaReal (2 * (n : ℝ) + 2) := by
   have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
   exact zetaReal_pos (by linarith)
 
+/-! ### `h`, the series with non-negative coefficients
+
+The move that makes part (c) tractable. `f(z) = 1/(πz) - cot πz` has Taylor coefficients
+`(2/π) ζ(2n)`, positive but *not* decreasing fast enough for a crude bound; the paper instead
+writes
+
+  `f(z) = ((2/π) ζ(2) z - h(z)) / (1 - z²)`,   `h(z) = (2/π) ∑_{n≥1} aₙ z^{2n+1}`,
+
+with `aₙ = ζ(2n) - ζ(2n+2) ≥ 0`. Multiplying the series by `1 - z²` telescopes it: all but the
+leading term cancel in pairs, leaving the differences.
+
+Two things are gained. `h` has a **closed form** — it is defined by one, here — so it can be
+differentiated and evaluated by ordinary means. And its coefficients are non-negative, so
+`|h(z)| ≤ h(‖z‖)`: a bound at one real point controls the whole disc, which is what turns the
+two-dimensional maximum of `|A'|` over a rectangle into a one-dimensional evaluation. -/
+
+/-- `f(z) = 1/(πz) - cot πz`, the function whose Taylor series `CotangentSeries.v1` supplies. -/
+noncomputable def fcomp (z : ℂ) : ℂ :=
+  1 / ((Real.pi : ℂ) * z) - Complex.cot ((Real.pi : ℂ) * z)
+
+/-- The coefficients `aₙ = ζ(2n+2) - ζ(2n+4)`, in the index convention of `CotangentSeries.v1`.
+
+The paper's `aₙ = ζ(2n) - ζ(2n+2)` for `n ≥ 1` is this at `n - 1`. -/
+noncomputable def acoeff (n : ℕ) : ℝ :=
+  zetaReal (2 * (n : ℝ) + 2) - zetaReal (2 * ((n : ℝ) + 1) + 2)
+
+/-- **`aₙ ≥ 0`**, the whole point of the rearrangement. -/
+theorem acoeff_nonneg (n : ℕ) : 0 ≤ acoeff n :=
+  sub_nonneg.mpr (zetaReal_coeff_antitone n)
+
+/-- `h(z) = (2/π) ζ(2) z - (1 - z²) f(z)`, defined by its closed form.
+
+That the closed form has the advertised series is `hasSum_hcomp`; keeping the definition closed
+means `h` may be differentiated and evaluated without ever touching the series. -/
+noncomputable def hcomp (z : ℂ) : ℂ :=
+  (2 / (Real.pi : ℂ)) * riemannZeta 2 * z - (1 - z ^ 2) * fcomp z
+
+/-- **`h(z) = (2/π) ∑ aₙ z^{2n+3}`**, the telescoping.
+
+`(1 - z²) f(z)` is the series minus its own shift by one place, so everything past the leading
+`(2/π) ζ(2) z` collects into the differences `aₙ`. -/
+theorem hasSum_hcomp
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (h1 : ‖z‖ < 1) :
+    HasSum (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * (acoeff n : ℂ) * z ^ (2 * n + 3)) (hcomp z) := by
+  have H : HasSum (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * riemannZeta (2 * (n : ℂ) + 2)
+      * z ^ (2 * n + 1)) (fcomp z) := hasSum_inv_pi_mul_sub_cot hcs hz h1
+  -- multiply through by `z²`
+  have S1 : HasSum (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * riemannZeta (2 * (n : ℂ) + 2)
+      * z ^ (2 * n + 3)) (fcomp z * z ^ 2) := by
+    have := H.mul_right (z ^ 2)
+    refine this.congr_fun fun n ↦ ?_
+    ring
+  -- drop the leading term, which shifts the index by one
+  set G : ℕ → ℂ := fun n ↦ (2 / (Real.pi : ℂ)) * riemannZeta (2 * (n : ℂ) + 2)
+    * z ^ (2 * n + 1) with hG
+  have S2 : HasSum (fun n : ℕ ↦ (2 / (Real.pi : ℂ)) * riemannZeta (2 * ((n : ℂ) + 1) + 2)
+      * z ^ (2 * n + 3))
+      (fcomp z - (2 / (Real.pi : ℂ)) * riemannZeta 2 * z) := by
+    have hshift : HasSum (fun n : ℕ ↦ G (n + 1))
+        (fcomp z - (2 / (Real.pi : ℂ)) * riemannZeta 2 * z) := by
+      rw [hasSum_nat_add_iff 1]
+      simpa [hG] using H
+    refine hshift.congr_fun fun n ↦ ?_
+    simp only [hG]
+    push_cast
+    ring
+  have hval : fcomp z * z ^ 2 - (fcomp z - (2 / (Real.pi : ℂ)) * riemannZeta 2 * z)
+      = hcomp z := by
+    rw [hcomp]; ring
+  rw [← hval]
+  refine (S1.sub S2).congr_fun fun n ↦ ?_
+  have e2 : riemannZeta (2 * (n : ℂ) + 2) = (zetaReal (2 * (n : ℝ) + 2) : ℂ) :=
+    riemannZeta_coeff_ofReal n
+  have e4 : riemannZeta (2 * ((n : ℂ) + 1) + 2) = (zetaReal (2 * ((n : ℝ) + 1) + 2) : ℂ) := by
+    have := riemannZeta_coeff_ofReal (n + 1)
+    push_cast at this ⊢
+    convert this using 3
+  rw [e2, e4, acoeff]
+  push_cast
+  ring
+
 end CH2Section7
