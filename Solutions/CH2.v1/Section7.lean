@@ -7,6 +7,7 @@ import Mathlib.Analysis.Complex.Trigonometric
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 import Mathlib.NumberTheory.LSeries.HurwitzZetaValues
 import Mathlib.Analysis.Real.Pi.Bounds
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
 import IEANTN.Nodes.CotangentSeries.v1.Conclusions
 
 /-!
@@ -1639,5 +1640,70 @@ theorem norm_Fc_sub_le
         rw [hdiff, norm_div, hnn, hnb]
         linarith [norm_Acomp_sub_le hcs hx0 hx hy]
     _ = |y| / (Real.pi * x * ‖(x : ℂ) + (y : ℂ) * Complex.I‖) + 1.78 * |y| := by ring
+
+/-! ### The other opening bound: `1/y ≤ coth y ≤ 1/y + y/3`
+
+§7's preamble states this alongside `coth y ≤ 1 + 1/y`, and derives it from Euler's hyperbolic
+expansion `coth y = 1/y + 2y ∑ 1/(y² + n²π²)` together with `∑ 1/(n²π²) = 1/6`.
+
+**Proved here without the expansion.** Clearing denominators, the two claims are
+`sinh y ≤ y cosh y` and `3y cosh y ≤ (3 + y²) sinh y`, and both follow from one differentiation
+each: `ψ(y) = y cosh y - sinh y` has `ψ' = y sinh y`, and `φ(y) = (3+y²) sinh y - 3y cosh y` has
+`φ' = y ψ(y)`. Both vanish at `0`. That is shorter than transporting a complex partial-fraction
+identity onto the reals, and it avoids the interchange of limits that expansion needs. -/
+
+/-- `ψ(y) = y cosh y - sinh y` is positive on `(0,∞)`; equivalently `tanh y < y`. -/
+theorem mul_cosh_sub_sinh_pos {y : ℝ} (hy : 0 < y) : 0 < y * Real.cosh y - Real.sinh y := by
+  have hderiv : ∀ t : ℝ, HasDerivAt (fun u : ℝ ↦ u * Real.cosh u - Real.sinh u)
+      (1 * Real.cosh t + t * Real.sinh t - Real.cosh t) t := fun t ↦
+    ((hasDerivAt_id t).mul (Real.hasDerivAt_cosh t)).sub (Real.hasDerivAt_sinh t)
+  have hmono : StrictMonoOn (fun u : ℝ ↦ u * Real.cosh u - Real.sinh u) (Set.Ici 0) := by
+    refine strictMonoOn_of_deriv_pos (convex_Ici 0) (fun t _ ↦ ?_) (fun t ht ↦ ?_)
+    · exact ((hderiv t).differentiableAt).continuousAt.continuousWithinAt
+    · rw [interior_Ici] at ht
+      rw [(hderiv t).deriv]
+      have ht' : (0 : ℝ) < t := ht
+      have hs : 0 < Real.sinh t := Real.sinh_pos_iff.mpr ht'
+      nlinarith [mul_pos ht' hs]
+  have h : (0 : ℝ) * Real.cosh 0 - Real.sinh 0 < y * Real.cosh y - Real.sinh y :=
+    hmono (Set.mem_Ici.mpr le_rfl) (Set.mem_Ici.mpr hy.le) hy
+  simpa using h
+
+/-- **`1/y ≤ coth y`** for `y > 0`. -/
+theorem inv_le_coth {y : ℝ} (hy : 0 < y) : 1 / y ≤ Real.cosh y / Real.sinh y := by
+  have hs : 0 < Real.sinh y := Real.sinh_pos_iff.mpr hy
+  rw [div_le_div_iff₀ hy hs]
+  nlinarith [mul_cosh_sub_sinh_pos hy]
+
+/-- **`coth y ≤ 1/y + y/3`** for `y > 0`, the bound §7 gets from Euler's hyperbolic expansion. -/
+theorem coth_le_inv_add_div_three {y : ℝ} (hy : 0 < y) :
+    Real.cosh y / Real.sinh y ≤ 1 / y + y / 3 := by
+  have hs : 0 < Real.sinh y := Real.sinh_pos_iff.mpr hy
+  have hderiv : ∀ t : ℝ, HasDerivAt (fun u : ℝ ↦ (3 + u ^ 2) * Real.sinh u - 3 * u * Real.cosh u)
+      (2 * t * Real.sinh t + (3 + t ^ 2) * Real.cosh t
+        - (3 * Real.cosh t + 3 * t * Real.sinh t)) t := by
+    intro t
+    have h1 : HasDerivAt (fun u : ℝ ↦ 3 + u ^ 2) (2 * t) t := by
+      simpa using (hasDerivAt_pow 2 t).const_add (3 : ℝ)
+    have h2 : HasDerivAt (fun u : ℝ ↦ Real.sinh u) (Real.cosh t) t := Real.hasDerivAt_sinh t
+    have h3 : HasDerivAt (fun u : ℝ ↦ 3 * u) 3 t := by
+      simpa using (hasDerivAt_id t).const_mul (3 : ℝ)
+    have h4 : HasDerivAt (fun u : ℝ ↦ Real.cosh u) (Real.sinh t) t := Real.hasDerivAt_cosh t
+    exact (h1.mul h2).sub (h3.mul h4)
+  have hmono : StrictMonoOn
+      (fun u : ℝ ↦ (3 + u ^ 2) * Real.sinh u - 3 * u * Real.cosh u) (Set.Ici 0) := by
+    refine strictMonoOn_of_deriv_pos (convex_Ici 0) (fun t _ ↦ ?_) (fun t ht ↦ ?_)
+    · exact ((hderiv t).differentiableAt).continuousAt.continuousWithinAt
+    · rw [interior_Ici] at ht
+      rw [(hderiv t).deriv]
+      have ht' : (0 : ℝ) < t := ht
+      have hpsi := mul_cosh_sub_sinh_pos ht'
+      nlinarith [mul_pos ht' hpsi]
+  have hphi' : (3 + (0 : ℝ) ^ 2) * Real.sinh 0 - 3 * 0 * Real.cosh 0
+      < (3 + y ^ 2) * Real.sinh y - 3 * y * Real.cosh y :=
+    hmono (Set.mem_Ici.mpr le_rfl) (Set.mem_Ici.mpr hy.le) hy
+  have hphi : (0 : ℝ) < (3 + y ^ 2) * Real.sinh y - 3 * y * Real.cosh y := by simpa using hphi'
+  rw [div_add_div _ _ (ne_of_gt hy) (by norm_num : (3 : ℝ) ≠ 0), div_le_div_iff₀ hs (by positivity)]
+  nlinarith
 
 end CH2Section7
