@@ -387,4 +387,86 @@ theorem Acomp_eq {z : ℂ} (hz : z ≠ 0) :
   field_simp
   ring
 
+
+/-! ### The Taylor coefficients are non-negative and decreasing
+
+Part (c) is a bound on the whole disc extracted from the behaviour along one ray, and what licenses
+that step is the sign of the coefficients: `f(z) = 1/(πz) - cot πz` has Taylor coefficients
+`(2/π) ζ(2n+2)`, all positive, and the differences `ζ(2n+2) - ζ(2n+4)` are non-negative because
+`ζ` decreases along the reals above `1`.
+
+Mathlib has the Dirichlet series but **not** the monotonicity, so it is derived here termwise: each
+`(k+1)^{-s}` decreases in the real exponent `s`, and the two sums may be compared because both
+converge. The only friction is bookkeeping — `riemannZeta` lands in `ℂ` while the comparison is
+real — so the value at a real point above `1` is first identified with a real `tsum`. -/
+
+/-- The real Dirichlet series `∑_{k≥0} (k+1)^{-s}`, which is `ζ(s)` for `s > 1`.
+
+Kept separate from `riemannZeta` so that the comparison below is between real numbers: `ℂ` has no
+order, and `Summable.tsum_le_tsum` is what does the work. Outside `s > 1` this is a junk value —
+the family is not summable there and the `tsum` is `0` — which is why every statement about it
+carries `1 < s`. -/
+noncomputable def zetaReal (s : ℝ) : ℝ := ∑' k : ℕ, 1 / ((k : ℝ) + 1) ^ s
+
+/-- The `p`-series, shifted so that the first term is `1` rather than a division by zero. -/
+theorem summable_one_div_nat_add_one_rpow {s : ℝ} (hs : 1 < s) :
+    Summable fun k : ℕ ↦ 1 / ((k : ℝ) + 1) ^ s := by
+  have h := (Real.summable_one_div_nat_rpow (p := s)).mpr hs
+  have h' := (summable_nat_add_iff (f := fun n : ℕ ↦ 1 / (n : ℝ) ^ s) 1).mpr h
+  simpa using h'
+
+/-- **`ζ` at a real point above `1` is the real Dirichlet sum.**
+
+The bridge between `riemannZeta`, which is complex-valued, and the ordered setting the coefficient
+comparison lives in. -/
+theorem zeta_ofReal {s : ℝ} (hs : 1 < s) : riemannZeta (s : ℂ) = (zetaReal s : ℂ) := by
+  rw [zeta_eq_tsum_one_div_nat_add_one_cpow (by simpa using hs), zetaReal, Complex.ofReal_tsum]
+  refine tsum_congr fun k ↦ ?_
+  have hk : (0 : ℝ) ≤ (k : ℝ) + 1 := by positivity
+  rw [Complex.ofReal_div, Complex.ofReal_one, Complex.ofReal_cpow hk]
+  push_cast
+  ring
+
+/-- **`ζ` is antitone on the reals above `1`.**
+
+Absent from Mathlib, and proved termwise: `(k+1)^{-s}` is decreasing in `s` because `k + 1 ≥ 1`, and
+both series converge, so `Summable.tsum_le_tsum` applies. -/
+theorem zetaReal_le {s t : ℝ} (hs : 1 < s) (hst : s ≤ t) : zetaReal t ≤ zetaReal s := by
+  refine Summable.tsum_le_tsum (fun k ↦ ?_)
+    (summable_one_div_nat_add_one_rpow (hs.trans_le hst)) (summable_one_div_nat_add_one_rpow hs)
+  have h1 : (1 : ℝ) ≤ (k : ℝ) + 1 := by
+    have : (0 : ℝ) ≤ (k : ℝ) := Nat.cast_nonneg k
+    linarith
+  have hpos : (0 : ℝ) < ((k : ℝ) + 1) ^ s := Real.rpow_pos_of_pos (by linarith) _
+  exact one_div_le_one_div_of_le hpos (Real.rpow_le_rpow_of_exponent_le h1 hst)
+
+/-- `1 ≤ ζ(s)` for real `s > 1`: the `k = 0` term is `1` and the rest are positive. -/
+theorem one_le_zetaReal {s : ℝ} (hs : 1 < s) : 1 ≤ zetaReal s := by
+  have h := (summable_one_div_nat_add_one_rpow hs).le_tsum 0 fun k _ ↦ by positivity
+  simpa [zetaReal] using h
+
+/-- `0 < ζ(s)` for real `s > 1`. -/
+theorem zetaReal_pos {s : ℝ} (hs : 1 < s) : 0 < zetaReal s :=
+  lt_of_lt_of_le zero_lt_one (one_le_zetaReal hs)
+
+/-- The Taylor coefficient `ζ(2n+2)` of `CotangentSeries.v1`, identified as a real number. -/
+theorem riemannZeta_coeff_ofReal (n : ℕ) :
+    riemannZeta (2 * (n : ℂ) + 2) = (zetaReal (2 * (n : ℝ) + 2) : ℂ) := by
+  have hs : (1 : ℝ) < 2 * (n : ℝ) + 2 := by
+    have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
+  have hcast : ((2 * (n : ℝ) + 2 : ℝ) : ℂ) = 2 * (n : ℂ) + 2 := by push_cast; ring
+  rw [← hcast, zeta_ofReal hs]
+
+/-- **`aₙ = ζ(2n+2) - ζ(2n+4) ≥ 0`**, the sign the disc bound in part (c) rests on. -/
+theorem zetaReal_coeff_antitone (n : ℕ) :
+    zetaReal (2 * ((n : ℝ) + 1) + 2) ≤ zetaReal (2 * (n : ℝ) + 2) := by
+  have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  exact zetaReal_le (by linarith) (by linarith)
+
+/-- The coefficients are positive: `0 < ζ(2n+2)`. -/
+theorem zetaReal_coeff_pos (n : ℕ) : 0 < zetaReal (2 * (n : ℝ) + 2) := by
+  have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  exact zetaReal_pos (by linarith)
+
 end CH2Section7
