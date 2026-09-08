@@ -6,6 +6,7 @@ Authors: Terence Tao
 import Mathlib.Analysis.Complex.Trigonometric
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 import Mathlib.NumberTheory.LSeries.HurwitzZetaValues
+import Mathlib.Analysis.Real.Pi.Bounds
 import IEANTN.Nodes.CotangentSeries.v1.Conclusions
 
 /-!
@@ -996,5 +997,348 @@ theorem norm_deriv_Acomp_le
       (le_trans (norm_deriv_hcomp_le hcs hz h1)
         (hderivReal_mono hz0.le hnorm rcorner_lt_one))
   linarith
+
+/-! ### Explicit values and lower bounds for `ζ`
+
+The numerical half of part (c) needs `ζ(2)` and `ζ(4)` exactly — Mathlib has both — and *lower*
+bounds on `ζ(6) - 1`, `ζ(8) - 1`, `ζ(10) - 1`. Lower bounds, not upper: the rearrangement below
+turns the estimate into a series whose terms after the first are **negative**, so truncating it is
+already an upper bound and each retained term wants its subtracted quantity as large as possible.
+
+That is why no Bernoulli numbers appear here, and no tail estimate: a few terms of the Dirichlet
+series suffice for each lower bound. -/
+
+/-- Any partial sum of the Dirichlet series is a lower bound for `ζ`. -/
+theorem sum_le_zetaReal {s : ℝ} (hs : 1 < s) (m : ℕ) :
+    (∑ k ∈ Finset.range m, 1 / ((k : ℝ) + 1) ^ s) ≤ zetaReal s := by
+  refine (summable_one_div_nat_add_one_rpow hs).sum_le_tsum _ (fun k _ ↦ by positivity)
+
+/-- `ζ(2) = π²/6`. -/
+theorem zetaReal_two_eq : zetaReal 2 = Real.pi ^ 2 / 6 := by
+  have h : ((zetaReal 2 : ℝ) : ℂ) = (((Real.pi ^ 2 / 6 : ℝ)) : ℂ) := by
+    rw [← riemannZeta_two_ofReal, riemannZeta_two]
+    push_cast
+    ring
+  exact_mod_cast h
+
+/-- `ζ(4) = π⁴/90`. -/
+theorem zetaReal_four_eq : zetaReal 4 = Real.pi ^ 4 / 90 := by
+  have h : ((zetaReal 4 : ℝ) : ℂ) = (((Real.pi ^ 4 / 90 : ℝ)) : ℂ) := by
+    rw [← zeta_ofReal (s := 4) (by norm_num)]
+    norm_num [riemannZeta_four]
+  exact_mod_cast h
+
+/-- `ζ(6) - 1 ≥ 1/64 + 1/729 + 1/4096 + 1/15625`, four terms of the Dirichlet series. -/
+theorem zetaReal_six_lower : (0.01730488 : ℝ) ≤ zetaReal 6 - 1 := by
+  have h := sum_le_zetaReal (s := 6) (by norm_num) 5
+  have hr : ∀ k : ℕ, ((k : ℝ) + 1) ^ (6 : ℝ) = ((k : ℝ) + 1) ^ (6 : ℕ) := by
+    intro k
+    rw [show (6 : ℝ) = ((6 : ℕ) : ℝ) by norm_num, Real.rpow_natCast]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, hr] at h
+  norm_num at h
+  linarith
+
+/-- `ζ(8) - 1 ≥ 1/256 + 1/6561`, two terms. -/
+theorem zetaReal_eight_lower : (0.0040586 : ℝ) ≤ zetaReal 8 - 1 := by
+  have h := sum_le_zetaReal (s := 8) (by norm_num) 3
+  have hr : ∀ k : ℕ, ((k : ℝ) + 1) ^ (8 : ℝ) = ((k : ℝ) + 1) ^ (8 : ℕ) := by
+    intro k
+    rw [show (8 : ℝ) = ((8 : ℕ) : ℝ) by norm_num, Real.rpow_natCast]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, hr] at h
+  norm_num at h
+  linarith
+
+/-- `ζ(10) - 1 ≥ 1/1024`, one term. -/
+theorem zetaReal_ten_lower : (0.00097656 : ℝ) ≤ zetaReal 10 - 1 := by
+  have h := sum_le_zetaReal (s := 10) (by norm_num) 2
+  have hr : ∀ k : ℕ, ((k : ℝ) + 1) ^ (10 : ℝ) = ((k : ℝ) + 1) ^ (10 : ℕ) := by
+    intro k
+    rw [show (10 : ℝ) = ((10 : ℕ) : ℝ) by norm_num, Real.rpow_natCast]
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, hr] at h
+  norm_num at h
+  linarith
+
+/-! ### Abel summation, and why it removes the need for a tail estimate
+
+`h(1/√2) + h'(1/√2) = (2/π) ∑ aₙ Wₙ` with `Wₙ = 2^{-(n+1)}(1/√2 + 2n + 3)`, and `aₙ` is the
+difference `vₙ - vₙ₊₁` of `vₙ = ζ(2n+2) - 1`. Summing by parts,
+
+  `∑ₙ (vₙ - vₙ₊₁) Wₙ = v₀ W₀ + ∑ₙ vₙ₊₁ (Wₙ₊₁ - Wₙ)`,
+
+and `W` is decreasing while `v` is non-negative, so **every term after the first is `≤ 0`**.
+Truncating the rearranged series is therefore already an upper bound — no tail has to be estimated,
+and each retained term only needs a lower bound on some `ζ(2k) - 1`, which a handful of Dirichlet
+terms supplies. This is what keeps `ζ(6)`, `ζ(8)`, `ζ(10)` and their Bernoulli numbers out of the
+argument. -/
+
+/-- `vₙ = ζ(2n+2) - 1`, the part of `ζ` past its leading term. -/
+noncomputable def vcoeff (n : ℕ) : ℝ := zetaReal (2 * (n : ℝ) + 2) - 1
+
+/-- `Wₙ = 2^{-(n+1)} (1/√2 + 2n + 3)`, the weight `h + h'` puts on `aₙ` at `z = 1/√2`. -/
+noncomputable def wweight (n : ℕ) : ℝ := (1 / 2 : ℝ) ^ (n + 1) * (rcorner + 2 * (n : ℝ) + 3)
+
+theorem vcoeff_nonneg (n : ℕ) : 0 ≤ vcoeff n := by
+  have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  have := one_le_zetaReal (s := 2 * (n : ℝ) + 2) (by linarith)
+  rw [vcoeff]; linarith
+
+theorem vcoeff_anti (n : ℕ) : vcoeff (n + 1) ≤ vcoeff n := by
+  have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  have := zetaReal_le (s := 2 * (n : ℝ) + 2) (t := 2 * ((n : ℕ) + 1 : ℕ) + 2) (by linarith)
+    (by push_cast; linarith)
+  rw [vcoeff, vcoeff]
+  linarith
+
+theorem acoeff_eq_vcoeff_sub (n : ℕ) : acoeff n = vcoeff n - vcoeff (n + 1) := by
+  rw [acoeff, vcoeff, vcoeff]
+  push_cast
+  ring
+
+theorem wweight_pos (n : ℕ) : 0 < wweight n := by
+  have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  have := rcorner_pos
+  rw [wweight]
+  positivity
+
+/-- `Wₙ₊₁ - Wₙ = -2^{-(n+2)} (1/√2 + 2n + 1)`, so `W` is decreasing. -/
+theorem wweight_succ_sub (n : ℕ) :
+    wweight (n + 1) - wweight n = -((1 / 2 : ℝ) ^ (n + 2) * (rcorner + 2 * (n : ℝ) + 1)) := by
+  rw [wweight, wweight, show n + 1 + 1 = n + 2 from rfl, pow_succ, pow_succ]
+  push_cast
+  ring
+
+theorem wweight_le (n : ℕ) : wweight n ≤ (1 / 2 : ℝ) ^ (n + 1) * (2 * (n : ℝ) + 4) := by
+  have h := rcorner_lt_one
+  have hp : (0:ℝ) < (1 / 2 : ℝ) ^ (n + 1) := by positivity
+  rw [wweight]
+  exact mul_le_mul_of_nonneg_left (by linarith) hp.le
+
+/-- The majorant for both halves of the summation by parts. -/
+theorem summable_wmaj : Summable fun n : ℕ ↦ (1 / 2 : ℝ) ^ (n + 1) * (2 * (n : ℝ) + 4) := by
+  have hs : ‖(1 / 2 : ℝ)‖ < 1 := by rw [Real.norm_eq_abs]; norm_num
+  have g0 : Summable fun n : ℕ ↦ (n : ℝ) ^ 0 * (1 / 2 : ℝ) ^ n :=
+    summable_pow_mul_geometric_of_norm_lt_one 0 hs
+  have g1 : Summable fun n : ℕ ↦ (n : ℝ) ^ 1 * (1 / 2 : ℝ) ^ n :=
+    summable_pow_mul_geometric_of_norm_lt_one 1 hs
+  have := ((g1.mul_left 1).add (g0.mul_left 2))
+  refine this.congr fun n ↦ ?_
+  rw [pow_succ']
+  simp only [pow_zero, one_mul]
+  ring
+
+theorem summable_vw : Summable fun n : ℕ ↦ vcoeff n * wweight n := by
+  refine Summable.of_nonneg_of_le (fun n ↦ mul_nonneg (vcoeff_nonneg n) (wweight_pos n).le)
+    (fun n ↦ ?_) (summable_wmaj.mul_left (vcoeff 0))
+  have hv : vcoeff n ≤ vcoeff 0 := by
+    induction n with
+    | zero => exact le_refl _
+    | succ k ih => exact le_trans (vcoeff_anti k) ih
+  exact mul_le_mul hv (wweight_le n) (wweight_pos n).le (vcoeff_nonneg 0)
+
+theorem summable_vw' : Summable fun n : ℕ ↦ vcoeff (n + 1) * wweight n := by
+  refine Summable.of_nonneg_of_le (fun n ↦ mul_nonneg (vcoeff_nonneg _) (wweight_pos n).le)
+    (fun n ↦ ?_) (summable_wmaj.mul_left (vcoeff 0))
+  have hv : vcoeff (n + 1) ≤ vcoeff 0 := by
+    induction n with
+    | zero => exact vcoeff_anti 0
+    | succ k ih => exact le_trans (vcoeff_anti (k + 1)) ih
+  exact mul_le_mul hv (wweight_le n) (wweight_pos n).le (vcoeff_nonneg 0)
+
+/-- `h(1/√2) + h'(1/√2) = (2/π) ∑ aₙ Wₙ`: the two series share a weight. -/
+theorem hasSum_combined (hcs : CotangentSeries.v1.cot_series_zeta_values) :
+    HasSum (fun n : ℕ ↦ (2 / Real.pi) * acoeff n * wweight n)
+      (hreal rcorner + hderivReal rcorner) := by
+  have H := (hasSum_hreal hcs rcorner_pos rcorner_lt_one).add
+    (hasSum_hderivReal rcorner_pos.le rcorner_lt_one)
+  refine H.congr_fun fun n ↦ ?_
+  have hp : rcorner ^ (2 * n + 2) = (1 / 2 : ℝ) ^ (n + 1) := by
+    rw [show 2 * n + 2 = 2 * (n + 1) by ring, pow_mul, rcorner_sq]
+  have hp3 : rcorner ^ (2 * n + 3) = (1 / 2 : ℝ) ^ (n + 1) * rcorner := by
+    rw [show 2 * n + 3 = (2 * n + 2) + 1 by ring, pow_succ, hp]
+  rw [wweight, hp, hp3]
+  ring
+
+/-- **The summation by parts.** Every term of the rearranged series after the first is `≤ 0`, so
+any partial sum of it is an upper bound. -/
+theorem hreal_add_hderivReal_le_partial
+    (hcs : CotangentSeries.v1.cot_series_zeta_values) (m : ℕ) :
+    hreal rcorner + hderivReal rcorner ≤ (2 / Real.pi) * (vcoeff 0 * wweight 0
+      + ∑ n ∈ Finset.range m, vcoeff (n + 1) * (wweight (n + 1) - wweight n)) := by
+  set X : ℝ := ∑' n : ℕ, vcoeff n * wweight n with hX
+  set Y : ℝ := ∑' n : ℕ, vcoeff (n + 1) * wweight n with hY
+  have P : HasSum (fun n : ℕ ↦ vcoeff n * wweight n) X := summable_vw.hasSum
+  have Q : HasSum (fun n : ℕ ↦ vcoeff (n + 1) * wweight n) Y := summable_vw'.hasSum
+  have hcomb : hreal rcorner + hderivReal rcorner = (2 / Real.pi) * (X - Y) := by
+    have H := hasSum_combined hcs
+    have H2 : HasSum (fun n : ℕ ↦ (2 / Real.pi) * acoeff n * wweight n)
+        ((2 / Real.pi) * (X - Y)) := by
+      have := (P.sub Q).mul_left (2 / Real.pi)
+      refine this.congr_fun fun n ↦ ?_
+      rw [acoeff_eq_vcoeff_sub]
+      ring
+    exact H.unique H2
+  have P' : HasSum (fun n : ℕ ↦ vcoeff (n + 1) * wweight (n + 1)) (X - vcoeff 0 * wweight 0) := by
+    have := (hasSum_nat_add_iff (f := fun n : ℕ ↦ vcoeff n * wweight n) 1).mpr
+      (show HasSum (fun n : ℕ ↦ vcoeff n * wweight n) (X - vcoeff 0 * wweight 0
+        + ∑ i ∈ Finset.range 1, vcoeff i * wweight i) by simpa using P)
+    exact this
+  have D : HasSum (fun n : ℕ ↦ vcoeff (n + 1) * (wweight (n + 1) - wweight n))
+      (X - vcoeff 0 * wweight 0 - Y) := by
+    have := P'.sub Q
+    refine this.congr_fun fun n ↦ ?_
+    ring
+  have hnonpos : ∀ n : ℕ, vcoeff (n + 1) * (wweight (n + 1) - wweight n) ≤ 0 := by
+    intro n
+    rw [wweight_succ_sub]
+    have hn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    have hr := rcorner_pos
+    have : (0:ℝ) ≤ (1 / 2 : ℝ) ^ (n + 2) * (rcorner + 2 * (n : ℝ) + 1) := by positivity
+    nlinarith [vcoeff_nonneg (n + 1)]
+  have hle : X - vcoeff 0 * wweight 0 - Y
+      ≤ ∑ n ∈ Finset.range m, vcoeff (n + 1) * (wweight (n + 1) - wweight n) := by
+    have hneg := (D.neg).summable.sum_le_tsum (Finset.range m) (fun i _ ↦ by
+      simpa using hnonpos i)
+    rw [(D.neg).tsum_eq] at hneg
+    simp only [Finset.sum_neg_distrib] at hneg
+    linarith
+  rw [hcomb]
+  have hpi : (0:ℝ) < 2 / Real.pi := by positivity
+  have : X - Y ≤ vcoeff 0 * wweight 0
+      + ∑ n ∈ Finset.range m, vcoeff (n + 1) * (wweight (n + 1) - wweight n) := by linarith
+  exact mul_le_mul_of_nonneg_left this hpi.le
+
+/-! ### The numerical bound
+
+Five terms of the rearranged series, with `π` pinned by `Real.pi_gt_3141592` and
+`Real.pi_lt_3141593` and `1/√2` by its square. The true value of
+`(2/π) ζ(2) + h(1/√2) + h'(1/√2)` is `1.7796360636…`, so the margin against `1.78` is `3.6·10⁻⁴`
+and the arithmetic below has to be carried to about six places — which is why the bounds are
+written out rather than left to a single call. -/
+
+theorem vcoeff_zero : vcoeff 0 = Real.pi ^ 2 / 6 - 1 := by
+  have h : (2 * ((0 : ℕ) : ℝ) + 2) = 2 := by norm_num
+  rw [vcoeff, h, zetaReal_two_eq]
+
+theorem vcoeff_one : vcoeff 1 = Real.pi ^ 4 / 90 - 1 := by
+  have h : (2 * ((1 : ℕ) : ℝ) + 2) = 4 := by norm_num
+  rw [vcoeff, h, zetaReal_four_eq]
+
+theorem vcoeff_two_lower : (0.01730488 : ℝ) ≤ vcoeff 2 := by
+  have h : (2 * ((2 : ℕ) : ℝ) + 2) = 6 := by norm_num
+  rw [vcoeff, h]; exact zetaReal_six_lower
+
+theorem vcoeff_three_lower : (0.0040586 : ℝ) ≤ vcoeff 3 := by
+  have h : (2 * ((3 : ℕ) : ℝ) + 2) = 8 := by norm_num
+  rw [vcoeff, h]; exact zetaReal_eight_lower
+
+theorem vcoeff_four_lower : (0.00097656 : ℝ) ≤ vcoeff 4 := by
+  have h : (2 * ((4 : ℕ) : ℝ) + 2) = 10 := by norm_num
+  rw [vcoeff, h]; exact zetaReal_ten_lower
+
+theorem rcorner_lower : (0.70710678 : ℝ) < rcorner := by nlinarith [rcorner_sq, rcorner_pos]
+
+theorem rcorner_upper : rcorner < 0.70710679 := by nlinarith [rcorner_sq, rcorner_pos]
+
+/-- The five retained terms, evaluated. `1.15059` is an upper bound for `1.1505556…`. -/
+theorem bracket_le : vcoeff 0 * wweight 0
+    + ∑ n ∈ Finset.range 4, vcoeff (n + 1) * (wweight (n + 1) - wweight n) ≤ 1.15059 := by
+  have hr1 := rcorner_lower
+  have hr2 := rcorner_upper
+  have hpi1 : (3.141592 : ℝ) < Real.pi := Real.pi_gt_d6
+  have hpi2 : Real.pi < 3.141593 := Real.pi_lt_d6
+  have hsq1 : (9.8696 : ℝ) < Real.pi ^ 2 := by nlinarith
+  have hsq2 : Real.pi ^ 2 < 9.86961 := by nlinarith
+  have hq1 : (97.409 : ℝ) < Real.pi ^ 4 := by nlinarith [hsq1]
+  have hv0hi : vcoeff 0 ≤ 0.644935 := by rw [vcoeff_zero]; linarith
+  have hv0lo : (0 : ℝ) ≤ vcoeff 0 := vcoeff_nonneg 0
+  have hv1lo : (0.0823222 : ℝ) ≤ vcoeff 1 := by rw [vcoeff_one]; linarith
+  have hv2lo := vcoeff_two_lower
+  have hv3lo := vcoeff_three_lower
+  have hv4lo := vcoeff_four_lower
+  -- the weights, evaluated
+  have e0 : wweight 0 = (1 / 2 : ℝ) * (rcorner + 3) := by rw [wweight]; norm_num
+  have e1 : wweight 1 - wweight 0 = -((1 / 4 : ℝ) * (rcorner + 1)) := by
+    have h := wweight_succ_sub 0
+    norm_num at h
+    linarith
+  have e2 : wweight 2 - wweight 1 = -((1 / 8 : ℝ) * (rcorner + 3)) := by
+    have h := wweight_succ_sub 1
+    norm_num at h
+    linarith
+  have e3 : wweight 3 - wweight 2 = -((1 / 16 : ℝ) * (rcorner + 5)) := by
+    have h := wweight_succ_sub 2
+    norm_num at h
+    linarith
+  have e4 : wweight 4 - wweight 3 = -((1 / 32 : ℝ) * (rcorner + 7)) := by
+    have h := wweight_succ_sub 3
+    norm_num at h
+    linarith
+  -- the five products
+  have hp0 : vcoeff 0 * ((1 / 2 : ℝ) * (rcorner + 3)) ≤ 1.1954215 := by
+    have hb : (1 / 2 : ℝ) * (rcorner + 3) ≤ 1.8535534 := by linarith
+    have hbn : (0 : ℝ) ≤ (1 / 2 : ℝ) * (rcorner + 3) := by linarith
+    have h := mul_le_mul hv0hi hb hbn (by norm_num : (0 : ℝ) ≤ 0.644935)
+    norm_num at h
+    linarith
+  have hp1 : (0.0351331 : ℝ) ≤ vcoeff 1 * ((1 / 4 : ℝ) * (rcorner + 1)) := by
+    have hb : (0.4267766 : ℝ) ≤ (1 / 4 : ℝ) * (rcorner + 1) := by linarith
+    have h := mul_le_mul hv1lo hb (by norm_num : (0 : ℝ) ≤ (0.4267766 : ℝ))
+      (by linarith : (0 : ℝ) ≤ vcoeff 1)
+    norm_num at h
+    linarith
+  have hp2 : (0.0080188 : ℝ) ≤ vcoeff 2 * ((1 / 8 : ℝ) * (rcorner + 3)) := by
+    have hb : (0.4633883 : ℝ) ≤ (1 / 8 : ℝ) * (rcorner + 3) := by linarith
+    have h := mul_le_mul hv2lo hb (by norm_num : (0 : ℝ) ≤ (0.4633883 : ℝ))
+      (by linarith : (0 : ℝ) ≤ vcoeff 2)
+    norm_num at h
+    linarith
+  have hp3 : (0.0014476 : ℝ) ≤ vcoeff 3 * ((1 / 16 : ℝ) * (rcorner + 5)) := by
+    have hb : (0.3566941 : ℝ) ≤ (1 / 16 : ℝ) * (rcorner + 5) := by linarith
+    have h := mul_le_mul hv3lo hb (by norm_num : (0 : ℝ) ≤ (0.3566941 : ℝ))
+      (by linarith : (0 : ℝ) ≤ vcoeff 3)
+    norm_num at h
+    linarith
+  have hp4 : (0.0002352 : ℝ) ≤ vcoeff 4 * ((1 / 32 : ℝ) * (rcorner + 7)) := by
+    have hb : (0.2408470 : ℝ) ≤ (1 / 32 : ℝ) * (rcorner + 7) := by linarith
+    have h := mul_le_mul hv4lo hb (by norm_num : (0 : ℝ) ≤ (0.2408470 : ℝ))
+      (by linarith : (0 : ℝ) ≤ vcoeff 4)
+    norm_num at h
+    linarith
+  rw [Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_succ,
+    Finset.sum_range_zero]
+  norm_num only
+  rw [e1, e2, e3, e4, e0]
+  linarith
+
+/-- **`(2/π) ζ(2) + h(1/√2) + h'(1/√2) ≤ 1.78`**, the paper's `1.77963…`. -/
+theorem numeric_bound (hcs : CotangentSeries.v1.cot_series_zeta_values) :
+    (2 / Real.pi) * zetaReal 2 + hreal rcorner + hderivReal rcorner ≤ 1.78 := by
+  have hpipos : (0 : ℝ) < Real.pi := Real.pi_pos
+  have hpi1 : (3.141592 : ℝ) < Real.pi := Real.pi_gt_d6
+  have hpi2 : Real.pi < 3.141593 := Real.pi_lt_d6
+  have hsq2 : Real.pi ^ 2 < 9.86961 := by nlinarith
+  have key := hreal_add_hderivReal_le_partial hcs 4
+  have hstep : hreal rcorner + hderivReal rcorner ≤ (2 / Real.pi) * 1.15059 :=
+    le_trans key (mul_le_mul_of_nonneg_left bracket_le (by positivity))
+  have hz2 : (2 / Real.pi) * zetaReal 2 = Real.pi / 3 := by
+    rw [zetaReal_two_eq]
+    field_simp
+    ring
+  have hlast : (2 / Real.pi) * 1.15059 ≤ 1.78 - Real.pi / 3 := by
+    rw [show (2 / Real.pi) * (1.15059 : ℝ) = (2 * 1.15059) / Real.pi by ring,
+      div_le_iff₀ hpipos]
+    nlinarith
+  rw [hz2]
+  linarith
+
+/-- **`|A'(z)| ≤ 1.78` on the rectangle** `[0,½] × [-½,½]`, minus the origin.
+
+The paper's `1.77963… < 1.78`. Everything of `lem:sibelius` (c) that is about `A'` ends here; what
+remains is to integrate it. -/
+theorem norm_deriv_Acomp_le_const
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {z : ℂ} (hz : z ≠ 0) (hx0 : 0 ≤ z.re) (hx : z.re ≤ 1 / 2) (hy : |z.im| ≤ 1 / 2) :
+    ‖deriv Acomp z‖ ≤ 1.78 :=
+  le_trans (norm_deriv_Acomp_le hcs hz hx0 hx hy) (numeric_bound hcs)
 
 end CH2Section7
