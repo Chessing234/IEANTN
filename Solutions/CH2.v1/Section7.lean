@@ -196,4 +196,80 @@ theorem deriv_mul_cot_neg {u : ℝ} (h0 : 0 < u) (hpi : u < Real.pi) :
   have hlt : Real.sin (2 * u) < 2 * u := Real.sin_lt (by linarith)
   linarith [hsin2 ▸ hlt]
 
+/-- `cot' u = -1/sin²u` where `sin u ≠ 0`. Mathlib has no `Real.deriv_cot`, so it is derived from
+the quotient rule and `sin² + cos² = 1`. -/
+theorem hasDerivAt_cot {u : ℝ} (hs : Real.sin u ≠ 0) :
+    HasDerivAt Real.cot (-(1 / Real.sin u ^ 2)) u := by
+  have hq := (Real.hasDerivAt_cos u).div (Real.hasDerivAt_sin u) hs
+  have hval : (-Real.sin u * Real.sin u - Real.cos u * Real.cos u) / Real.sin u ^ 2
+      = -(1 / Real.sin u ^ 2) := by
+    have hpy := Real.sin_sq_add_cos_sq u
+    field_simp
+    nlinarith [hpy]
+  rw [hval] at hq
+  have hfun : Real.cot = Real.cos / Real.sin := by
+    funext x
+    simp [Real.cot_eq_cos_div_sin, Pi.div_apply]
+  rw [hfun]
+  exact hq
+
+/-- **`u cot u` is strictly decreasing on `(0, π)`**, the remaining analytic content of
+`lem:sibelius` (a). -/
+theorem strictAntiOn_mul_cot :
+    StrictAntiOn (fun u : ℝ ↦ u * Real.cot u) (Set.Ioo 0 Real.pi) := by
+  have hsin : ∀ u ∈ Set.Ioo (0 : ℝ) Real.pi, 0 < Real.sin u := fun u hu ↦
+    Real.sin_pos_of_pos_of_lt_pi hu.1 hu.2
+  have hderiv : ∀ u ∈ Set.Ioo (0 : ℝ) Real.pi,
+      HasDerivAt (fun t : ℝ ↦ t * Real.cot t)
+        (1 * Real.cot u + u * -(1 / Real.sin u ^ 2)) u := fun u hu ↦
+    (hasDerivAt_id u).mul (hasDerivAt_cot (hsin u hu).ne')
+  refine strictAntiOn_of_deriv_neg (convex_Ioo _ _) (fun u hu ↦ ?_) (fun u hu ↦ ?_)
+  · exact ((hderiv u hu).differentiableAt).continuousAt.continuousWithinAt
+  · rw [interior_Ioo] at hu
+    rw [(hderiv u hu).deriv]
+    have hs := hsin u hu
+    have hnum := deriv_mul_cot_neg hu.1 hu.2
+    have key : 1 * Real.cot u + u * -(1 / Real.sin u ^ 2)
+        = (Real.sin u * Real.cos u - u) / Real.sin u ^ 2 := by
+      rw [Real.cot_eq_cos_div_sin]
+      field_simp
+      ring
+    rw [key]
+    exact div_neg_of_neg_of_pos hnum (by positivity)
+
+/-- **`lem:sibelius` (a), monotonicity**: `F` is strictly decreasing on `(0,1)`.
+
+`F(x) = (1 - g(π(1-x)))/π` with `g u = u cot u`, so as `x` increases the argument `π(1-x)`
+decreases, `g` of it increases, and `F` decreases.
+
+**Stated on the open interval, where the paper says `(0,1]`, and the difference is a junk value
+rather than a weakening.** `Real.cot 0 = cos 0 / sin 0 = 1/0 = 0` in Lean, so `Fweight 1 = 1/π` —
+whereas the true limit of `F` at `1` is `0`. On `Ioc 0 1` the function would therefore *jump up* at
+the endpoint and `StrictAntiOn` would be false. Any consumer wanting the closed interval must
+either exclude `1` or carry the limit separately. -/
+theorem strictAntiOn_Fweight : StrictAntiOn Fweight (Set.Ioo 0 1) := by
+  intro a ha b hb hab
+  have hpi := Real.pi_pos
+  have hmem : ∀ x ∈ Set.Ioo (0 : ℝ) 1, Real.pi * (1 - x) ∈ Set.Ioo 0 Real.pi := by
+    intro x hx
+    constructor
+    · have : (0 : ℝ) < 1 - x := by linarith [hx.2]
+      positivity
+    · nlinarith [hx.1]
+  have hlt : Real.pi * (1 - b) < Real.pi * (1 - a) := by nlinarith
+  have hg := strictAntiOn_mul_cot (hmem b hb) (hmem a ha) hlt
+  -- `g (π(1-b)) > g (π(1-a))`, and `F = (1 - g)/π` reverses it once more.
+  have hkey : Fweight a - Fweight b
+      = (Real.pi * (1 - b) * Real.cot (Real.pi * (1 - b))
+          - Real.pi * (1 - a) * Real.cot (Real.pi * (1 - a))) / Real.pi := by
+    rw [Fweight, Fweight]
+    field_simp
+    ring
+  have hpos : 0 < Fweight a - Fweight b := by
+    rw [hkey]
+    refine div_pos ?_ hpi
+    simp only at hg
+    linarith
+  linarith
+
 end CH2Section7
