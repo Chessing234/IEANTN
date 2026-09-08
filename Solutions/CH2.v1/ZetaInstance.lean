@@ -749,6 +749,77 @@ theorem linear_mul_exp_neg_le {a b c u : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc 
     _ ≤ a * 1 + b * (1 / c) := by gcongr
     _ = a + b / c := by ring
 
+/-- `u² e^{-cu}` is bounded on `u ≥ 0`, and the bound comes free from the linear case.
+
+The trick is `u² e^{-cu} = (u e^{-(c/2)u})²`: halving the rate turns the square of a product into
+a product of squares, and the inner factor is the linear lemma at `c/2`. Doing it this way avoids
+a second calculus argument. -/
+theorem sq_mul_exp_neg_le {c u : ℝ} (hc : 0 < c) (hu : 0 ≤ u) :
+    u ^ 2 * Real.exp (-(c * u)) ≤ (2 / c) ^ 2 := by
+  have hlin : u * Real.exp (-(c / 2 * u)) ≤ 2 / c := by
+    have h := linear_mul_exp_neg_le (a := 0) (b := 1) (c := c / 2) le_rfl zero_le_one
+      (by linarith) hu
+    simpa using h
+  have hexp : Real.exp (-(c / 2 * u)) ^ 2 = Real.exp (-(c * u)) := by
+    rw [sq, ← Real.exp_add]
+    congr 1
+    ring
+  have hEq : u ^ 2 * Real.exp (-(c * u)) = (u * Real.exp (-(c / 2 * u))) ^ 2 := by
+    rw [mul_pow, hexp]
+  rw [hEq]
+  exact pow_le_pow_left₀ (by positivity) hlin 2
+
+/-- **Quadratic growth is also beaten by `x₀ ^ z` on `Re z ≤ 0`.**
+
+The companion to `exists_bound_of_linear_growth_mul_cpow`, needed because `prop_5_2`'s *second*
+boundedness hypothesis carries an extra factor of `zOf s = (s-1)/(iT)`, which turns the linear
+growth of `F` into quadratic growth. The exponential still wins; this is the lemma that says so.
+
+Expanding `(1 + u + C)²` gives a constant, a linear and a quadratic term, handled by
+`linear_mul_exp_neg_le` and `sq_mul_exp_neg_le` respectively. -/
+theorem exists_bound_of_quadratic_growth_mul_cpow {f : ℂ → ℂ} {S : Set ℂ} {x₀ C : ℝ}
+    (hx₀ : 1 < x₀) (hC : 0 ≤ C) (hS : ∀ z ∈ S, z.re ≤ 0)
+    (hbd : ∀ z ∈ S, ‖f z‖ ≤ C * (1 + ‖z‖) ^ 2) (hIm : ∀ z ∈ S, |z.im| ≤ C) :
+    ∃ M, ∀ z ∈ S, ‖f z * (x₀ : ℂ) ^ z‖ ≤ M := by
+  have hx₀pos : (0 : ℝ) < x₀ := by linarith
+  have hlog : 0 < Real.log x₀ := Real.log_pos hx₀
+  refine ⟨(C * (1 + C) ^ 2 + 2 * C * (1 + C) / Real.log x₀)
+    + C * (2 / Real.log x₀) ^ 2, fun z hz ↦ ?_⟩
+  have hre : z.re ≤ 0 := hS z hz
+  set u : ℝ := -z.re with hu_def
+  have hu : 0 ≤ u := by rw [hu_def]; linarith
+  have habs : |z.re| = u := by rw [hu_def, abs_of_nonpos hre]
+  have hnorm : ‖z‖ ≤ u + C := by
+    refine (Complex.norm_le_abs_re_add_abs_im z).trans ?_
+    rw [habs]
+    linarith [hIm z hz]
+  -- `C (1 + ‖z‖)² ≤ C(1+C)² + 2C(1+C) u + C u²`.
+  have hfz : ‖f z‖ ≤ C * (1 + C) ^ 2 + 2 * C * (1 + C) * u + C * u ^ 2 := by
+    refine (hbd z hz).trans ?_
+    have h1 : (1 : ℝ) + ‖z‖ ≤ 1 + C + u := by linarith
+    have h0 : (0 : ℝ) ≤ 1 + ‖z‖ := by positivity
+    have hsq : (1 + ‖z‖) ^ 2 ≤ (1 + C + u) ^ 2 := pow_le_pow_left₀ h0 h1 2
+    calc C * (1 + ‖z‖) ^ 2 ≤ C * (1 + C + u) ^ 2 := mul_le_mul_of_nonneg_left hsq hC
+      _ = C * (1 + C) ^ 2 + 2 * C * (1 + C) * u + C * u ^ 2 := by ring
+  have hcpow : ‖(x₀ : ℂ) ^ z‖ = Real.exp (-(Real.log x₀ * u)) := by
+    rw [Complex.norm_cpow_eq_rpow_re_of_pos hx₀pos, Real.rpow_def_of_pos hx₀pos]
+    congr 1
+    rw [hu_def]; ring
+  rw [norm_mul, hcpow]
+  have hexp_nonneg : (0 : ℝ) ≤ Real.exp (-(Real.log x₀ * u)) := (Real.exp_pos _).le
+  calc ‖f z‖ * Real.exp (-(Real.log x₀ * u))
+      ≤ (C * (1 + C) ^ 2 + 2 * C * (1 + C) * u + C * u ^ 2)
+          * Real.exp (-(Real.log x₀ * u)) := mul_le_mul_of_nonneg_right hfz hexp_nonneg
+    _ = (C * (1 + C) ^ 2 + 2 * C * (1 + C) * u) * Real.exp (-(Real.log x₀ * u))
+          + C * (u ^ 2 * Real.exp (-(Real.log x₀ * u))) := by ring
+    _ ≤ (C * (1 + C) ^ 2 + 2 * C * (1 + C) / Real.log x₀) + C * (2 / Real.log x₀) ^ 2 := by
+        have h1 := linear_mul_exp_neg_le (a := C * (1 + C) ^ 2) (b := 2 * C * (1 + C))
+          (c := Real.log x₀) (by positivity) (by positivity) hlog hu
+        have h2 := sq_mul_exp_neg_le hlog hu
+        have h3 : C * (u ^ 2 * Real.exp (-(Real.log x₀ * u))) ≤ C * (2 / Real.log x₀) ^ 2 :=
+          mul_le_mul_of_nonneg_left h2 hC
+        linarith
+
 /-- **A function of at most linear growth, damped by `x₀ ^ s` with `x₀ > 1`, is bounded on any set
 in the closed left half-plane of bounded height.**
 
@@ -1517,5 +1588,83 @@ theorem isBoundedNoPolesOn_ladder
   exact isBoundedNoPolesOn_union
     (isBoundedNoPolesOn_nearLadder hTfree hδfree (by linarith : (0:ℝ) < x₀))
     (isBoundedNoPolesOn_farLadder hfe hdig hσ hTfree hδfree hx₀)
+
+/-- `‖zOf z‖ ≤ (1 + ‖z‖)/T`: the weight is linear, which is what turns `F`'s linear growth into
+quadratic growth and forces `exists_bound_of_quadratic_growth_mul_cpow`. -/
+theorem norm_zOf_le (l : CH2.LadderParams) (z : ℂ) : ‖l.zOf z‖ ≤ (1 + ‖z‖) / l.T := by
+  have hT : 0 < l.T := l.hT
+  have hnum : ‖z - 1‖ ≤ 1 + ‖z‖ := by
+    refine (norm_sub_le z 1).trans ?_
+    simp [add_comm]
+  have hden : ‖Complex.I * (l.T : ℂ)‖ = l.T := by
+    rw [norm_mul, Complex.norm_I, one_mul, Complex.norm_real, Real.norm_of_nonneg hT.le]
+  show ‖(z - 1) / (Complex.I * (l.T : ℂ))‖ ≤ (1 + ‖z‖) / l.T
+  rw [norm_div, hden]
+  gcongr
+
+/-- **The far half of `prop_5_2`'s second boundedness hypothesis.** -/
+theorem isBoundedNoPolesOn_farLadder_weighted
+    (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    (hdig : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta)
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {x₀ : ℝ} (hx₀ : 1 < x₀) :
+    CH2.IsBoundedNoPolesOn (fun s ↦ l.zOf s * F s * (x₀ : ℂ) ^ s)
+      ((l.Rboundary ∪ l.admissible_contour ∪ l.L) ∩ {z : ℂ | z.re ≤ -1}) := by
+  have hT : 0 < l.T := l.hT
+  set S : Set ℂ := (l.Rboundary ∪ l.admissible_contour ∪ l.L) ∩ {z : ℂ | z.re ≤ -1} with hS_def
+  have hSre : ∀ z ∈ S, z.re ≤ -1 := fun z hz ↦ hz.2
+  have hSim : ∀ z ∈ S, |z.im| ≤ l.T := fun z hz ↦ abs_im_le_T_of_mem_ladder hz.1
+  obtain ⟨B, hB, hBd⟩ := exists_tan_bound_on_farLadder l hσ
+  have hcos : ∀ z ∈ S, Complex.cos ((Real.pi : ℂ) * (1 - z) / 2) ≠ 0 := fun z hz ↦
+    cos_ne_zero_on_farLadder hσ hz.1 hz.2
+  have htan : ∀ z ∈ S, ‖Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖ ≤ B := fun z hz ↦
+    hBd z hz.1 hz.2
+  obtain ⟨C, hC, hCd⟩ := norm_F_le_linear hfe hdig hB hSre hSim hcos htan
+  set C' : ℝ := max (C / l.T) l.T with hC'_def
+  have hC' : 0 ≤ C' := le_trans (div_nonneg hC hT.le) (le_max_left _ _)
+  have hbd : ∀ z ∈ S, ‖l.zOf z * F z‖ ≤ C' * (1 + ‖z‖) ^ 2 := by
+    intro z hz
+    have hnn : (0 : ℝ) ≤ 1 + ‖z‖ := by positivity
+    rw [norm_mul]
+    calc ‖l.zOf z‖ * ‖F z‖ ≤ ((1 + ‖z‖) / l.T) * (C * (1 + ‖z‖)) :=
+          mul_le_mul (norm_zOf_le l z) (hCd z hz) (norm_nonneg _) (by positivity)
+      _ = (C / l.T) * (1 + ‖z‖) ^ 2 := by field_simp
+      _ ≤ C' * (1 + ‖z‖) ^ 2 :=
+          mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity)
+  have hIm : ∀ z ∈ S, |z.im| ≤ C' := fun z hz ↦ le_trans (hSim z hz) (le_max_right _ _)
+  obtain ⟨M, hM⟩ := exists_bound_of_quadratic_growth_mul_cpow hx₀ hC'
+    (fun z hz ↦ by linarith [hSre z hz]) hbd hIm
+  refine ⟨M, fun z hz ↦ ⟨hM z hz, ?_⟩⟩
+  exact meromorphicOrderAt_nonneg_of_analyticAt
+    (((analyticAt_zOf l z).mul (analyticAt_F_of_mem_farLadder hσ hTfree hδfree hz.1 hz.2)).mul
+      (analyticAt_const_cpow (by linarith : (0:ℝ) < x₀) z))
+
+/-- **`prop_5_2`'s second boundedness hypothesis, closed.**
+
+With this, both boundedness hypotheses are discharged and three of the five outstanding ones are
+gone. What remains is `hfin` and the two `HasSimplePolesOn` conditions, which are about the
+PRODUCT `Φ_λ(zOf s) · F s · x ^ s` rather than about `F`. -/
+theorem isBoundedNoPolesOn_ladder_weighted
+    (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    (hdig : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta)
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {x₀ : ℝ} (hx₀ : 1 < x₀) :
+    CH2.IsBoundedNoPolesOn (fun s ↦ l.zOf s * F s * (x₀ : ℂ) ^ s)
+      (l.Rboundary ∪ l.admissible_contour ∪ l.L) := by
+  have hcover : (l.Rboundary ∪ l.admissible_contour ∪ l.L)
+      ⊆ nearLadder l.T l.δ ∪
+        ((l.Rboundary ∪ l.admissible_contour ∪ l.L) ∩ {z : ℂ | z.re ≤ -1}) := by
+    intro z hz
+    rcases le_or_gt (-1 : ℝ) z.re with h | h
+    · exact Or.inl (nearLadder_covers hσ ⟨hz, h⟩)
+    · exact Or.inr ⟨hz, le_of_lt h⟩
+  refine isBoundedNoPolesOn_mono ?_ hcover
+  exact isBoundedNoPolesOn_union
+    (isBoundedNoPolesOn_nearLadder_weighted hTfree hδfree (by linarith : (0:ℝ) < x₀))
+    (isBoundedNoPolesOn_farLadder_weighted hfe hdig hσ hTfree hδfree hx₀)
 
 end CH2ZetaInstance
