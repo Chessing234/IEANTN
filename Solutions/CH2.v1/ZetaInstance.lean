@@ -1116,6 +1116,166 @@ theorem isBoundedNoPolesOn_nearLadder_weighted {l : CH2.LadderParams}
     (fun z hz ↦ ((analyticAt_zOf l z).mul
       (analyticAt_F_of_mem_nearLadder hTfree hδfree hz)).mul (analyticAt_const_cpow hx₀ z))
 
+/-! ### The far part of the ladder, `Re z ≤ -1`
+
+Here the set is unbounded and compactness is no help; what applies instead is `norm_F_le_linear`,
+whose two side conditions are that the cosine does not vanish and the tangent is bounded. Both
+split the same way, and the split is the reason `norm_tan_le_one_of_sin_re_eq_zero` had to exist:
+
+* on the two horizontal rays and the contour ray, `Im z` is pinned to `±T` or `δ`, all non-zero,
+  so `norm_tan_le_of_im_ne_zero` applies and the bound depends on the height;
+* on the columns, `Im z` ranges over `[-T, T]` and passes through zero, where that bound is
+  infinite — but the column's abscissa puts the argument's real part at a multiple of `π`, and the
+  bound is `1`. -/
+
+/-- `cos w ≠ 0` off the real axis: `‖cos w‖² = cos²(Re w) + sinh²(Im w)` and the second term is
+positive. -/
+lemma cos_ne_zero_of_im_ne_zero {w : ℂ} (h : w.im ≠ 0) : Complex.cos w ≠ 0 := by
+  intro hc
+  have hnorm := norm_cos_sq w
+  rw [hc] at hnorm
+  have hs : Real.sinh w.im ≠ 0 := fun hz ↦ h (by simpa using Real.sinh_eq_zero.mp hz)
+  have hpos : 0 < Real.sinh w.im ^ 2 := by positivity
+  simp only [norm_zero] at hnorm
+  nlinarith [sq_nonneg (Real.cos w.re)]
+
+/-- The bound `norm_tan_le_of_im_ne_zero` supplies, as a function of the height. -/
+noncomputable def tanBound (y : ℝ) : ℝ := Real.cosh y / |Real.sinh y|
+
+lemma tanBound_nonneg (y : ℝ) : 0 ≤ tanBound y :=
+  div_nonneg (Real.cosh_pos y).le (abs_nonneg _)
+
+lemma tanBound_neg (y : ℝ) : tanBound (-y) = tanBound y := by
+  simp [tanBound, Real.cosh_neg, Real.sinh_neg, abs_neg]
+
+/-- The imaginary part of the argument the functional equation puts the tangent at. -/
+lemma im_pi_one_sub_div_two (z : ℂ) :
+    ((Real.pi : ℂ) * (1 - z) / 2).im = -(Real.pi / 2 * z.im) := by
+  have hEq : (Real.pi : ℂ) * (1 - z) / 2 = ((Real.pi / 2 : ℝ) : ℂ) * (1 - z) := by
+    push_cast; ring
+  rw [hEq]
+  simp only [Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, Complex.sub_im,
+    Complex.one_im, Complex.sub_re, Complex.one_re]
+  ring
+
+/-- Membership in the far part forces `z` onto a ray at fixed non-zero height, or onto a column. -/
+theorem farLadder_cases {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta) {z : ℂ}
+    (hz : z ∈ l.Rboundary ∪ l.admissible_contour ∪ l.L) (hre : z.re ≤ -1) :
+    (z.im = l.T ∨ z.im = -l.T ∨ z.im = l.δ) ∨ ∃ n : ℕ, 1 ≤ n ∧ z.re = sigmaZeta n := by
+  have hT : 0 < l.T := l.hT
+  rcases hz with (hb | hc) | hl
+  · simp only [CH2.LadderParams.Rboundary, Set.mem_setOf_eq] at hb
+    rcases hb with ⟨hre1, _⟩ | ⟨_, him⟩
+    · exfalso; rw [hre1] at hre; linarith
+    · rcases abs_eq hT.le |>.mp him with h | h
+      · exact Or.inl (Or.inl h)
+      · exact Or.inl (Or.inr (Or.inl h))
+  · simp only [CH2.LadderParams.admissible_contour, Set.mem_setOf_eq] at hc
+    rcases hc with ⟨_, him⟩ | ⟨hre1, _⟩
+    · exact Or.inl (Or.inr (Or.inr him))
+    · exfalso; rw [hre1] at hre; linarith
+  · simp only [CH2.LadderParams.L, Set.mem_setOf_eq] at hl
+    obtain ⟨n, hn, hrn, _⟩ := hl
+    rw [hσ] at hrn
+    exact Or.inr ⟨n, hn, hrn⟩
+
+/-- **The cosine does not vanish on the far part.** -/
+theorem cos_ne_zero_on_farLadder {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta) {z : ℂ}
+    (hz : z ∈ l.Rboundary ∪ l.admissible_contour ∪ l.L) (hre : z.re ≤ -1) :
+    Complex.cos ((Real.pi : ℂ) * (1 - z) / 2) ≠ 0 := by
+  have hT : 0 < l.T := l.hT
+  have hδ0 : 0 < l.δ := l.hδ.1
+  have hpi := Real.pi_pos
+  rcases farLadder_cases hσ hz hre with (him | him | him) | ⟨n, hn, hrn⟩
+  · refine cos_ne_zero_of_im_ne_zero ?_
+    rw [im_pi_one_sub_div_two, him]; intro h; nlinarith [h]
+  · refine cos_ne_zero_of_im_ne_zero ?_
+    rw [im_pi_one_sub_div_two, him]; intro h; nlinarith [h]
+  · refine cos_ne_zero_of_im_ne_zero ?_
+    rw [im_pi_one_sub_div_two, him]; intro h; nlinarith [h]
+  · exact cos_ne_zero_on_column hrn
+
+/-- **The tangent is bounded on the far part**, by a constant depending only on the ladder.
+
+Existential rather than explicit: `norm_F_le_linear` consumes a bound and does not care which, and
+naming `max (coth (πT/2)) (max (coth (πδ/2)) 1)` in the statement would commit to an ordering of
+the three that would then have to be proved. -/
+theorem exists_tan_bound_on_farLadder (l : CH2.LadderParams) (hσ : l.σ = sigmaZeta) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ z ∈ l.Rboundary ∪ l.admissible_contour ∪ l.L, z.re ≤ -1 →
+      ‖Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖ ≤ B := by
+  have hT : 0 < l.T := l.hT
+  have hδ0 : 0 < l.δ := l.hδ.1
+  have hpi := Real.pi_pos
+  refine ⟨max (tanBound (Real.pi / 2 * l.T)) (max (tanBound (Real.pi / 2 * l.δ)) 1),
+    le_trans (tanBound_nonneg _) (le_max_left _ _), fun z hz hre ↦ ?_⟩
+  have hray : ∀ y : ℝ, y ≠ 0 → ((Real.pi : ℂ) * (1 - z) / 2).im = -(Real.pi / 2 * y) →
+      ‖Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖ ≤ tanBound (Real.pi / 2 * y) := by
+    intro y hy him
+    have hne : ((Real.pi : ℂ) * (1 - z) / 2).im ≠ 0 := by
+      rw [him]
+      intro h
+      have : Real.pi / 2 * y = 0 := by linarith
+      rcases mul_eq_zero.mp this with h' | h'
+      · linarith
+      · exact hy h'
+    have hb := norm_tan_le_of_im_ne_zero hne
+    rwa [him, show Real.cosh (-(Real.pi / 2 * y)) / |Real.sinh (-(Real.pi / 2 * y))|
+      = tanBound (Real.pi / 2 * y) from by
+        rw [← tanBound_neg (Real.pi / 2 * y)]; rfl] at hb
+  rcases farLadder_cases hσ hz hre with (him | him | him) | ⟨n, hn, hrn⟩
+  · exact le_trans (hray l.T hT.ne' (by rw [im_pi_one_sub_div_two, him])) (le_max_left _ _)
+  · refine le_trans (hray (-l.T) (by simpa using hT.ne') ?_) ?_
+    · rw [im_pi_one_sub_div_two, him]
+    · rw [show Real.pi / 2 * -l.T = -(Real.pi / 2 * l.T) from by ring, tanBound_neg]
+      exact le_max_left _ _
+  · exact le_trans (hray l.δ hδ0.ne' (by rw [im_pi_one_sub_div_two, him]))
+      (le_trans (le_max_left _ _) (le_max_right _ _))
+  · exact le_trans (norm_tan_le_one_on_column hrn)
+      (le_trans (le_max_right _ _) (le_max_right _ _))
+
+/-- The whole ladder lies within height `T`. Immediate from the definitions, but it is what pays
+for `GammaAsymptotics.v2` being the strip version rather than the half-plane one. -/
+theorem abs_im_le_T_of_mem_ladder {l : CH2.LadderParams} {z : ℂ}
+    (hz : z ∈ l.Rboundary ∪ l.admissible_contour ∪ l.L) : |z.im| ≤ l.T := by
+  have hT : 0 < l.T := l.hT
+  have hδ0 : 0 < l.δ := l.hδ.1
+  have hδT : l.δ < l.T / 4 := l.hδ.2
+  rcases hz with (hb | hc) | hl
+  · simp only [CH2.LadderParams.Rboundary, Set.mem_setOf_eq] at hb
+    rcases hb with ⟨_, him⟩ | ⟨_, him⟩
+    · exact him
+    · exact him.le
+  · simp only [CH2.LadderParams.admissible_contour, Set.mem_setOf_eq] at hc
+    rcases hc with ⟨_, him⟩ | ⟨_, him⟩
+    · rw [him, abs_of_pos hδ0]; linarith
+    · rw [abs_le]; constructor <;> [linarith [him.1]; linarith [him.2]]
+  · simp only [CH2.LadderParams.L, Set.mem_setOf_eq] at hl
+    obtain ⟨_, _, _, him⟩ := hl
+    exact him
+
+lemma meromorphicOrderAt_nonneg_of_analyticAt {f : ℂ → ℂ} {z : ℂ} (h : AnalyticAt ℂ f z) :
+    0 ≤ meromorphicOrderAt f z := by
+  rw [h.meromorphicOrderAt_eq]
+  exact ENat.map_natCast_nonneg
+
+/-- **`F` is analytic on the far part**, for the same reasons as on the near part but read off
+`farLadder_cases` instead of the boxes. -/
+theorem analyticAt_F_of_mem_farLadder {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta)
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {z : ℂ} (hz : z ∈ l.Rboundary ∪ l.admissible_contour ∪ l.L) (hre : z.re ≤ -1) :
+    AnalyticAt ℂ F z := by
+  have hT : 0 < l.T := l.hT
+  have hδ0 : 0 < l.δ := l.hδ.1
+  have hz1 : z ≠ 1 := by
+    intro h; rw [h] at hre; simp only [Complex.one_re] at hre; linarith
+  rcases farLadder_cases hσ hz hre with (him | him | him) | ⟨n, hn, hrn⟩
+  · exact analyticAt_F_of_zeta_ne_zero hz1 (fun hc ↦ hTfree z hc (by rw [him, abs_of_pos hT]))
+  · exact analyticAt_F_of_zeta_ne_zero hz1
+      (fun hc ↦ hTfree z hc (by rw [him, abs_neg, abs_of_pos hT]))
+  · exact analyticAt_F_of_zeta_ne_zero hz1 (fun hc ↦ hδfree z hc (by rw [him, abs_of_pos hδ0]))
+  · exact analyticAt_F_of_zeta_ne_zero hz1 (riemannZeta_ne_zero_on_column hn hrn)
+
 /-! ### The growth bound on `F`
 
 The last estimate. Everything it consumes is now proved: the ladder-form identity, boundedness of
@@ -1282,5 +1442,80 @@ theorem norm_F_le_linear
   have hLdef : ‖Complex.log (2 * (Real.pi : ℂ))‖ = L := hL_def.symm
   rw [hLdef, hK_def]
   nlinarith [hX, hdg, hT, hinv, hznn, norm_nonneg (Complex.log (2 * (Real.pi : ℂ)))]
+
+/-! ### Assembling the far half
+
+Placed here rather than beside the near half because it consumes `norm_F_le_linear`,
+which is the last estimate in the file. -/
+
+/-- **The far half of `prop_5_2`'s first boundedness hypothesis.**
+
+The two estimates meet here: `norm_F_le_linear` gives `‖F z‖ = O(1 + ‖z‖)` from the functional
+equation and the digamma bound, and `exists_bound_of_linear_growth_mul_cpow` turns that into a
+genuine bound once multiplied by `x₀ ^ z`, because `Re z ≤ 0` makes that factor decay
+exponentially and beat any linear growth.
+
+The two lemmas share a constant, so one that serves both is taken: `max C l.T`, which is at least
+the growth constant and at least the height. -/
+theorem isBoundedNoPolesOn_farLadder
+    (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    (hdig : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta)
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {x₀ : ℝ} (hx₀ : 1 < x₀) :
+    CH2.IsBoundedNoPolesOn (fun s ↦ F s * (x₀ : ℂ) ^ s)
+      ((l.Rboundary ∪ l.admissible_contour ∪ l.L) ∩ {z : ℂ | z.re ≤ -1}) := by
+  have hT : 0 < l.T := l.hT
+  set S : Set ℂ := (l.Rboundary ∪ l.admissible_contour ∪ l.L) ∩ {z : ℂ | z.re ≤ -1} with hS_def
+  have hSre : ∀ z ∈ S, z.re ≤ -1 := fun z hz ↦ hz.2
+  have hSim : ∀ z ∈ S, |z.im| ≤ l.T := fun z hz ↦ abs_im_le_T_of_mem_ladder hz.1
+  obtain ⟨B, hB, hBd⟩ := exists_tan_bound_on_farLadder l hσ
+  have hcos : ∀ z ∈ S, Complex.cos ((Real.pi : ℂ) * (1 - z) / 2) ≠ 0 := fun z hz ↦
+    cos_ne_zero_on_farLadder hσ hz.1 hz.2
+  have htan : ∀ z ∈ S, ‖Complex.tan ((Real.pi : ℂ) * (1 - z) / 2)‖ ≤ B := fun z hz ↦
+    hBd z hz.1 hz.2
+  obtain ⟨C, hC, hCd⟩ := norm_F_le_linear hfe hdig hB hSre hSim hcos htan
+  -- One constant for both lemmas.
+  set C' : ℝ := max C l.T with hC'_def
+  have hC' : 0 ≤ C' := le_trans hC (le_max_left _ _)
+  have hbd : ∀ z ∈ S, ‖F z‖ ≤ C' * (1 + ‖z‖) := by
+    intro z hz
+    refine le_trans (hCd z hz) ?_
+    have h1 : (0 : ℝ) ≤ 1 + ‖z‖ := by positivity
+    exact mul_le_mul_of_nonneg_right (le_max_left _ _) h1
+  have hIm : ∀ z ∈ S, |z.im| ≤ C' := fun z hz ↦ le_trans (hSim z hz) (le_max_right _ _)
+  obtain ⟨M, hM⟩ := exists_bound_of_linear_growth_mul_cpow hx₀ hC'
+    (fun z hz ↦ by linarith [hSre z hz]) hbd hIm
+  refine ⟨M, fun z hz ↦ ⟨hM z hz, ?_⟩⟩
+  exact meromorphicOrderAt_nonneg_of_analyticAt
+    ((analyticAt_F_of_mem_farLadder hσ hTfree hδfree hz.1 hz.2).mul
+      (analyticAt_const_cpow (by linarith : (0:ℝ) < x₀) z))
+
+/-- **`prop_5_2`'s first boundedness hypothesis, closed.**
+
+The two halves meet: every point of the ladder has `Re z ≥ -1` or `Re z ≤ -1`, the first lands in
+`nearLadder` by `nearLadder_covers` and is handled by compactness, the second by the growth bound.
+This is the first of `prop_5_2`'s five outstanding hypotheses to be discharged outright. -/
+theorem isBoundedNoPolesOn_ladder
+    (hfe : ZetaLogDeriv.v1.logDeriv_functional_equation)
+    (hdig : GammaAsymptotics.v2.digamma_sub_log_isBigO_strip)
+    {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta)
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {x₀ : ℝ} (hx₀ : 1 < x₀) :
+    CH2.IsBoundedNoPolesOn (fun s ↦ F s * (x₀ : ℂ) ^ s)
+      (l.Rboundary ∪ l.admissible_contour ∪ l.L) := by
+  have hcover : (l.Rboundary ∪ l.admissible_contour ∪ l.L)
+      ⊆ nearLadder l.T l.δ ∪
+        ((l.Rboundary ∪ l.admissible_contour ∪ l.L) ∩ {z : ℂ | z.re ≤ -1}) := by
+    intro z hz
+    rcases le_or_gt (-1 : ℝ) z.re with h | h
+    · exact Or.inl (nearLadder_covers hσ ⟨hz, h⟩)
+    · exact Or.inr ⟨hz, le_of_lt h⟩
+  refine isBoundedNoPolesOn_mono ?_ hcover
+  exact isBoundedNoPolesOn_union
+    (isBoundedNoPolesOn_nearLadder hTfree hδfree (by linarith : (0:ℝ) < x₀))
+    (isBoundedNoPolesOn_farLadder hfe hdig hσ hTfree hδfree hx₀)
 
 end CH2ZetaInstance
