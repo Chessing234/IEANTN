@@ -346,4 +346,45 @@ theorem hasSum_inv_pi_mul_sub_cot
   rw [hfun, ← hval]
   exact h.div_const _
 
+/-! ### Part (c): the function `A(z) = F(z) - 1/(πz)`
+
+`lem:sibelius` (c) bounds `A` and its variation off the real axis. Its first move is to factor `A`
+through the `f` whose Taylor series is now available:
+
+  `A(z) = -(1-z) f(z)`,   `f(z) = 1/(πz) - cot πz`.
+
+The factorisation is pure algebra once `cot π(1-z) = -cot πz` is available on `ℂ`, and it is what
+turns a statement about `A` into one about a series with non-negative coefficients.
+
+Part (b) needs this too: its case `0 < x ≤ 1/2` is (c) plus `|1/(x+iy) - 1/x| = |y|/(x|x+iy|)`.
+Only the case `1/2 ≤ x ≤ 1` needs `lem:cothder` and Phragmén–Lindelöf. -/
+
+/-- `cot (π - w) = -cot w` on `ℂ`. -/
+theorem Complex.cot_pi_sub (w : ℂ) : Complex.cot ((Real.pi : ℂ) - w) = -Complex.cot w := by
+  rw [Complex.cot_eq_cos_div_sin, Complex.cot_eq_cos_div_sin]
+  rw [show ((Real.pi : ℂ) - w) = ((Real.pi : ℝ) : ℂ) - w from rfl]
+  rw [Complex.sin_pi_sub, Complex.cos_pi_sub]
+  ring
+
+/-- `F(z) = 1/π + (1-z) cot πz`, the reflected form. -/
+theorem Fc_eq_add (z : ℂ) :
+    Fc z = 1 / (Real.pi : ℂ) + (1 - z) * Complex.cot ((Real.pi : ℂ) * z) := by
+  have h : (Real.pi : ℂ) * (1 - z) = (Real.pi : ℂ) - (Real.pi : ℂ) * z := by ring
+  rw [Fc, h, Complex.cot_pi_sub]
+  ring
+
+/-- `A(z) = F(z) - 1/(πz)`, the object part (c) is about. -/
+noncomputable def Acomp (z : ℂ) : ℂ := Fc z - 1 / ((Real.pi : ℂ) * z)
+
+/-- **`A(z) = -(1-z) f(z)`** with `f(z) = 1/(πz) - cot πz`.
+
+The two `1/(πz)` terms cancel against the constant `1/π`, which is why the factorisation is exact
+rather than approximate. -/
+theorem Acomp_eq {z : ℂ} (hz : z ≠ 0) :
+    Acomp z = -(1 - z) * (1 / ((Real.pi : ℂ) * z) - Complex.cot ((Real.pi : ℂ) * z)) := by
+  have hpi : ((Real.pi : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  rw [Acomp, Fc_eq_add]
+  field_simp
+  ring
+
 end CH2Section7
