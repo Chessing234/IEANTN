@@ -952,6 +952,170 @@ theorem norm_tan_le_one_on_column {n : ℕ} {z : ℂ} (hz : z.re = sigmaZeta n) 
   rw [hre]
   exact Real.sin_nat_mul_pi n
 
+/-! ### Cutting the ladder at `Re = -1`
+
+`prop_5_2`'s two boundedness hypotheses are about
+`l.Rboundary ∪ l.admissible_contour ∪ l.L`, a set that is neither compact nor contained in the
+region where the growth bound applies. It has to be cut, and `Re z = -1` is where: to the right
+the set is compact, so `isBoundedNoPolesOn_of_isCompact` settles it; to the left `norm_F_le_linear`
+applies, since it wants `Re z ≤ -1`.
+
+The cut is clean because the ladder's first column sits exactly at `Re = -1` (`σ 1 = -1`), so no
+column is split by it — every other column has `Re = 1 - 2n ≤ -3`. -/
+
+/-- The part of the ladder with `Re z ≥ -1`, written as a union of five boxes.
+
+In order: the `Re = 1` segment of `∂R`, the near parts of the two horizontal rays at `|Im| = T`,
+the near part of the contour ray at `Im = δ`, and the first ladder column at `Re = -1`. Four of
+the five are degenerate — a segment rather than a rectangle — which is why `isCompact_box` is
+stated with independent bounds on each coordinate. -/
+def nearLadder (T δ : ℝ) : Set ℂ :=
+  {z : ℂ | 1 ≤ z.re ∧ z.re ≤ 1 ∧ -T ≤ z.im ∧ z.im ≤ T} ∪
+    ({z : ℂ | -1 ≤ z.re ∧ z.re ≤ 1 ∧ T ≤ z.im ∧ z.im ≤ T} ∪
+      ({z : ℂ | -1 ≤ z.re ∧ z.re ≤ 1 ∧ -T ≤ z.im ∧ z.im ≤ -T} ∪
+        ({z : ℂ | -1 ≤ z.re ∧ z.re ≤ 1 ∧ δ ≤ z.im ∧ z.im ≤ δ} ∪
+          {z : ℂ | -1 ≤ z.re ∧ z.re ≤ -1 ∧ -T ≤ z.im ∧ z.im ≤ T})))
+
+lemma isCompact_nearLadder (T δ : ℝ) : IsCompact (nearLadder T δ) :=
+  (isCompact_box 1 1 (-T) T).union ((isCompact_box (-1) 1 T T).union
+    ((isCompact_box (-1) 1 (-T) (-T)).union ((isCompact_box (-1) 1 δ δ).union
+      (isCompact_box (-1) (-1) (-T) T))))
+
+/-- **The cut is a cover**: everything on the ladder with `Re z ≥ -1` lies in one of the boxes.
+
+The only case with any content is `l.L`: a column has `Re = 1 - 2n` with `n ≥ 1`, and
+`1 - 2n ≥ -1` forces `n ≤ 1`, hence `n = 1` and `Re = -1` exactly. Every other column is at
+`Re ≤ -3` and falls on the other side of the cut. -/
+theorem nearLadder_covers {l : CH2.LadderParams} (hσ : l.σ = sigmaZeta) :
+    (l.Rboundary ∪ l.admissible_contour ∪ l.L) ∩ {z : ℂ | -1 ≤ z.re}
+      ⊆ nearLadder l.T l.δ := by
+  have hT : 0 < l.T := l.hT
+  have hδ0 : 0 < l.δ := l.hδ.1
+  have hδT : l.δ < l.T / 4 := l.hδ.2
+  rintro z ⟨hz, hre⟩
+  simp only [Set.mem_setOf_eq] at hre
+  simp only [nearLadder, Set.mem_union, Set.mem_setOf_eq]
+  rcases hz with (hb | hc) | hl
+  · -- `∂R`: the `Re = 1` segment, or a horizontal ray at `|Im| = T`.
+    simp only [CH2.LadderParams.Rboundary, Set.mem_setOf_eq] at hb
+    rcases hb with ⟨hre1, him⟩ | ⟨hre1, him⟩
+    · exact Or.inl ⟨hre1.ge, hre1.le, (abs_le.mp him).1, (abs_le.mp him).2⟩
+    · rcases abs_eq (le_of_lt hT) |>.mp him with h | h
+      · exact Or.inr (Or.inl ⟨hre, hre1, h.ge, h.le⟩)
+      · exact Or.inr (Or.inr (Or.inl ⟨hre, hre1, h.ge, h.le⟩))
+  · -- The contour: the ray at `Im = δ`, or the short segment on `Re = 1`.
+    simp only [CH2.LadderParams.admissible_contour, Set.mem_setOf_eq] at hc
+    rcases hc with ⟨hre1, him⟩ | ⟨hre1, him⟩
+    · exact Or.inr (Or.inr (Or.inr (Or.inl ⟨hre, hre1, him.ge, him.le⟩)))
+    · refine Or.inl ⟨hre1.ge, hre1.le, ?_, ?_⟩
+      · linarith [him.1]
+      · linarith [him.2]
+  · -- A column, and only the first one survives the cut.
+    simp only [CH2.LadderParams.L, Set.mem_setOf_eq] at hl
+    obtain ⟨n, hn, hrn, him⟩ := hl
+    rw [hσ] at hrn
+    have hn1 : n = 1 := by
+      by_contra hne
+      have h2 : 2 ≤ n := lt_of_le_of_ne hn (Ne.symm hne)
+      have : (2 : ℝ) ≤ (n : ℝ) := by exact_mod_cast h2
+      rw [hrn] at hre
+      simp only [sigmaZeta] at hre
+      linarith
+    rw [hn1] at hrn
+    simp only [sigmaZeta, Nat.cast_one] at hrn
+    refine Or.inr (Or.inr (Or.inr (Or.inr ⟨?_, ?_, (abs_le.mp him).1, (abs_le.mp him).2⟩)))
+    · rw [hrn]; norm_num
+    · rw [hrn]; norm_num
+
+/-- `F` is analytic wherever `ζ` does not vanish, away from `s = 1`.
+
+The detour through `ζ₁` is what makes `s = 1` a separate case: `ζ` has a pole there, so the
+zero-transfer lemma excludes it, and `analyticAt_F_one` covers it instead. -/
+lemma analyticAt_F_of_zeta_ne_zero {z : ℂ} (hz1 : z ≠ 1) (h : riemannZeta z ≠ 0) :
+    AnalyticAt ℂ F z :=
+  analyticAt_F (fun hc ↦ h ((riemannZeta_eq_zero_iff_riemannZeta₁ hz1).mpr hc))
+
+/-- **`F` is analytic on the whole near part of the ladder**, which is the second half of
+`IsBoundedNoPolesOn` there and the reason the ladder's parameters were chosen as they were.
+
+One box at a time: `Re = 1` is Mathlib's non-vanishing on the closed half-plane, with `s = 1`
+peeled off; the three degenerate boxes at `|Im| = T` and `Im = δ` are exactly what
+`exists_ordinate_free_height` bought; and the last is the first column, where the parity argument
+of `riemannZeta_ne_zero_on_column` applies.
+
+Note this does NOT need `l.σ = sigmaZeta`, unlike `nearLadder_covers`: the abscissa choice is
+already baked into the boxes, and what is used here is only that `sigmaZeta 1 = -1`. -/
+theorem analyticAt_F_of_mem_nearLadder {l : CH2.LadderParams}
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {z : ℂ} (hz : z ∈ nearLadder l.T l.δ) : AnalyticAt ℂ F z := by
+  have hT : 0 < l.T := l.hT
+  have hδ0 : 0 < l.δ := l.hδ.1
+  simp only [nearLadder, Set.mem_union, Set.mem_setOf_eq] at hz
+  rcases hz with ⟨h1, _, _, _⟩ | ⟨_, _, h3, h4⟩ | ⟨_, _, h3, h4⟩ | ⟨_, _, h3, h4⟩ | ⟨h1, h2, _, _⟩
+  · rcases eq_or_ne z 1 with rfl | hz1
+    · exact analyticAt_F_one
+    · exact analyticAt_F_of_zeta_ne_zero hz1 (riemannZeta_ne_zero_of_one_le_re h1)
+  · have him : z.im = l.T := le_antisymm h4 h3
+    have hz1 : z ≠ 1 := by
+      intro h; rw [h] at him; simp only [Complex.one_im] at him; linarith
+    exact analyticAt_F_of_zeta_ne_zero hz1
+      (fun hc ↦ hTfree z hc (by rw [him, abs_of_pos hT]))
+  · have him : z.im = -l.T := le_antisymm h4 h3
+    have hz1 : z ≠ 1 := by
+      intro h; rw [h] at him; simp only [Complex.one_im] at him; linarith
+    exact analyticAt_F_of_zeta_ne_zero hz1
+      (fun hc ↦ hTfree z hc (by rw [him, abs_neg, abs_of_pos hT]))
+  · have him : z.im = l.δ := le_antisymm h4 h3
+    have hz1 : z ≠ 1 := by
+      intro h; rw [h] at him; simp only [Complex.one_im] at him; linarith
+    exact analyticAt_F_of_zeta_ne_zero hz1
+      (fun hc ↦ hδfree z hc (by rw [him, abs_of_pos hδ0]))
+  · have hre : z.re = sigmaZeta 1 := by
+      have : z.re = -1 := le_antisymm h2 h1
+      rw [this]; norm_num [sigmaZeta]
+    have hz1 : z ≠ 1 := by
+      intro h
+      rw [h] at hre
+      simp only [Complex.one_re, sigmaZeta] at hre
+      norm_num at hre
+    exact analyticAt_F_of_zeta_ne_zero hz1 (riemannZeta_ne_zero_on_column le_rfl hre)
+
+/-- `x₀ ^ s` is entire in `s` for a positive real base. -/
+lemma analyticAt_const_cpow {x₀ : ℝ} (hx₀ : 0 < x₀) (z : ℂ) :
+    AnalyticAt ℂ (fun s : ℂ ↦ (x₀ : ℂ) ^ s) z :=
+  (Differentiable.const_cpow differentiable_id
+    (Or.inl (Complex.ofReal_ne_zero.mpr hx₀.ne'))).analyticAt z
+
+/-- `zOf` is entire: it is `(s - 1)` divided by a constant. -/
+lemma analyticAt_zOf (l : CH2.LadderParams) (z : ℂ) : AnalyticAt ℂ l.zOf z := by
+  have hd : Differentiable ℂ (fun s : ℂ ↦ (s - 1) / (Complex.I * l.T)) :=
+    (differentiable_id.sub_const 1).div_const _
+  exact hd.analyticAt z
+
+/-- **The near half of `prop_5_2`'s first boundedness hypothesis.** -/
+theorem isBoundedNoPolesOn_nearLadder {l : CH2.LadderParams}
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {x₀ : ℝ} (hx₀ : 0 < x₀) :
+    CH2.IsBoundedNoPolesOn (fun s ↦ F s * (x₀ : ℂ) ^ s) (nearLadder l.T l.δ) :=
+  isBoundedNoPolesOn_of_isCompact (isCompact_nearLadder _ _)
+    (fun z hz ↦ (analyticAt_F_of_mem_nearLadder hTfree hδfree hz).mul
+      (analyticAt_const_cpow hx₀ z))
+
+/-- **The near half of `prop_5_2`'s second boundedness hypothesis**, with the extra `zOf` factor.
+
+The factor is entire, so it changes nothing on a compact set — which is the point of stating
+`isBoundedNoPolesOn_of_isCompact` for a general `f` rather than for `F`. -/
+theorem isBoundedNoPolesOn_nearLadder_weighted {l : CH2.LadderParams}
+    (hTfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.T)
+    (hδfree : ∀ z : ℂ, riemannZeta z = 0 → |z.im| ≠ l.δ)
+    {x₀ : ℝ} (hx₀ : 0 < x₀) :
+    CH2.IsBoundedNoPolesOn (fun s ↦ l.zOf s * F s * (x₀ : ℂ) ^ s) (nearLadder l.T l.δ) :=
+  isBoundedNoPolesOn_of_isCompact (isCompact_nearLadder _ _)
+    (fun z hz ↦ ((analyticAt_zOf l z).mul
+      (analyticAt_F_of_mem_nearLadder hTfree hδfree hz)).mul (analyticAt_const_cpow hx₀ z))
+
 /-! ### The growth bound on `F`
 
 The last estimate. Everything it consumes is now proved: the ladder-form identity, boundedness of
