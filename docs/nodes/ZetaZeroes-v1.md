@@ -44,7 +44,7 @@ def no_nontrivial_zeroes_left : Prop :=
 |---|---|
 | Lean name | `ZetaZeroes.v1.no_nontrivial_zeroes_left` |
 | Challenge | `ZetaZeroes.v1.challenge_no_nontrivial_zeroes_left` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L66) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L65) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -72,7 +72,7 @@ def zeroes_off_axis_in_strip : Prop :=
 |---|---|
 | Lean name | `ZetaZeroes.v1.zeroes_off_axis_in_strip` |
 | Challenge | `ZetaZeroes.v1.challenge_zeroes_off_axis_in_strip` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L74) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L73) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -104,7 +104,7 @@ def finite_zeroes_on_compact : Prop :=
 |---|---|
 | Lean name | `ZetaZeroes.v1.finite_zeroes_on_compact` |
 | Challenge | `ZetaZeroes.v1.challenge_finite_zeroes_on_compact` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L86) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L85) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -137,7 +137,7 @@ def exists_ordinate_free_height : Prop :=
 |---|---|
 | Lean name | `ZetaZeroes.v1.exists_ordinate_free_height` |
 | Challenge | `ZetaZeroes.v1.challenge_exists_ordinate_free_height` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L98) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L97) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -154,9 +154,8 @@ def exists_ordinate_free_height : Prop :=
 
 Mathlib defines `riemannZeta₁` in `Mathlib/NumberTheory/Harmonic/ZetaAsymp.lean`, for the asymptotic
 expansion, and never relates it back to `ζ`. Stated here because it is the bridge every argument
-needs that wants to replace `ζ` by
-an entire function — which is to say every argument that wants the identity theorem, since `ζ` has
-a pole and cannot be fed to it.
+needs that wants to replace `ζ` by an entire function — which is to say every argument that wants
+the identity theorem, since `ζ` has a pole and cannot be fed to it.
 
 ```lean
 def zeta_eq_zeta1_div : Prop :=
@@ -167,7 +166,7 @@ def zeta_eq_zeta1_div : Prop :=
 |---|---|
 | Lean name | `ZetaZeroes.v1.zeta_eq_zeta1_div` |
 | Challenge | `ZetaZeroes.v1.challenge_zeta_eq_zeta1_div` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L109) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L107) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
@@ -198,7 +197,7 @@ def zeta_eq_zero_iff_zeta1 : Prop :=
 |---|---|
 | Lean name | `ZetaZeroes.v1.zeta_eq_zero_iff_zeta1` |
 | Challenge | `ZetaZeroes.v1.challenge_zeta_eq_zero_iff_zeta1` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L120) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L118) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
 | Evidence | unjustified (`none-yet`) |
 | Sources traced | none |
