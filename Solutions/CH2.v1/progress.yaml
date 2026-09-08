@@ -106,12 +106,32 @@ stages:
   - stage: "instantiating section 5 at A(s) = -zeta'/zeta"
     files: [ZetaInstance.lean]
     state: >-
-      partial -- three of prop_5_2's five hypotheses closed unconditionally on all of C; of the
-      remaining two, the no-poles half is done, and of the boundedness half the compact pieces and
-      the Re w >= 2 input are done, as are F itself, choosing T and delta off the zero ordinates,
-      the damping estimate for the leftward rays, a concrete LadderParams whose ladder and contour
-      miss every zero, and the linear growth bound on F. NO ESTIMATE REMAINS UNPROVED; what is
-      left is the application of prop_5_2 itself.
+      DONE. Every hypothesis of prop_5_2 is discharged and prop_5_2_zeta applies it at
+      A(s) = -zeta'/zeta with the pole at s = 1 divided out, for any LadderParams whose abscissas
+      are sigmaZeta and whose T and delta miss the zero ordinates -- which exists_ladderParams_zeta
+      supplies.
+    what_it_took: >-
+      Meromorphy and conjugation symmetry came almost free from the port. The other five did not.
+      THE TWO BOUNDEDNESS CONDITIONS needed the ladder cut at Re = -1: to the right it is a union
+      of five boxes, four degenerate, handled by compactness; to the left by the growth bound on F
+      damped by x0^s. The weighted one needed a quadratic version of that damping, since the extra
+      factor zOf s = (s-1)/(iT) turns linear growth into quadratic -- obtained free from the linear
+      case by u^2 exp(-cu) = (u exp(-(c/2)u))^2.
+      THE TWO SIMPLE-POLE CONDITIONS needed the Graham-Vaaler weights to have no poles on R, which
+      holds because zOf pulls their poles back to Re s = 1 + T lam/(2 pi) > 1 -- and that in turn
+      holds because prop_5_2 assumes 0 < lam, which had looked like a free parameter.
+      hsimple additionally forced prop_5_2's own hypothesis to be weakened; see below.
+      hfin needed nothing new: RC removes exactly the real axis, which is where all the trivial
+      zeros of zeta sit, and off the axis the poles lie in a compact band with finitely many.
+    one_edit_to_the_ported_section_5: >-
+      prop_5_2's hsimple hypothesis was stated on l.R and is now on l.Rpos u l.RposBar. It was
+      never CONSUMED outside that set -- it reaches its uses through HasSimplePolesOn.mono onto the
+      upper and lower rectangles, which sit at |Im s| >= delta > 0 -- and on l.R it is not provable
+      by an order computation at all: Phi_lambda contains Real.sign (Re z) and
+      Re (zOf s) = Im s / T, so the integrand is discontinuous across the real axis, hence not
+      meromorphic there, and meromorphicOrderAt returns its junk value 0. Proving the l.R form
+      would have meant establishing a vacuity. Eight binders and two mono proofs changed; no proof
+      body did, and weakening a hypothesis strengthens the theorem.
     note: >-
       Done first because it is the smallest thing that tests whether the section 5 port is USABLE
       rather than merely compiling. It is: ConjSymm falls straight out of the ported
