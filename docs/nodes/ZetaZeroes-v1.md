@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | Kind | standard |
-| Status | awaiting-verification |
+| Status | active |
 | Maintainers | Terence Tao |
 | Licence | Apache-2.0 |
 | Review | self-assessed |
@@ -46,14 +46,19 @@ def no_nontrivial_zeroes_left : Prop :=
 | Challenge | `ZetaZeroes.v1.challenge_no_nontrivial_zeroes_left` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L65) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`ZetaZeroes.v1.no_nontrivial_zeroes_left.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZetaZeroes.v1.no_nontrivial_zeroes_left.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `unjustified`** — **designated** — none-yet
+**Justification `unjustified`** — none-yet
 
 > Imports `none`, and that is a real none: s is universally quantified with every condition a hypothesis, so a Lean proof is the whole justification. THE ROUTE IS THE FUNCTIONAL EQUATION AND NOTHING ELSE. Writing s = 1 - w with Re w > 1, riemannZeta_one_sub expresses zeta(s) as a product of 2, (2 pi)^-w, Gamma(w), cos(pi w/2) and zeta(w). Every factor but the cosine is nonzero for free -- Gamma never vanishes, and zeta(w) is nonzero because Re w > 1 -- so zeta(s) = 0 forces cos(pi w/2) = 0, hence w = 2k+1 and s = -2k, and Re s < 0 makes k positive. That is the trivial zeroes exactly. A PROOF EXISTS ALREADY, inside Solutions/CH2.v1/ZetaInstance as riemannZeta_ne_zero_of_re_neg, written when a ladder argument needed it. This node exists to state it where other consumers can reach it.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065
 
 ### `zeroes_off_axis_in_strip`
 
@@ -74,14 +79,19 @@ def zeroes_off_axis_in_strip : Prop :=
 | Challenge | `ZetaZeroes.v1.challenge_zeroes_off_axis_in_strip` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L73) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`ZetaZeroes.v1.zeroes_off_axis_in_strip.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZetaZeroes.v1.zeroes_off_axis_in_strip.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `unjustified`** — **designated** — none-yet
+**Justification `unjustified`** — none-yet
 
 > The complement of the previous conclusion together with Mathlib's riemannZeta_ne_zero_of_one_le_re: to the right there are no zeroes, to the left the only ones are real, so anything with Im /= 0 is caught in 0 <= Re <= 1. Proved already as re_mem_Icc_of_riemannZeta_eq_zero in Solutions/CH2.v1/ZetaInstance.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065
 
 ### `finite_zeroes_on_compact`
 
@@ -106,14 +116,19 @@ def finite_zeroes_on_compact : Prop :=
 | Challenge | `ZetaZeroes.v1.challenge_finite_zeroes_on_compact` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L85) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`ZetaZeroes.v1.finite_zeroes_on_compact.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZetaZeroes.v1.finite_zeroes_on_compact.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `unjustified`** — **designated** — none-yet
+**Justification `unjustified`** — none-yet
 
 > THE WORKHORSE, and the conclusion that makes a sum over zeroes mean anything. IEANTN.zetaZeroesSum is a tsum, and a tsum of a non-summable family is 0, so a zero-counting argument that never establishes finiteness can be vacuously true rather than false. This is what rules that out. The route is the identity theorem, applied to riemannZeta_1 rather than to zeta -- zeta has a pole at s = 1 and cannot be fed to it on any set containing that point, which is why the hypothesis excludes it. riemannZeta_1 is entire and riemannZeta_1 1 = 1, so its non-vanishing is codiscrete, and a codiscrete set meets a compact set in a finite complement. Proved already as finite_zeros_riemannZeta_of_isCompact in Solutions/CH2.v1/ZetaInstance.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065
 
 ### `exists_ordinate_free_height`
 
@@ -139,14 +154,19 @@ def exists_ordinate_free_height : Prop :=
 | Challenge | `ZetaZeroes.v1.challenge_exists_ordinate_free_height` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L97) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`ZetaZeroes.v1.exists_ordinate_free_height.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZetaZeroes.v1.exists_ordinate_free_height.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `unjustified`** — **designated** — none-yet
+**Justification `unjustified`** — none-yet
 
 > What a contour needs when its horizontal pieces must miss the zeroes and the height is a free parameter. The argument is a counting one: a zero with \|Im z\| in [T0, T0+1] is off the real axis, hence in the closed critical strip, hence in a compact band missing the pole -- of which there are finitely many, and finitely many ordinates cannot exhaust an interval. Note \|Im z\| rather than Im z. A contour has two horizontal pieces and both must miss the zeroes; the zeroes are symmetric about the real axis, so the two demands coincide. Proved already as exists_ordinate_free_height in Solutions/CH2.v1/ZetaInstance.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065
 
 ### `zeta_eq_zeta1_div`
 
@@ -168,14 +188,19 @@ def zeta_eq_zeta1_div : Prop :=
 | Challenge | `ZetaZeroes.v1.challenge_zeta_eq_zeta1_div` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L107) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`ZetaZeroes.v1.zeta_eq_zeta1_div.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZetaZeroes.v1.zeta_eq_zeta1_div.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `unjustified`** — **designated** — none-yet
+**Justification `unjustified`** — none-yet
 
 > Immediate from riemannZeta_eq_inv_sub_add and the definition of riemannZeta_1, and apparently absent from Mathlib, where riemannZeta_1 is never related back to zeta. Stated because it is the bridge every argument needs that wants to replace zeta by an entire function -- which is to say every argument that wants the identity theorem. Proved already as riemannZeta_eq_riemannZeta₁_div in Solutions/CH2.v1/ZetaInstance.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065
 
 ### `zeta_eq_zero_iff_zeta1`
 
@@ -199,14 +224,19 @@ def zeta_eq_zero_iff_zeta1 : Prop :=
 | Challenge | `ZetaZeroes.v1.challenge_zeta_eq_zero_iff_zeta1` |
 | Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ZetaZeroes/v1/Conclusions.lean#L118) |
 | Solution | [`Solutions/ZetaZeroes.v1`](https://github.com/teorth/IEANTN/tree/main/Solutions/ZetaZeroes.v1) |
-| Evidence | unjustified (`none-yet`) |
+| Receipt | [`ZetaZeroes.v1.zeta_eq_zero_iff_zeta1.json`](https://github.com/teorth/IEANTN/blob/main/receipts/ZetaZeroes.v1.zeta_eq_zero_iff_zeta1.json) |
+| Evidence | verified (`lean-comparator`) |
 | Sources traced | none |
 | Assumes | nothing recorded |
 | Assumed by | nothing yet |
 
-**Justification `unjustified`** — **designated** — none-yet
+**Justification `unjustified`** — none-yet
 
 > The form the bridge is usually used in, and a one-line consequence of the previous conclusion. CH2.v1 runs its entire ladder argument on -logDeriv riemannZeta_1 rather than on -zeta'/zeta precisely so that the identity theorem applies, and this is what transfers zero facts between the two. s = 1 is excluded because riemannZeta_1 1 = 1 /= 0 while zeta has a pole there, so the two sides say different things at that one point. Proved already as riemannZeta_eq_zero_iff_riemannZeta₁ in Solutions/CH2.v1/ZetaInstance.
+
+**Justification `comparator`** — **designated** — lean-comparator
+
+> Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/34252215065
 
 ## Limitations
 

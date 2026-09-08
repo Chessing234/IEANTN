@@ -1,0 +1,28 @@
+{
+  "challenge": "ZetaZeroes.v1.challenge_zeta_eq_zero_iff_zeta1",
+  "conclusion": "ZetaZeroes.v1.zeta_eq_zero_iff_zeta1",
+  "environment": {
+    "lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
+    "mathlib_rev": "71a80585ee495fc24472fd0eaffc89d94e4fd8d6"
+  },
+  "repository": {
+    "commit": "5927b0e28364b4baa76ef54553ef95ff5d73eb91"
+  },
+  "run": {
+    "recorded_at": "2026-09-08T17:01:53Z",
+    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/34252215065"
+  },
+  "schema": 2,
+  "solution": {
+    "project": "Solutions/ZetaZeroes.v1"
+  },
+  "statement": {
+    "ZetaZeroes.v1.zeta_eq_zero_iff_zeta1": "ee9115fc5ab28f07cadb9c7f90c7648499786c493ac3c31f2232f099f57e33c7"
+  },
+  "tools": {
+    "comparator": "10dd2b33dc43751af3257f4d684535375306f162",
+    "landrun": "811cfff51ceaf3d9843708aa6d22e9b84ccac8b4",
+    "lean4export": "cacf989bd75f608700820f6afc595f32e7a99a4d",
+    "nanoda": "68d5ca9db226849b41a6fff59d796ff19d0a8840"
+  }
+}
