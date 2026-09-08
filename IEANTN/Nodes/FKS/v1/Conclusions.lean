@@ -76,4 +76,19 @@ re-run. -/
 def psi_classical_bound : Prop :=
   HasClassicalBound Eψ 121.096 (3 / 2) 2 5.5666305 (Real.exp 30)
 
+/-- Rescaling the all-`x` bound into the `R = 5.5666305` shape overshoots the printed `A`.
+
+`9.22022 · R^{3/2} = 121.09602174… > 121.096`. So the printed classical constant is *not*
+the rescaling of Corollary 1.4, and a derivation that treats it as one fails. Recorded as a
+conclusion so the gap is a claim, not only a docstring. -/
+def rescaled_A_exceeds_printed : Prop :=
+  (9.22022 : ℝ) * (5.5666305 : ℝ) ^ ((3 : ℝ) / 2) > 121.096
+
+/-- The matching gap in `C`: `0.8476836 · √R = 1.99999992… < 2`.
+
+A larger `C` is a stronger decay, so the printed `C = 2` is again a strengthening of the
+rescaling, not a rounding of it. -/
+def rescaled_C_is_short_of_two : Prop :=
+  (0.8476836 : ℝ) * Real.sqrt 5.5666305 < 2
+
 end FKS.v1
