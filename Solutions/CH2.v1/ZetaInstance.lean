@@ -1667,4 +1667,50 @@ theorem isBoundedNoPolesOn_ladder_weighted
     (isBoundedNoPolesOn_nearLadder_weighted hTfree hδfree (by linarith : (0:ℝ) < x₀))
     (isBoundedNoPolesOn_farLadder_weighted hfe hdig hσ hTfree hδfree hx₀)
 
+/-! ### The Graham-Vaaler weights have no poles on `R`
+
+`prop_5_2`'s three remaining hypotheses are about the PRODUCT `Φ_λ(zOf s) · F s · x ^ s`, not
+about `F`, so the weight's own poles are suddenly relevant. They turn out not to be, and the
+reason is a sign.
+
+`Phi_circ` and `Phi_star` have poles exactly at `z = n - i ν/(2π)` (`Phi_circ.poles`,
+`Phi_star.poles`). Pulling that back through `zOf s = (s-1)/(iT)` gives
+
+  `s = 1 + T ν/(2π) + i T n`,   so   `Re s = 1 + T ν/(2π) > 1`,
+
+strictly to the right of `l.R = {Re s ≤ 1, |Im s| ≤ T}`. **What decides this is `0 < lam`**, which
+`prop_5_2` assumes: `Real.sign lam = 1`, so the weight is evaluated at `zOf s` rather than at
+`-zOf s`. For negative `lam` the same points would land at `Re s = 1 - T ν/(2π) < 1`, inside `R`,
+and the residue sum would have to account for them. -/
+
+/-- **The weights' poles pull back to `Re s > 1`**, hence off `R`. -/
+theorem zOf_ne_weight_pole (l : CH2.LadderParams) {lam : ℝ} (hlam : 0 < lam) {s : ℂ}
+    (hs : s.re ≤ 1) (n : ℤ) :
+    l.zOf s ≠ (n : ℂ) - Complex.I * (lam : ℂ) / (2 * (Real.pi : ℂ)) := by
+  intro h
+  have hT : 0 < l.T := l.hT
+  have hπ : (0 : ℝ) < Real.pi := Real.pi_pos
+  have hTc : ((l.T : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hT.ne'
+  have hITne : (Complex.I * (l.T : ℂ)) ≠ 0 := mul_ne_zero Complex.I_ne_zero hTc
+  have h' : s - 1
+      = ((n : ℂ) - Complex.I * (lam : ℂ) / (2 * (Real.pi : ℂ))) * (Complex.I * (l.T : ℂ)) := by
+    rw [← h]
+    show s - 1 = (s - 1) / (Complex.I * (l.T : ℂ)) * (Complex.I * (l.T : ℂ))
+    field_simp
+  have hπc : ((Real.pi : ℂ)) ≠ 0 := Complex.ofReal_ne_zero.mpr hπ.ne'
+  have hval : ((n : ℂ) - Complex.I * (lam : ℂ) / (2 * (Real.pi : ℂ))) * (Complex.I * (l.T : ℂ))
+      = ((l.T * lam / (2 * Real.pi) : ℝ) : ℂ)
+        + Complex.I * ((l.T * (n : ℝ) : ℝ) : ℂ) := by
+    push_cast
+    field_simp
+    linear_combination (-(lam : ℂ)) * Complex.I_sq
+  have hre : (s - 1).re = l.T * lam / (2 * Real.pi) := by
+    rw [h', hval]
+    simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, Complex.I_im,
+      Complex.ofReal_im]
+    ring
+  simp only [Complex.sub_re, Complex.one_re] at hre
+  have hpos : 0 < l.T * lam / (2 * Real.pi) := by positivity
+  linarith
+
 end CH2ZetaInstance
