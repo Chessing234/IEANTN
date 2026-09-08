@@ -354,9 +354,33 @@ stages:
       A'(0) = -pi/3 and monotonicity of A', it is the series bound
       (1-x) sum zeta(2n+2) x^{2n} <= zeta(2), peeling off n = 0 and comparing the rest with a
       geometric series. That proves it on all of (0,1), not just [0,1/2].
-      STILL TO DO IN SECTION 7: the case 1/2 <= x <= 1 of (b), which needs lem:cothder and
-      Phragmen-Lindelof (Mathlib has PhragmenLindelof.horizontal_strip), and the opening bound
-      coth y <= 1/y + y/3, which needs Euler's hyperbolic expansion.
+      SECTION 7'S TWO OPENING ESTIMATES ARE ALSO DONE: coth y <= 1 + 1/y (for lem:trivialzer) and
+      1/y <= coth y <= 1/y + y/3 (used at source line 3351). The second is proved WITHOUT Euler's
+      hyperbolic expansion -- clearing denominators leaves sinh y <= y cosh y and
+      3y cosh y <= (3+y^2) sinh y, one differentiation each.
+      STILL TO DO IN SECTION 7: lem:cothder, and with it the case 1/2 <= x <= 1 of lem:sibelius (b).
+      LEM:COTHDER DOES NOT NEED PHRAGMEN-LINDELOF. The paper proves |(z coth z)'| <= |z| on
+      |Im z| <= pi/2 by Phragmen-Lindelof plus two boundary computations, one of which needs
+      2x csch x - 2 sech x - cosh x <= 0. There is an elementary route through the series instead.
+      From the partial fractions, z coth z = 1 + 2 sum_{n>=1} z^2/(z^2 + n^2 pi^2), so termwise
+        f(z) := (z coth z)' = 4 z sum_{n>=1} n^2 pi^2 / (z^2 + n^2 pi^2)^2,
+      and for z = x + iy with y^2 <= pi^2/4, writing A = n^2 pi^2 - y^2 >= 0,
+        |z^2 + n^2 pi^2|^2 = (A + x^2)^2 + 4 x^2 y^2 >= (A + x^2)^2,
+      so |z^2 + n^2 pi^2| >= (n^2 - 1/4) pi^2 + x^2 >= (n^2 - 1/4) pi^2. Hence
+        |f(z)/z| <= (4/pi^2) sum_{n>=1} n^2/(n^2 - 1/4)^2 = (4/pi^2)(pi^2/4) = 1.
+      VERIFIED NUMERICALLY TO 30 DIGITS: the sum is pi^2/4 = 2.467401100272339654708622750, the
+      series for f agrees with the numerical derivative at four points in the strip, and
+      |f(z)|/|z| -> 1 as z -> i pi/2, so THE BOUND IS SHARP AND THE EQUALITY CASE IS ATTAINED IN THE
+      APPLICATION (at x = 1/2, y = 0 the substitution s = i pi (1-z) gives exactly s = i pi/2).
+      Two ways to finish. Exactly: sum n^2/(n^2-1/4)^2 = sum [1/(2n-1)^2 + 2/((2n-1)(2n+1)) +
+      1/(2n+1)^2] = pi^2/8 + 1 + (pi^2/8 - 1) = pi^2/4, the middle sum telescoping; this needs
+      sum over odd k of 1/k^2 = pi^2/8, i.e. (3/4) zeta(2), which means splitting a tsum into even
+      and odd parts. Or numerically, with a slightly worse constant: five exact terms plus the
+      telescoping tail sum_{n>=N} 1/(n^2-1/4) = 1/(N-1/2) give sum <= 2.4682 and hence
+      |f(z)/z| <= 1.0003. THE DOWNSTREAM HAS ROOM FOR THAT -- the paper's M = 1.80294 is used
+      against a budget of 1.78 + 0.2848 = 2.065 -- but the exact route is preferable if the odd
+      zeta(2) split is cheap, since lem:cothder is used in three other places whose slack has not
+      been checked.
       THE REST OF THE STAGE, unchanged.
       Nobody has formalized this, upstream or anywhere. It needs: F instantiated as the pole-free
       part of -zeta'/zeta with PNT+'s hypotheses discharged (MeromorphicOn, ConjSymm,

@@ -1706,4 +1706,114 @@ theorem coth_le_inv_add_div_three {y : ℝ} (hy : 0 < y) :
   rw [div_add_div _ _ (ne_of_gt hy) (by norm_num : (3 : ℝ) ≠ 0), div_le_div_iff₀ hs (by positivity)]
   nlinarith
 
+/-! ### Towards `lem:cothder`: the sharp constant `∑ n²/(n² - ¼)² = π²/4`
+
+The paper proves `|(z coth z)'| ≤ |z|` on `|Im z| ≤ π/2` by Phragmén–Lindelöf together with two
+boundary computations. **That is avoidable.** From the partial fractions
+`z coth z = 1 + 2 ∑ z²/(z² + n²π²)`, differentiating termwise gives
+
+  `f(z) := (z coth z)' = 4z ∑_{n≥1} n²π² / (z² + n²π²)²`,
+
+and for `z = x + iy` with `y² ≤ π²/4`, writing `A = n²π² - y² ≥ 0`,
+
+  `|z² + n²π²|² = (A + x²)² + 4x²y² ≥ (A + x²)²`,
+
+so `|z² + n²π²| ≥ (n² - ¼)π²`. Hence `|f(z)/z| ≤ (4/π²) ∑ n²/(n² - ¼)²`, and the bound is exactly
+`1` because that sum is exactly `π²/4` — the equality case `z = ±iπ/2` really is attained, so no
+slack is available anywhere in the estimate.
+
+This section proves the sum. `n²/(n² - ¼)² = (1/(2n-1) + 1/(2n+1))²` expands into the two odd
+square series and a telescoping one, giving `π²/8 + 1 + (π²/8 - 1)`. -/
+
+set_option maxHeartbeats 1000000 in
+/-- `∑_{k≥0} 1/(2k+1)² = π²/8`, the odd part of `ζ(2)`. -/
+theorem hasSum_odd_inv_sq :
+    HasSum (fun k : ℕ ↦ 1 / (2 * (k : ℝ) + 1) ^ 2) (Real.pi ^ 2 / 8) := by
+  have hf : HasSum (fun n : ℕ ↦ (1 : ℝ) / (n : ℝ) ^ 2) (Real.pi ^ 2 / 6) := hasSum_zeta_two
+  have hinj : Function.Injective (fun k : ℕ ↦ 2 * k + 1) := by
+    intro a b hab
+    simp only at hab
+    omega
+  have hodd : Summable (fun k : ℕ ↦ (1 : ℝ) / ((2 * k + 1 : ℕ) : ℝ) ^ 2) :=
+    hf.summable.comp_injective hinj
+  have heven : HasSum (fun k : ℕ ↦ (1 : ℝ) / ((2 * k : ℕ) : ℝ) ^ 2)
+      ((1 / 4 : ℝ) * (Real.pi ^ 2 / 6)) := by
+    refine (hf.mul_left (1 / 4 : ℝ)).congr_fun fun k ↦ ?_
+    push_cast
+    rw [mul_pow, div_mul_div_comm]
+    norm_num
+  have huniq := hf.unique (heven.even_add_odd hodd.hasSum)
+  have hS : (∑' k : ℕ, (1 : ℝ) / ((2 * k + 1 : ℕ) : ℝ) ^ 2) = Real.pi ^ 2 / 8 := by linarith
+  have hres := hodd.hasSum
+  rw [hS] at hres
+  refine hres.congr_fun fun k ↦ ?_
+  push_cast
+  ring
+
+/-- `∑_{k≥0} 1/(2k+3)² = π²/8 - 1`: the same series with its first term removed. -/
+theorem hasSum_odd_inv_sq_shift :
+    HasSum (fun k : ℕ ↦ 1 / (2 * (k : ℝ) + 3) ^ 2) (Real.pi ^ 2 / 8 - 1) := by
+  set F : ℕ → ℝ := fun k ↦ 1 / (2 * (k : ℝ) + 1) ^ 2 with hF
+  have hshift : HasSum (fun k : ℕ ↦ F (k + 1)) (Real.pi ^ 2 / 8 - 1) := by
+    rw [hasSum_nat_add_iff 1]
+    simpa [hF] using hasSum_odd_inv_sq
+  refine hshift.congr_fun fun k ↦ ?_
+  simp only [hF]
+  push_cast
+  ring
+
+/-- `∑_{k≥0} (1/(2k+1) - 1/(2k+3)) = 1`, telescoping. -/
+theorem hasSum_telescope :
+    HasSum (fun k : ℕ ↦ 1 / (2 * (k : ℝ) + 1) - 1 / (2 * (k : ℝ) + 3)) 1 := by
+  have hnn : ∀ k : ℕ, (0 : ℝ) ≤ 1 / (2 * (k : ℝ) + 1) - 1 / (2 * (k : ℝ) + 3) := by
+    intro k
+    have hk : (0 : ℝ) ≤ (k : ℝ) := Nat.cast_nonneg k
+    have h1 : (0 : ℝ) < 2 * (k : ℝ) + 1 := by linarith
+    rw [sub_nonneg]
+    exact one_div_le_one_div_of_le h1 (by linarith)
+  rw [hasSum_iff_tendsto_nat_of_nonneg hnn]
+  have hpartial : ∀ N : ℕ, (∑ k ∈ Finset.range N, (1 / (2 * (k : ℝ) + 1) - 1 / (2 * (k : ℝ) + 3)))
+      = 1 - 1 / (2 * (N : ℝ) + 1) := by
+    intro N
+    induction N with
+    | zero => norm_num
+    | succ n ih =>
+        rw [Finset.sum_range_succ, ih]
+        have h1 : (0 : ℝ) < 2 * (n : ℝ) + 1 := by
+          have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+          linarith
+        have h2 : (0 : ℝ) < 2 * (n : ℝ) + 3 := by linarith
+        push_cast
+        field_simp
+        ring
+  simp only [hpartial]
+  have hto : Filter.Tendsto (fun N : ℕ ↦ 1 / (2 * (N : ℝ) + 1)) Filter.atTop (nhds 0) := by
+    have hn : Filter.Tendsto (fun N : ℕ ↦ (N : ℝ)) Filter.atTop Filter.atTop :=
+      tendsto_natCast_atTop_atTop
+    have hd : Filter.Tendsto (fun N : ℕ ↦ 2 * (N : ℝ) + 1) Filter.atTop Filter.atTop :=
+      Filter.tendsto_atTop_add_const_right _ 1 (Filter.Tendsto.const_mul_atTop (by norm_num) hn)
+    have h2 : Filter.Tendsto (fun N : ℕ ↦ (2 * (N : ℝ) + 1)⁻¹) Filter.atTop (nhds 0) :=
+      hd.inv_tendsto_atTop
+    simpa [one_div] using h2
+  simpa using (tendsto_const_nhds (x := (1 : ℝ)) (f := Filter.atTop (α := ℕ))).sub hto
+
+/-- **`∑_{n≥1} n²/(n² - ¼)² = π²/4`**, the sharp constant of `lem:cothder`.
+
+`n²/(n² - ¼)² = (1/(2n-1) + 1/(2n+1))²`, which expands into the two odd square series and a
+telescoping one. -/
+theorem hasSum_sq_div_sq_sub_quarter :
+    HasSum (fun k : ℕ ↦ ((k : ℝ) + 1) ^ 2 / (((k : ℝ) + 1) ^ 2 - 1 / 4) ^ 2)
+      (Real.pi ^ 2 / 4) := by
+  have H := (hasSum_odd_inv_sq.add hasSum_telescope).add hasSum_odd_inv_sq_shift
+  have hval : Real.pi ^ 2 / 8 + 1 + (Real.pi ^ 2 / 8 - 1) = Real.pi ^ 2 / 4 := by ring
+  rw [hval] at H
+  refine H.congr_fun fun k ↦ ?_
+  have hk : (0 : ℝ) ≤ (k : ℝ) := Nat.cast_nonneg k
+  have h1 : (2 * (k : ℝ) + 1) ≠ 0 := by positivity
+  have h3 : (2 * (k : ℝ) + 3) ≠ 0 := by positivity
+  have hq : (((k : ℝ) + 1) ^ 2 - 1 / 4) = (2 * (k : ℝ) + 1) * (2 * (k : ℝ) + 3) / 4 := by ring
+  rw [hq]
+  field_simp
+  ring
+
 end CH2Section7
