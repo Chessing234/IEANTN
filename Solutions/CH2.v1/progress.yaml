@@ -330,11 +330,12 @@ stages:
       corollaries. Decide this by working section 7 backwards, not by stating Theorem 1.1 first.
 
   - stage: "sections 7-8: the specialisation to psi"
-    state: in progress -- Section7.lean; lem:sibelius (a) and (c) are done, (b) half done
+    state: in progress -- SECTION 7 IS COMPLETE (Section7.lean); section 8 not started
     note: >-
-      DONE SO FAR, in Section7.lean. lem:sibelius (a) in full (F decreasing on (0,1), and
-      0 < F(x) < 1/(pi x)); lem:sibelius (c) in full, both halves; and the case 0 < x <= 1/2 of
-      lem:sibelius (b), which follows from (c) plus |1/(x+iy) - 1/x| = |y|/(x|x+iy|).
+      SECTION 7 IS DONE, in Section7.lean, 2415 lines. lem:sibelius (a), (b) and (c), lem:cothder,
+      and both of the opening coth estimates. Part (b) is stated on 0 < x < 1; its case
+      0 < x <= 1/2 follows from (c) plus |1/(x+iy) - 1/x| = |y|/(x|x+iy|), and its case
+      1/2 <= x < 1 from lem:cothder and the mean value inequality along the vertical segment.
       The route through (c) is worth recording because the paper's is not the shortest.
       A(z) = -(1-z) f(z) with f(z) = 1/(pi z) - cot(pi z), whose Taylor coefficients are
       (2/pi) zeta(2n+2) -- the imported CotangentSeries.v1. Multiplying by (1 - z^2) telescopes the
@@ -378,25 +379,24 @@ stages:
       A JUNK-VALUE GUARD, NOT A WEAKENING: norm_deriv_mul_coth_le requires z /= 0, because in Lean
       w * cosh w / sinh w is 0/0 = 0 at the origin where its continuation is 1, so the function is
       discontinuous there and deriv returns junk.
-      STILL TO DO IN SECTION 7: the case 1/2 <= x <= 1 of lem:sibelius (b).
-      THE SAME JUNK VALUE SITS AT ITS ENDPOINT AND IS A DESIGN QUESTION, NOT A PROOF PROBLEM.
+      THE ONE THING SECTION 7 DOES NOT COVER IS THE ENDPOINT x = 1 OF PART (b).
       Fc 1 = 1/pi - 0 * cot 0 = 1/pi in Lean, whereas the true F(1) is 0 -- the limit of
       (1-z) cot(pi(1-z)) at z = 1 is 1/pi, and Lean's Real.cot 0 = 0 discards it. So the naive
       statement of (b) at x = 1 would be off by 1/pi, and (b) IS applied with x = t/T for
       0 < t <= T, so x = 1 is attained (source line 2339). Either state (b) on (0,1) and handle the
-      endpoint by continuity, or define Fc with the removable singularity filled. The same choice
-      already affects Fweight, whose StrictAntiOn is stated on Ioo 0 1 for exactly this reason.
-      THE ARGUMENT ITSELF NEEDS NO NEW ANALYSIS. F'(z) = i (s coth s)' at s = i pi (1 - z), so
-      |F'(z)| <= pi|1-z| by lem:cothder, and Im s = pi(1-x) lies in [0, pi/2] exactly when
-      x is in [1/2, 1]. The mean value inequality on the vertical segment then gives
-      |F(x+iy) - F(x)| <= pi sqrt((1-x)^2 + 1/4) |y|.
-      AND THE PAPER'S ARCSINH INTEGRAL IS AVOIDABLE. It evaluates
-      int_0^{1/2} sqrt(1/4 + r^2) dr = (sqrt 2 + arcsinh 1)/8 to get M = 1.80294, but the crude
-      sup bound suffices provided the x-dependence is kept on BOTH sides: with
-      |x+iy| <= sqrt(5)/2, the requirement is pi sqrt((1-x)^2 + 1/4) <= 1.78 + 2/(pi x sqrt 5) for
-      x in [1/2, 1], whose left side minus the second term is largest at x = 1/2, where it is
-      1.652 against 1.78. Dropping the x-dependence does NOT work: the uniform bounds give
-      2.2214 against 2.0648.
+      endpoint BY CONTINUITY, WHICH IS THE ROUTE CHOSEN, or define Fc with the removable
+      singularity filled. The same choice already affects Fweight, whose StrictAntiOn is stated on
+      Ioo 0 1 for exactly this reason. Whoever consumes (b) at x = 1 has to close that gap.
+      THE PAPER'S ARCSINH INTEGRAL TURNED OUT TO BE AVOIDABLE. It evaluates
+      int_0^{1/2} sqrt(1/4 + r^2) dr = (sqrt 2 + arcsinh 1)/8 to get M = 1.80294; the crude sup
+      bound suffices provided the x-dependence is kept on BOTH sides: with |x+iy| <= sqrt(5)/2 the
+      requirement is pi sqrt((1-x)^2 + 1/4) <= 1.78 + 2/(pi x sqrt 5) for x in [1/2, 1], worst at
+      x = 1/2 where it reads 2.2214 <= 2.3494. Dropping the x-dependence does NOT work: the uniform
+      bounds give 2.2214 against 2.0648. The resulting quartic on [1/2,1] has a clean certificate:
+      in u = x - 1/2 it is -121.778 u^4 + 69.537 u^2 + 21.153 u + 1.803, and u^4 <= u^2/4 on
+      [0,1/2] leaves 39.09 u^2 + 21.15 u + 1.80 > 0.
+      WHAT IS LEFT OF THE STAGE IS SECTION 8, which is where the residue sums, the C_T bound and
+      the assembly live; nothing of it is started.
       THE REST OF THE STAGE, unchanged.
       Nobody has formalized this, upstream or anywhere. It needs: F instantiated as the pole-free
       part of -zeta'/zeta with PNT+'s hypotheses discharged (MeromorphicOn, ConjSymm,
