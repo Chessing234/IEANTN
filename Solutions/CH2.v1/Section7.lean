@@ -1902,4 +1902,279 @@ theorem hasSum_coth_pf {z : ℂ} (hz : z ≠ 0) (hy : |z.im| < Real.pi) :
   field_simp
   linear_combination (2 * x * ((n : ℂ) + 1) ^ 2 - 2 * x ^ 3) * Complex.I_sq
 
+/-! ### `lem:cothder`: `|(z coth z)'| ≤ |z|` on `|Im z| ≤ π/2`
+
+Differentiating the partial fractions termwise gives `f(z) = 4z ∑ n²π²/(z² + n²π²)²`, and the
+elementary bound `|z² + n²π²| ≥ n²π² - (Im z)² ≥ (n² - ¼)π²` then reduces the claim to
+`∑ n²/(n² - ¼)² = π²/4`, which is above.
+
+The differentiation is the same manoeuvre as for `h`: the terms are holomorphic and uniformly
+bounded on a small disc around the point, so `Complex.hasSum_deriv_of_summable_norm` applies, and
+the sum agrees with `z coth z - 1` on that disc. -/
+
+/-- The shifted `p`-series with `p = 2`, as an `npow`. -/
+theorem summable_one_div_nat_add_one_sq : Summable fun n : ℕ ↦ 1 / ((n : ℝ) + 1) ^ 2 := by
+  have h := summable_one_div_nat_add_one_rpow (s := 2) (by norm_num)
+  refine h.congr fun n ↦ ?_
+  rw [show (2 : ℝ) = ((2 : ℕ) : ℝ) by norm_num, Real.rpow_natCast]
+
+/-- `|w² + a| ≥ a - (Im w)²` for real `a` with `a ≥ (Im w)²`.
+
+`|w² + a|² = (Re w² - Im w² + a)² + 4 Re w² Im w²`, and dropping the second term and the `Re w²`
+inside the first leaves `(a - Im w²)²`. This is what keeps the poles of the partial fractions at a
+distance inside the strip. -/
+theorem norm_sq_add_real_ge {w : ℂ} {a : ℝ} (ha : 0 ≤ a - w.im ^ 2) :
+    a - w.im ^ 2 ≤ ‖w ^ 2 + (a : ℂ)‖ := by
+  have hre : (w ^ 2 + (a : ℂ)).re = w.re ^ 2 - w.im ^ 2 + a := by
+    simp [pow_two, Complex.add_re, Complex.mul_re]
+  have him : (w ^ 2 + (a : ℂ)).im = 2 * (w.re * w.im) := by
+    simp [pow_two, Complex.add_im, Complex.mul_im]
+    ring
+  have hsq : (a - w.im ^ 2) ^ 2 ≤ ‖w ^ 2 + (a : ℂ)‖ ^ 2 := by
+    rw [Complex.sq_norm, Complex.normSq_apply]
+    have h1 : (w ^ 2 + (a : ℂ)).re * (w ^ 2 + (a : ℂ)).re
+        = (w.re ^ 2 - w.im ^ 2 + a) ^ 2 := by rw [hre]; ring
+    have h2 : (w ^ 2 + (a : ℂ)).im * (w ^ 2 + (a : ℂ)).im
+        = 4 * (w.re * w.im) ^ 2 := by rw [him]; ring
+    rw [h1, h2]
+    nlinarith [sq_nonneg w.re, sq_nonneg (w.re * w.im), sq_nonneg (w.re ^ 2)]
+  nlinarith [norm_nonneg (w ^ 2 + (a : ℂ))]
+
+set_option maxHeartbeats 1000000 in
+/-- **`(z coth z)' = 4z ∑ n²π²/(z² + n²π²)²`**, the partial fractions differentiated. -/
+theorem hasSum_deriv_mul_coth {z : ℂ} (hz : z ≠ 0) (hy : |z.im| ≤ Real.pi / 2) :
+    HasSum (fun n : ℕ ↦ 4 * z * (((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+        / (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) ^ 2)
+      (deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) z) := by
+  have hpi : (0 : ℝ) < Real.pi := Real.pi_pos
+  have hz0 : 0 < ‖z‖ := norm_pos_iff.mpr hz
+  set r : ℝ := min ‖z‖ (Real.pi / 4) / 2 with hrdef
+  have hrpos : 0 < r := by
+    rw [hrdef]
+    have : 0 < min ‖z‖ (Real.pi / 4) := lt_min hz0 (by linarith)
+    linarith
+  have hrz : r ≤ ‖z‖ / 2 := by
+    rw [hrdef]
+    have : min ‖z‖ (Real.pi / 4) ≤ ‖z‖ := min_le_left _ _
+    linarith
+  have hrp : r ≤ Real.pi / 8 := by
+    rw [hrdef]
+    have : min ‖z‖ (Real.pi / 4) ≤ Real.pi / 4 := min_le_right _ _
+    linarith
+  set F : ℕ → ℂ → ℂ := fun n w ↦ 2 * w ^ 2 / (w ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+    with hF
+  set M : ℝ := ‖z‖ + r with hM
+  -- what points of the disc satisfy
+  have hUim : ∀ w ∈ Metric.ball z r, w.im ^ 2 ≤ 25 * Real.pi ^ 2 / 64 := by
+    intro w hw
+    have hd : ‖w - z‖ < r := by rwa [← Complex.dist_eq, ← Metric.mem_ball]
+    have h1 : |w.im - z.im| ≤ ‖w - z‖ := by
+      simpa using Complex.abs_im_le_norm (w - z)
+    have h2 : |w.im| ≤ Real.pi / 2 + r := by
+      have h4 := abs_sub_abs_le_abs_sub w.im z.im
+      have h3 : |w.im - z.im| < r := lt_of_le_of_lt h1 hd
+      linarith
+    have h4 : |w.im| ≤ 5 * Real.pi / 8 := by linarith
+    nlinarith [abs_nonneg w.im, sq_abs w.im]
+  have hUne : ∀ w ∈ Metric.ball z r, w ≠ 0 := by
+    intro w hw hcon
+    have hd : ‖w - z‖ < r := by rwa [← Complex.dist_eq, ← Metric.mem_ball]
+    rw [hcon] at hd
+    simp at hd
+    linarith
+  have hUlt : ∀ w ∈ Metric.ball z r, |w.im| < Real.pi := by
+    intro w hw
+    have := hUim w hw
+    nlinarith [abs_nonneg w.im, sq_abs w.im]
+  have hUnorm : ∀ w ∈ Metric.ball z r, ‖w‖ ≤ M := by
+    intro w hw
+    have hd : ‖w - z‖ < r := by rwa [← Complex.dist_eq, ← Metric.mem_ball]
+    have := norm_le_norm_add_norm_sub' w z
+    rw [hM]
+    calc ‖w‖ ≤ ‖z‖ + ‖w - z‖ := by
+          have := norm_add_le z (w - z)
+          simpa using this
+      _ ≤ ‖z‖ + r := by linarith
+  -- the majorant
+  have hden : ∀ (n : ℕ), ∀ w ∈ Metric.ball z r,
+      (39 : ℝ) / 64 * Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2
+        ≤ ‖w ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2‖ := by
+    intro n w hw
+    have hn1 : (1 : ℝ) ≤ ((n : ℝ) + 1) ^ 2 := by
+      have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+      nlinarith
+    have hcast : ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2
+        = ((((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 : ℝ) : ℂ) := by push_cast; ring
+    have him := hUim w hw
+    have hA : 0 ≤ ((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 - w.im ^ 2 := by nlinarith
+    have hkey := norm_sq_add_real_ge (w := w) (a := ((n : ℝ) + 1) ^ 2 * Real.pi ^ 2) hA
+    rw [hcast]
+    nlinarith
+  have hle : ∀ (n : ℕ), ∀ w ∈ Metric.ball z r,
+      ‖F n w‖ ≤ 2 * M ^ 2 / ((39 : ℝ) / 64 * Real.pi ^ 2) * (1 / ((n : ℝ) + 1) ^ 2) := by
+    intro n w hw
+    have hMn : 0 ≤ M := by
+      rw [hM]; linarith
+    have hnw := hUnorm w hw
+    have hd := hden n w hw
+    have hd0 : (0 : ℝ) < (39 : ℝ) / 64 * Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2 := by
+      have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+      positivity
+    have hnum : ‖2 * w ^ 2‖ ≤ 2 * M ^ 2 := by
+      rw [norm_mul, norm_pow]
+      simp only [Complex.norm_ofNat]
+      nlinarith [norm_nonneg w]
+    rw [hF]
+    simp only [norm_div]
+    rw [div_le_iff₀ (lt_of_lt_of_le hd0 hd)]
+    have hrhs : 2 * M ^ 2 / ((39 : ℝ) / 64 * Real.pi ^ 2) * (1 / ((n : ℝ) + 1) ^ 2)
+        * ‖w ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2‖
+        ≥ 2 * M ^ 2 / ((39 : ℝ) / 64 * Real.pi ^ 2) * (1 / ((n : ℝ) + 1) ^ 2)
+          * ((39 : ℝ) / 64 * Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2) := by
+      have hc : (0 : ℝ) ≤ 2 * M ^ 2 / ((39 : ℝ) / 64 * Real.pi ^ 2) * (1 / ((n : ℝ) + 1) ^ 2) := by
+        have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+        positivity
+      exact mul_le_mul_of_nonneg_left hd hc
+    have hval : 2 * M ^ 2 / ((39 : ℝ) / 64 * Real.pi ^ 2) * (1 / ((n : ℝ) + 1) ^ 2)
+        * ((39 : ℝ) / 64 * Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2) = 2 * M ^ 2 := by
+      have h1 : ((39 : ℝ) / 64 * Real.pi ^ 2) ≠ 0 := by positivity
+      have h2 : (((n : ℝ) + 1) ^ 2) ≠ 0 := by
+        have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+        positivity
+      field_simp
+    linarith [hnum, hrhs, hval]
+  have hu : Summable fun n : ℕ ↦ 2 * M ^ 2 / ((39 : ℝ) / 64 * Real.pi ^ 2)
+      * (1 / ((n : ℝ) + 1) ^ 2) := summable_one_div_nat_add_one_sq.mul_left _
+  have hdiff : ∀ n : ℕ, DifferentiableOn ℂ (F n) (Metric.ball z r) := by
+    intro n w hw
+    have hne : w ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2 ≠ 0 := by
+      intro hcon
+      have hd := hden n w hw
+      rw [hcon] at hd
+      simp at hd
+      have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+      have hpos : (0 : ℝ) < 39 / 64 * Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2 := by positivity
+      linarith
+    have h1 : HasDerivAt (fun v : ℂ ↦ 2 * v ^ 2) (2 * (2 * w)) w := by
+      simpa using (hasDerivAt_pow 2 w).const_mul (2 : ℂ)
+    have h2 : HasDerivAt (fun v : ℂ ↦ v ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) (2 * w) w := by
+      simpa using (hasDerivAt_pow 2 w).add_const (((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+    exact ((h1.div h2 hne).differentiableAt).differentiableWithinAt
+  have key := Complex.hasSum_deriv_of_summable_norm hu hdiff Metric.isOpen_ball hle
+    (Metric.mem_ball_self hrpos)
+  -- identify the sum with `w coth w - 1`
+  have heq : (fun w : ℂ ↦ ∑' n : ℕ, F n w)
+      =ᶠ[nhds z] fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w - 1 := by
+    filter_upwards [Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self hrpos)] with w hw
+    exact (hasSum_coth_pf (hUne w hw) (hUlt w hw)).tsum_eq
+  rw [heq.deriv_eq, deriv_sub_const] at key
+  refine key.congr_fun fun n ↦ ?_
+  have hne : z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2 ≠ 0 := by
+    intro hcon
+    have hd := hden n z (Metric.mem_ball_self hrpos)
+    rw [hcon] at hd
+    simp at hd
+    have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+    have hpos : (0 : ℝ) < 39 / 64 * Real.pi ^ 2 * ((n : ℝ) + 1) ^ 2 := by positivity
+    linarith
+  have h1 : HasDerivAt (fun v : ℂ ↦ 2 * v ^ 2) (2 * (2 * z)) z := by
+    simpa using (hasDerivAt_pow 2 z).const_mul (2 : ℂ)
+  have h2 : HasDerivAt (fun v : ℂ ↦ v ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) (2 * z) z := by
+    simpa using (hasDerivAt_pow 2 z).add_const (((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+  have hd : HasDerivAt (F n)
+      ((2 * (2 * z) * (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+        - 2 * z ^ 2 * (2 * z)) / (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) ^ 2) z :=
+    h1.div h2 hne
+  rw [hd.deriv]
+  field_simp
+  ring
+
+/-- **`lem:cothder`**: `|(z coth z)'| ≤ |z|` on the strip `|Im z| ≤ π/2`.
+
+Termwise from `hasSum_deriv_mul_coth`, using `|z² + n²π²| ≥ n²π² - (Im z)² ≥ (n² - ¼)π²` and
+`∑ n²/(n² - ¼)² = π²/4`. The constant is sharp: equality holds at `z = ±iπ/2`.
+
+**`z ≠ 0` is required, and is not a weakening of the mathematics but a junk-value guard.** The
+function `w ↦ w cosh w / sinh w` is `0/0 = 0` at the origin in Lean, where its analytic
+continuation is `1`; it is therefore not continuous there and `deriv` returns a junk value. The
+mathematical statement at `0` — that the continued function has derivative `0` — is true but is
+about a different function. -/
+theorem norm_deriv_mul_coth_le {z : ℂ} (hz : z ≠ 0) (hy : |z.im| ≤ Real.pi / 2) :
+    ‖deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) z‖ ≤ ‖z‖ := by
+  have hpi : (0 : ℝ) < Real.pi := Real.pi_pos
+  have him : z.im ^ 2 ≤ Real.pi ^ 2 / 4 := by
+    have h := abs_le.mp hy
+    nlinarith [abs_nonneg z.im, sq_abs z.im]
+  have H := hasSum_deriv_mul_coth hz hy
+  -- the majorant
+  have hquart : ∀ n : ℕ, (0 : ℝ) < ((n : ℝ) + 1) ^ 2 - 1 / 4 := by
+    intro n
+    have : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    nlinarith
+  have hterm : ∀ n : ℕ,
+      ‖4 * z * (((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+        / (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) ^ 2‖
+      ≤ 4 * ‖z‖ / Real.pi ^ 2 * (((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2) := by
+    intro n
+    have hn0 : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+    have hq := hquart n
+    have hcast : ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2
+        = ((((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 : ℝ) : ℂ) := by push_cast; ring
+    have hA : 0 ≤ ((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 - z.im ^ 2 := by nlinarith
+    have hkey := norm_sq_add_real_ge (w := z) (a := ((n : ℝ) + 1) ^ 2 * Real.pi ^ 2) hA
+    rw [hcast] at *
+    have hlow : (((n : ℝ) + 1) ^ 2 - 1 / 4) * Real.pi ^ 2
+        ≤ ‖z ^ 2 + ((((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 : ℝ) : ℂ)‖ := by nlinarith
+    have hlow0 : (0 : ℝ) < (((n : ℝ) + 1) ^ 2 - 1 / 4) * Real.pi ^ 2 := by positivity
+    have hnum : ‖4 * z * ((((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 : ℝ) : ℂ)‖
+        = 4 * ‖z‖ * (((n : ℝ) + 1) ^ 2 * Real.pi ^ 2) := by
+      rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+        abs_of_pos (by positivity : (0:ℝ) < ((n : ℝ) + 1) ^ 2 * Real.pi ^ 2)]
+      simp
+    have hnormpos : (0 : ℝ) < ‖z ^ 2 + (((((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 : ℝ)) : ℂ)‖ := by
+      linarith
+    rw [norm_div, norm_pow, hnum]
+    rw [div_le_iff₀ (pow_pos hnormpos 2)]
+    have hsq : ((((n : ℝ) + 1) ^ 2 - 1 / 4) * Real.pi ^ 2) ^ 2
+        ≤ ‖z ^ 2 + ((((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 : ℝ) : ℂ)‖ ^ 2 := by
+      nlinarith [norm_nonneg (z ^ 2 + ((((n : ℝ) + 1) ^ 2 * Real.pi ^ 2 : ℝ) : ℂ))]
+    have hc : (0 : ℝ) ≤ 4 * ‖z‖ / Real.pi ^ 2 * (((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2)
+        := by positivity
+    have hstep := mul_le_mul_of_nonneg_left hsq hc
+    have hC2 : ((((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2) ≠ 0 := pow_ne_zero 2 (ne_of_gt hq)
+    have hP2 : ((Real.pi : ℝ) ^ 2) ≠ 0 := pow_ne_zero 2 (ne_of_gt hpi)
+    have hc1 : (((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2)
+        * (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2 = ((n : ℝ) + 1) ^ 2 := div_mul_cancel₀ _ hC2
+    have hc2 : (4 * ‖z‖ / Real.pi ^ 2) * Real.pi ^ 2 = 4 * ‖z‖ := div_mul_cancel₀ _ hP2
+    have hval : 4 * ‖z‖ / Real.pi ^ 2 * (((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2)
+        * ((((n : ℝ) + 1) ^ 2 - 1 / 4) * Real.pi ^ 2) ^ 2
+        = 4 * ‖z‖ * (((n : ℝ) + 1) ^ 2 * Real.pi ^ 2) := by
+      have hsplit : 4 * ‖z‖ / Real.pi ^ 2 * (((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2)
+          * ((((n : ℝ) + 1) ^ 2 - 1 / 4) * Real.pi ^ 2) ^ 2
+          = ((4 * ‖z‖ / Real.pi ^ 2) * Real.pi ^ 2)
+            * ((((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2)
+              * (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2) * Real.pi ^ 2 := by ring
+      rw [hsplit, hc1, hc2]
+      ring
+    linarith [hstep, hval]
+  have Hmaj : HasSum (fun n : ℕ ↦ 4 * ‖z‖ / Real.pi ^ 2
+      * (((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2)) ‖z‖ := by
+    have h := hasSum_sq_div_sq_sub_quarter.mul_left (4 * ‖z‖ / Real.pi ^ 2)
+    have hval : 4 * ‖z‖ / Real.pi ^ 2 * (Real.pi ^ 2 / 4) = ‖z‖ := by
+      field_simp
+    rwa [hval] at h
+  have hsummable : Summable fun n : ℕ ↦ ‖4 * z * (((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+      / (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) ^ 2‖ :=
+    Summable.of_nonneg_of_le (fun n ↦ norm_nonneg _) hterm Hmaj.summable
+  calc ‖deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) z‖
+      = ‖∑' n : ℕ, 4 * z * (((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+          / (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) ^ 2‖ := by rw [H.tsum_eq]
+    _ ≤ ∑' n : ℕ, ‖4 * z * (((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2)
+          / (z ^ 2 + ((n : ℂ) + 1) ^ 2 * (Real.pi : ℂ) ^ 2) ^ 2‖ :=
+        norm_tsum_le_tsum_norm hsummable
+    _ ≤ ∑' n : ℕ, 4 * ‖z‖ / Real.pi ^ 2
+          * (((n : ℝ) + 1) ^ 2 / (((n : ℝ) + 1) ^ 2 - 1 / 4) ^ 2) :=
+        Summable.tsum_le_tsum hterm hsummable Hmaj.summable
+    _ = ‖z‖ := Hmaj.tsum_eq
+
 end CH2Section7
