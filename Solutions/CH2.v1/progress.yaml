@@ -358,8 +358,7 @@ stages:
       1/y <= coth y <= 1/y + y/3 (used at source line 3351). The second is proved WITHOUT Euler's
       hyperbolic expansion -- clearing denominators leaves sinh y <= y cosh y and
       3y cosh y <= (3+y^2) sinh y, one differentiation each.
-      STILL TO DO IN SECTION 7: lem:cothder, and with it the case 1/2 <= x <= 1 of lem:sibelius (b).
-      LEM:COTHDER DOES NOT NEED PHRAGMEN-LINDELOF. The paper proves |(z coth z)'| <= |z| on
+      LEM:COTHDER IS DONE, AND DID NOT NEED PHRAGMEN-LINDELOF. The paper proves |(z coth z)'| <= |z| on
       |Im z| <= pi/2 by Phragmen-Lindelof plus two boundary computations, one of which needs
       2x csch x - 2 sech x - cosh x <= 0. There is an elementary route through the series instead.
       From the partial fractions, z coth z = 1 + 2 sum_{n>=1} z^2/(z^2 + n^2 pi^2), so termwise
@@ -372,15 +371,32 @@ stages:
       series for f agrees with the numerical derivative at four points in the strip, and
       |f(z)|/|z| -> 1 as z -> i pi/2, so THE BOUND IS SHARP AND THE EQUALITY CASE IS ATTAINED IN THE
       APPLICATION (at x = 1/2, y = 0 the substitution s = i pi (1-z) gives exactly s = i pi/2).
-      Two ways to finish. Exactly: sum n^2/(n^2-1/4)^2 = sum [1/(2n-1)^2 + 2/((2n-1)(2n+1)) +
-      1/(2n+1)^2] = pi^2/8 + 1 + (pi^2/8 - 1) = pi^2/4, the middle sum telescoping; this needs
-      sum over odd k of 1/k^2 = pi^2/8, i.e. (3/4) zeta(2), which means splitting a tsum into even
-      and odd parts. Or numerically, with a slightly worse constant: five exact terms plus the
-      telescoping tail sum_{n>=N} 1/(n^2-1/4) = 1/(N-1/2) give sum <= 2.4682 and hence
-      |f(z)/z| <= 1.0003. THE DOWNSTREAM HAS ROOM FOR THAT -- the paper's M = 1.80294 is used
-      against a budget of 1.78 + 0.2848 = 2.065 -- but the exact route is preferable if the odd
-      zeta(2) split is cheap, since lem:cothder is used in three other places whose slack has not
-      been checked.
+      The sum was done exactly rather than numerically, since the equality case is attained:
+      n^2/(n^2-1/4)^2 = (1/(2n-1) + 1/(2n+1))^2 expands into two odd square series and a
+      telescoping one, pi^2/8 + 1 + (pi^2/8 - 1). The odd square series is the odd half of zeta(2),
+      from Mathlib's hasSum_zeta_two split by HasSum.even_add_odd.
+      A JUNK-VALUE GUARD, NOT A WEAKENING: norm_deriv_mul_coth_le requires z /= 0, because in Lean
+      w * cosh w / sinh w is 0/0 = 0 at the origin where its continuation is 1, so the function is
+      discontinuous there and deriv returns junk.
+      STILL TO DO IN SECTION 7: the case 1/2 <= x <= 1 of lem:sibelius (b).
+      THE SAME JUNK VALUE SITS AT ITS ENDPOINT AND IS A DESIGN QUESTION, NOT A PROOF PROBLEM.
+      Fc 1 = 1/pi - 0 * cot 0 = 1/pi in Lean, whereas the true F(1) is 0 -- the limit of
+      (1-z) cot(pi(1-z)) at z = 1 is 1/pi, and Lean's Real.cot 0 = 0 discards it. So the naive
+      statement of (b) at x = 1 would be off by 1/pi, and (b) IS applied with x = t/T for
+      0 < t <= T, so x = 1 is attained (source line 2339). Either state (b) on (0,1) and handle the
+      endpoint by continuity, or define Fc with the removable singularity filled. The same choice
+      already affects Fweight, whose StrictAntiOn is stated on Ioo 0 1 for exactly this reason.
+      THE ARGUMENT ITSELF NEEDS NO NEW ANALYSIS. F'(z) = i (s coth s)' at s = i pi (1 - z), so
+      |F'(z)| <= pi|1-z| by lem:cothder, and Im s = pi(1-x) lies in [0, pi/2] exactly when
+      x is in [1/2, 1]. The mean value inequality on the vertical segment then gives
+      |F(x+iy) - F(x)| <= pi sqrt((1-x)^2 + 1/4) |y|.
+      AND THE PAPER'S ARCSINH INTEGRAL IS AVOIDABLE. It evaluates
+      int_0^{1/2} sqrt(1/4 + r^2) dr = (sqrt 2 + arcsinh 1)/8 to get M = 1.80294, but the crude
+      sup bound suffices provided the x-dependence is kept on BOTH sides: with
+      |x+iy| <= sqrt(5)/2, the requirement is pi sqrt((1-x)^2 + 1/4) <= 1.78 + 2/(pi x sqrt 5) for
+      x in [1/2, 1], whose left side minus the second term is largest at x = 1/2, where it is
+      1.652 against 1.78. Dropping the x-dependence does NOT work: the uniform bounds give
+      2.2214 against 2.0648.
       THE REST OF THE STAGE, unchanged.
       Nobody has formalized this, upstream or anywhere. It needs: F instantiated as the pole-free
       part of -zeta'/zeta with PNT+'s hypotheses discharged (MeromorphicOn, ConjSymm,
