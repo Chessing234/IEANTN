@@ -97,6 +97,7 @@ graph LR
   NZeroCount_v1["<b>ZeroCount.v1</b><br/>2 claims<br/><i>weakest: cited</i>"]
   NZeroFreeHeight_v1["<b>ZeroFreeHeight.v1</b><br/>1 claim<br/><i>weakest: verified, stale</i>"]
   NZetaLogDeriv_v1["<b>ZetaLogDeriv.v1</b><br/>1 claim<br/><i>weakest: verified</i>"]
+  NZetaLogDerivValues_v1["<b>ZetaLogDerivValues.v1</b><br/>5 claims<br/><i>weakest: computation</i>"]
   NZetaZeroes_v1["<b>ZetaZeroes.v1</b><br/>6 claims<br/><i>weakest: verified</i>"]
   NBKLNW_v1 -->|8| NFKS2_v1
   NButhe_v1 -->|2| NBKLNW_v1
@@ -153,7 +154,7 @@ graph LR
   class NCH2_v4 lean_comparator_drifted;
   class NWedeniwski_v1 asserted;
   class NBKLNW_v1,NButhe_v1,NButhe2016_v1,NCH2_v1,NDudekPlatt_v1,NDusart2018_v1,NFKS_v1,NHiary2016_v1,NKLN_v1,NKadiri2005_v1,NMT_v1,NPlattTrudgian_v1,NPlattTrudgian2021_v1,NRosserSchoenfeld_v1,NTrudgian2011_v1,NZeroCount_v1 literature;
-  class NButheNumerics_v1,NDudekPlattNumerics_v1,NDudekPlattNumerics_v2,NFKBJ_v1,NFKS2Numerics_v1,NLowZeroes_v1,NPlatt2015_v1,NPlatt2017_v1 numerical;
+  class NButheNumerics_v1,NDudekPlattNumerics_v1,NDudekPlattNumerics_v2,NFKBJ_v1,NFKS2Numerics_v1,NLowZeroes_v1,NPlatt2015_v1,NPlatt2017_v1,NZetaLogDerivValues_v1 numerical;
   class NCH2_v2,NDudekPlatt_v2,NDudekPlatt_v3,NFKS2_v1,NFKS2_v2,NLcm_v1,NLcm_v2,NPrimeInterval_v1,NZeroFreeHeight_v1 lean_comparator_stale;
   class NCH2_v3,NGammaAsymptotics_v2,NZetaLogDeriv_v1,NZetaZeroes_v1 lean_comparator;
   click NBKLNW_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/BKLNW-v1.md" _blank
@@ -198,6 +199,7 @@ graph LR
   click NZeroCount_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZeroCount-v1.md" _blank
   click NZeroFreeHeight_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZeroFreeHeight-v1.md" _blank
   click NZetaLogDeriv_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDeriv-v1.md" _blank
+  click NZetaLogDerivValues_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDerivValues-v1.md" _blank
   click NZetaZeroes_v1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaZeroes-v1.md" _blank
   classDef lean_comparator fill:#dafbe1,stroke:#1a7f37,color:#1f2328;
   classDef lean_comparator_stale fill:#e9f7ec,stroke:#2da44e,color:#1f2328;
@@ -380,6 +382,13 @@ graph LR
   subgraph sgZetaLogDeriv_v1["ZetaLogDeriv.v1"]
     ZetaLogDeriv_v1_logDeriv_functional_equation["<b>logDeriv_functional_equation</b><br/><i>verified</i>"]
   end
+  subgraph sgZetaLogDerivValues_v1["ZetaLogDerivValues.v1"]
+    ZetaLogDerivValues_v1_deriv_logDeriv_neg_one["<b>deriv_logDeriv_neg_one</b><br/><i>computation</i>"]
+    ZetaLogDerivValues_v1_logDeriv_laurent_alternating["<b>logDeriv_laurent_alternating</b><br/><i>computation</i>"]
+    ZetaLogDerivValues_v1_logDeriv_neg_one["<b>logDeriv_neg_one</b><br/><i>computation</i>"]
+    ZetaLogDerivValues_v1_logDeriv_three_halves["<b>logDeriv_three_halves</b><br/><i>computation</i>"]
+    ZetaLogDerivValues_v1_logDeriv_two["<b>logDeriv_two</b><br/><i>computation</i>"]
+  end
   subgraph sgZetaZeroes_v1["ZetaZeroes.v1"]
     ZetaZeroes_v1_exists_ordinate_free_height["<b>exists_ordinate_free_height</b><br/><i>verified</i>"]
     ZetaZeroes_v1_finite_zeroes_on_compact["<b>finite_zeroes_on_compact</b><br/><i>verified</i>"]
@@ -527,7 +536,7 @@ graph LR
   class CH2_v2_proposition_2_4_lower,CH2_v2_proposition_2_4_upper,DudekPlatt_v2_ramanujan_inequality_3915,DudekPlatt_v3_criterion,FKS2_v1_corollary_14,FKS2_v1_corollary_22,FKS2_v1_corollary_23,FKS2_v1_corollary_26,FKS2_v2_proposition_13,FKS2_v2_theorem_3,Lcm_v1_lcmUpto_not_highlyAbundant,Lcm_v2_lcmUpto_not_highlyAbundant_of_primeGap,PrimeInterval_v1_classicalBound_hasPrimeInInterval,PrimeInterval_v1_eTheta_criterion,PrimeInterval_v1_numericalBound_hasPrimeInInterval,PrimeInterval_v1_theta_characterisation,ZeroFreeHeight_v1_classical_region_descends lean_comparator_stale;
   class BKLNW_v1_corollary_5_1,BKLNW_v1_table8_psi_bound,BKLNW_v1_table8_psi_bound_above,BKLNW_v1_theta_error_le_one,Buthe_v1_theorem_2_li_gt_pi,Buthe_v1_theorem_2_li_minus_pi,Buthe_v1_theorem_2_li_minus_riemann_pi,Buthe_v1_theorem_2_psi,Buthe_v1_theorem_2_theta,Buthe_v1_theorem_2_theta_lower,Buthe2016_v1_theorem_2_li_minus_pi,Buthe2016_v1_theorem_2_li_minus_riemann_pi,Buthe2016_v1_theorem_2_psi,Buthe2016_v1_theorem_2_theta,CH2_v1_corollary_1_2_lambda_sum,CH2_v1_corollary_1_2_psi,CH2_v1_corollary_1_3_lambda_sum,CH2_v1_corollary_1_3_psi,DudekPlatt_v1_largest_counterexample_on_rh,DudekPlatt_v1_ramanujan_inequality,Dusart2018_v1_proposition_5_4,FKS_v1_psi_bound_all_x,FKS_v1_psi_classical_bound,Hiary2016_v1_zeta_half_line_bound,KLN_v1_subconvexity_bound,KLN_v1_zero_density,Kadiri2005_v1_zero_free_region,MT_v1_zero_free_region,MT_v1_zero_free_region_sharpened,PlattTrudgian_v1_rh_up_to,PlattTrudgian2021_v1_theorem_1_classical,PlattTrudgian2021_v1_theorem_1_numerical,RosserSchoenfeld_v1_zero_free_region,Trudgian2011_v1_integral_S_bound,ZeroCount_v1_rvm_error_bound,ZeroCount_v1_rvm_error_small literature;
   class Buthe_v2_lemma_3_bounds,Buthe_v2_lemma_3_positivity,ContourIntegration_v1_residue_theorem_rectangle,CotangentSeries_v1_cot_series_zeta_values,GammaAsymptotics_v1_digamma_sub_log_isBigO none_yet;
-  class ButheNumerics_v1_lemma_3_constant_gt_at_10,ButheNumerics_v1_lemma_3_constant_nonpos,ButheNumerics_v1_li_minus_pi_below_1e7,DudekPlattNumerics_v1_pi_two_sided_paper,DudekPlattNumerics_v2_pi_two_sided_pnt,FKBJ_v1_rh_up_to,FKS2Numerics_v1_corollary_22_mid_range,FKS2Numerics_v1_corollary_23_mid_range,FKS2Numerics_v1_nu_asymp_e30_le,FKS2Numerics_v1_table6_row2_floor,FKS2Numerics_v1_theta_asymp_ge_one_below_e30,LowZeroes_v1_sum_inv_ordinates_below_2e4,Platt2015_v1_rh_up_to,Platt2017_v1_rh_up_to numerical;
+  class ButheNumerics_v1_lemma_3_constant_gt_at_10,ButheNumerics_v1_lemma_3_constant_nonpos,ButheNumerics_v1_li_minus_pi_below_1e7,DudekPlattNumerics_v1_pi_two_sided_paper,DudekPlattNumerics_v2_pi_two_sided_pnt,FKBJ_v1_rh_up_to,FKS2Numerics_v1_corollary_22_mid_range,FKS2Numerics_v1_corollary_23_mid_range,FKS2Numerics_v1_nu_asymp_e30_le,FKS2Numerics_v1_table6_row2_floor,FKS2Numerics_v1_theta_asymp_ge_one_below_e30,LowZeroes_v1_sum_inv_ordinates_below_2e4,Platt2015_v1_rh_up_to,Platt2017_v1_rh_up_to,ZetaLogDerivValues_v1_deriv_logDeriv_neg_one,ZetaLogDerivValues_v1_logDeriv_laurent_alternating,ZetaLogDerivValues_v1_logDeriv_neg_one,ZetaLogDerivValues_v1_logDeriv_three_halves,ZetaLogDerivValues_v1_logDeriv_two numerical;
   click BKLNW_v1_corollary_5_1 href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/BKLNW-v1.md#corollary_5_1" _blank
   click BKLNW_v1_table8_psi_bound href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/BKLNW-v1.md#table8_psi_bound" _blank
   click BKLNW_v1_table8_psi_bound_above href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/BKLNW-v1.md#table8_psi_bound_above" _blank
@@ -608,6 +617,11 @@ graph LR
   click ZeroCount_v1_rvm_error_small href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZeroCount-v1.md#rvm_error_small" _blank
   click ZeroFreeHeight_v1_classical_region_descends href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZeroFreeHeight-v1.md#classical_region_descends" _blank
   click ZetaLogDeriv_v1_logDeriv_functional_equation href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDeriv-v1.md#logDeriv_functional_equation" _blank
+  click ZetaLogDerivValues_v1_deriv_logDeriv_neg_one href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDerivValues-v1.md#deriv_logDeriv_neg_one" _blank
+  click ZetaLogDerivValues_v1_logDeriv_laurent_alternating href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_laurent_alternating" _blank
+  click ZetaLogDerivValues_v1_logDeriv_neg_one href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_neg_one" _blank
+  click ZetaLogDerivValues_v1_logDeriv_three_halves href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_three_halves" _blank
+  click ZetaLogDerivValues_v1_logDeriv_two href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_two" _blank
   click ZetaZeroes_v1_exists_ordinate_free_height href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaZeroes-v1.md#exists_ordinate_free_height" _blank
   click ZetaZeroes_v1_finite_zeroes_on_compact href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaZeroes-v1.md#finite_zeroes_on_compact" _blank
   click ZetaZeroes_v1_no_nontrivial_zeroes_left href "https://github.com/teorth/IEANTN/blob/main/docs/nodes/ZetaZeroes-v1.md#no_nontrivial_zeroes_left" _blank
@@ -843,6 +857,16 @@ A line is one claim, indented under whatever assumes it.
 
 - [`ZetaLogDeriv.v1.logDeriv_functional_equation`](docs/nodes/ZetaLogDeriv-v1.md#logDeriv_functional_equation) — verified
 
+- [`ZetaLogDerivValues.v1.deriv_logDeriv_neg_one`](docs/nodes/ZetaLogDerivValues-v1.md#deriv_logDeriv_neg_one) — computation
+
+- [`ZetaLogDerivValues.v1.logDeriv_laurent_alternating`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_laurent_alternating) — computation
+
+- [`ZetaLogDerivValues.v1.logDeriv_neg_one`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_neg_one) — computation
+
+- [`ZetaLogDerivValues.v1.logDeriv_three_halves`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_three_halves) — computation
+
+- [`ZetaLogDerivValues.v1.logDeriv_two`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_two) — computation
+
 - [`ZetaZeroes.v1.exists_ordinate_free_height`](docs/nodes/ZetaZeroes-v1.md#exists_ordinate_free_height) — verified
 
 - [`ZetaZeroes.v1.finite_zeroes_on_compact`](docs/nodes/ZetaZeroes-v1.md#finite_zeroes_on_compact) — verified
@@ -920,6 +944,11 @@ rather than maintained.
 | [`RosserSchoenfeld.v1.zero_free_region`](docs/nodes/RosserSchoenfeld-v1.md#zero_free_region) | cited | 0 | **not yet traced** |
 | [`ZeroCount.v1.rvm_error_bound`](docs/nodes/ZeroCount-v1.md#rvm_error_bound) | cited | 0 | none |
 | [`ZeroCount.v1.rvm_error_small`](docs/nodes/ZeroCount-v1.md#rvm_error_small) | cited | 0 | none |
+| [`ZetaLogDerivValues.v1.deriv_logDeriv_neg_one`](docs/nodes/ZetaLogDerivValues-v1.md#deriv_logDeriv_neg_one) | computation | 0 | none |
+| [`ZetaLogDerivValues.v1.logDeriv_laurent_alternating`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_laurent_alternating) | computation | 0 | none |
+| [`ZetaLogDerivValues.v1.logDeriv_neg_one`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_neg_one) | computation | 0 | none |
+| [`ZetaLogDerivValues.v1.logDeriv_three_halves`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_three_halves) | computation | 0 | none |
+| [`ZetaLogDerivValues.v1.logDeriv_two`](docs/nodes/ZetaLogDerivValues-v1.md#logDeriv_two) | computation | 0 | none |
 
 ## Nodes that state nothing yet
 
