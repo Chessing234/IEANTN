@@ -7,7 +7,7 @@ column says what a receipt is presently worth, not merely what was claimed for i
 reason a receipt has stopped standing is below, and `python scripts/ieantn.py status`
 adds the environment detail.
 
-46 node version(s), 86 conclusion(s).  3 state nothing yet.
+47 node version(s), 91 conclusion(s).  3 state nothing yet.
 
 ## Evidence
 
@@ -18,7 +18,7 @@ adds the environment detail.
 | `lean-comparator` | 29 |
 | `literature` | 36 |
 | `none-yet` | 5 |
-| `numerical` | 14 |
+| `numerical` | 19 |
 
 ## Nodes
 
@@ -107,6 +107,11 @@ adds the environment detail.
 | `ZeroCount.v1` | stub | `rvm_error_small` | literature | 0 | #64 |
 | `ZeroFreeHeight.v1` | active | `classical_region_descends` | lean-comparator-stale | 0 | #30 |
 | `ZetaLogDeriv.v1` | active | `logDeriv_functional_equation` | lean-comparator | 0 | #64 |
+| `ZetaLogDerivValues.v1` | stub | `logDeriv_two` | numerical | 0 | - |
+| `ZetaLogDerivValues.v1` | stub | `logDeriv_three_halves` | numerical | 0 | - |
+| `ZetaLogDerivValues.v1` | stub | `logDeriv_neg_one` | numerical | 0 | - |
+| `ZetaLogDerivValues.v1` | stub | `deriv_logDeriv_neg_one` | numerical | 0 | - |
+| `ZetaLogDerivValues.v1` | stub | `logDeriv_laurent_alternating` | numerical | 0 | - |
 | `ZetaZeroes.v1` | active | `no_nontrivial_zeroes_left` | lean-comparator | 0 | - |
 | `ZetaZeroes.v1` | active | `zeroes_off_axis_in_strip` | lean-comparator | 0 | - |
 | `ZetaZeroes.v1` | active | `finite_zeroes_on_compact` | lean-comparator | 0 | - |
