@@ -7,7 +7,7 @@ column says what a receipt is presently worth, not merely what was claimed for i
 reason a receipt has stopped standing is below, and `python scripts/ieantn.py status`
 adds the environment detail.
 
-45 node version(s), 85 conclusion(s).  3 state nothing yet.
+46 node version(s), 86 conclusion(s).  3 state nothing yet.
 
 ## Evidence
 
@@ -17,7 +17,7 @@ adds the environment detail.
 | `bridged` | 1 |
 | `lean-comparator` | 29 |
 | `literature` | 36 |
-| `none-yet` | 4 |
+| `none-yet` | 5 |
 | `numerical` | 14 |
 
 ## Nodes
@@ -44,8 +44,8 @@ adds the environment detail.
 | `ButheNumerics.v1` | stub | `lemma_3_constant_nonpos` | numerical | 0 | - |
 | `ButheNumerics.v1` | stub | `li_minus_pi_below_1e7` | numerical | 0 | - |
 | `ButheNumerics.v1` | stub | `lemma_3_constant_gt_at_10` | numerical | 0 | - |
-| `CH2.v1` | awaiting-solution | `corollary_1_2_psi` | literature | 1 | - |
-| `CH2.v1` | awaiting-solution | `corollary_1_2_lambda_sum` | literature | 1 | - |
+| `CH2.v1` | awaiting-solution | `corollary_1_2_psi` | literature | 2 | - |
+| `CH2.v1` | awaiting-solution | `corollary_1_2_lambda_sum` | literature | 2 | - |
 | `CH2.v1` | awaiting-solution | `corollary_1_3_psi` | literature | 2 | - |
 | `CH2.v1` | awaiting-solution | `corollary_1_3_lambda_sum` | literature | 2 | - |
 | `CH2.v2` | active | `proposition_2_4_upper` | lean-comparator-stale | 0 | #64 |
@@ -56,6 +56,7 @@ adds the environment detail.
 | `CH2.v4` | active | `contour_shift` | lean-comparator-drifted | 1 | #64 |
 | `ChengGraham2004.v1` | stub | *(none yet)* | - | - | - |
 | `ContourIntegration.v1` | awaiting-solution | `residue_theorem_rectangle` | none-yet | 0 | #64 |
+| `CotangentSeries.v1` | awaiting-solution | `cot_series_zeta_values` | none-yet | 0 | - |
 | `DudekPlatt.v1` | stub | `ramanujan_inequality` | literature | 2 | - |
 | `DudekPlatt.v1` | stub | `largest_counterexample_on_rh` | literature | 0 | - |
 | `DudekPlatt.v2` | active | `ramanujan_inequality_3915` | lean-comparator-stale | 2 | #54 |
@@ -169,6 +170,7 @@ downstream.
 | `FKS2Numerics.v1.table6_row2_floor` | 2 |
 | `FKS2Numerics.v1.corollary_23_mid_range` | 2 |
 | `DudekPlatt.v3.criterion` | 2 |
+| `CotangentSeries.v1.cot_series_zeta_values` | 2 |
 | `Buthe2016.v1.theorem_2_psi` | 2 |
 | `Wedeniwski.v1.rh_up_to` | 1 |
 | `Trudgian2011.v1.integral_S_bound` | 1 |
