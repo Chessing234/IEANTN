@@ -2177,4 +2177,239 @@ theorem norm_deriv_mul_coth_le {z : ℂ} (hz : z ≠ 0) (hy : |z.im| ≤ Real.pi
         Summable.tsum_le_tsum hterm hsummable Hmaj.summable
     _ = ‖z‖ := Hmaj.tsum_eq
 
+/-! ### `lem:sibelius` (b) for `½ ≤ x < 1`
+
+The remaining case, and the one the paper proves with `lem:cothder`. Writing `s = iπ(1-z)`,
+
+  `F(z) = (1 - s coth s)/π`,   so   `F'(z) = i (s coth s)'`,
+
+and `Im s = π(1 - Re z)` lies in `(0, π/2]` exactly when `Re z ∈ [½, 1)`. So `lem:cothder` gives
+`|F'(z)| ≤ |s| = π|1-z|` on the whole of the segment, and the mean value inequality does the rest.
+
+**Stated on `[½, 1)`, not `[½, 1]`.** At `z = 1` Lean's `Fc` is a junk value: `Fc 1 = 1/π`, since
+`(1-z) cot(π(1-z))` becomes `0 * cot 0 = 0`, while its true limit is `1/π` and so `F(1) = 0`. The
+endpoint has to be recovered by continuity, or `Fc` redefined; it is not proved here.
+
+**The paper's `arcsinh` integral is not needed.** It evaluates `∫₀^{1/2} √(¼ + r²) dr` to get
+`M = 1.80294…`; the crude supremum bound suffices instead, provided the dependence on `x` is kept
+on *both* sides — the requirement becomes `π√((1-x)² + ¼) ≤ 1.78 + 2/(πx√5)`, whose worst point is
+`x = ½`, where it reads `2.2214 ≤ 2.3494`. Dropping the `x`-dependence gives `2.2214 ≤ 2.0648`,
+which is false. -/
+
+/-- `sinh s ≠ 0` when `0 < Im s ≤ π/2`: the zeros of `sinh` are at `iπℤ`. -/
+theorem sinh_ne_zero_of_im_pos {s : ℂ} (h1 : 0 < s.im) (h2 : s.im ≤ Real.pi / 2) :
+    Complex.sinh s ≠ 0 := by
+  intro hcon
+  have hsin : Complex.sin (s * Complex.I) = 0 := by
+    rw [Complex.sin_mul_I, hcon, zero_mul]
+  obtain ⟨k, hk⟩ := Complex.sin_eq_zero_iff.mp hsin
+  have hre : -s.im = (k : ℝ) * Real.pi := by
+    have h := congrArg Complex.re hk
+    simpa using h
+  have hpi := Real.pi_pos
+  have hklt : (k : ℝ) < 0 := by nlinarith
+  have hkgt : (-1 : ℝ) < (k : ℝ) := by nlinarith
+  have h1' : (-1 : ℤ) < k := by exact_mod_cast hkgt
+  have h2' : k < 0 := by exact_mod_cast hklt
+  omega
+
+/-- `F(z) = (1 - G(iπ(1-z)))/π` with `G(s) = s coth s`, the form the chain rule wants. -/
+theorem Fc_eq_mulCoth (z : ℂ) :
+    Fc z = (1 - (Real.pi : ℂ) * (1 - z) * Complex.I
+      * Complex.cosh ((Real.pi : ℂ) * (1 - z) * Complex.I)
+      / Complex.sinh ((Real.pi : ℂ) * (1 - z) * Complex.I)) / (Real.pi : ℂ) := by
+  rw [Fc_eq, mul_cot_eq_mul_coth, mul_div_assoc]
+
+/-- **`F'(z) = i (s coth s)'` at `s = iπ(1-z)`**, the chain rule behind `lem:cothder`'s use. -/
+theorem hasDerivAt_Fc {z : ℂ}
+    (hs : Complex.sinh ((Real.pi : ℂ) * (1 - z) * Complex.I) ≠ 0) :
+    HasDerivAt Fc (Complex.I * deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w)
+      ((Real.pi : ℂ) * (1 - z) * Complex.I)) z := by
+  have hpi : ((Real.pi : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  set s : ℂ := (Real.pi : ℂ) * (1 - z) * Complex.I with hsdef
+  have hGd : DifferentiableAt ℂ (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) s := by
+    refine DifferentiableAt.div ?_ ?_ hs
+    · exact (differentiable_id.mul Complex.differentiable_cosh).differentiableAt
+    · exact Complex.differentiable_sinh.differentiableAt
+  have hG : HasDerivAt (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w)
+      (deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) s) s := hGd.hasDerivAt
+  have hinner : HasDerivAt (fun w : ℂ ↦ (Real.pi : ℂ) * (1 - w) * Complex.I)
+      (-((Real.pi : ℂ) * Complex.I)) z := by
+    have h1 : HasDerivAt (fun w : ℂ ↦ (Real.pi : ℂ) * (1 - w)) (-(Real.pi : ℂ)) z := by
+      simpa using ((hasDerivAt_id z).const_sub (1 : ℂ)).const_mul (Real.pi : ℂ)
+    simpa using h1.mul_const Complex.I
+  have hcomp := hG.comp z hinner
+  have hnum : HasDerivAt (fun w : ℂ ↦ 1 - (fun v : ℂ ↦ v * Complex.cosh v / Complex.sinh v)
+      ((Real.pi : ℂ) * (1 - w) * Complex.I))
+      (-(deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) s
+        * -((Real.pi : ℂ) * Complex.I))) z := hcomp.const_sub 1
+  have hdiv := hnum.div_const (Real.pi : ℂ)
+  have hfun : (fun w : ℂ ↦ (1 - (fun v : ℂ ↦ v * Complex.cosh v / Complex.sinh v)
+      ((Real.pi : ℂ) * (1 - w) * Complex.I)) / (Real.pi : ℂ)) = Fc := by
+    funext w
+    rw [Fc_eq_mulCoth]
+  rw [hfun] at hdiv
+  have hval : -(deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) s
+      * -((Real.pi : ℂ) * Complex.I)) / (Real.pi : ℂ)
+      = Complex.I * deriv (fun w : ℂ ↦ w * Complex.cosh w / Complex.sinh w) s := by
+    field_simp
+  rwa [hval] at hdiv
+
+/-- **`|F'(z)| ≤ π |1 - z|`** for `Re z ∈ [½, 1)`, `|Im z| ≤ ½`, straight from `lem:cothder`. -/
+theorem norm_deriv_Fc_le {z : ℂ} (hx : 1 / 2 ≤ z.re) (hx1 : z.re < 1) :
+    ‖deriv Fc z‖ ≤ Real.pi * ‖1 - z‖ := by
+  have hpi := Real.pi_pos
+  set s : ℂ := (Real.pi : ℂ) * (1 - z) * Complex.I with hsdef
+  have hsim : s.im = Real.pi * (1 - z.re) := by
+    rw [hsdef]; simp
+  have hsre : s.re = Real.pi * z.im := by
+    rw [hsdef]; simp
+  have him1 : 0 < s.im := by rw [hsim]; nlinarith
+  have him2 : s.im ≤ Real.pi / 2 := by rw [hsim]; nlinarith
+  have hs := sinh_ne_zero_of_im_pos him1 him2
+  have hs0 : s ≠ 0 := by
+    intro hcon
+    rw [hcon] at him1
+    simp at him1
+  have habs : |s.im| ≤ Real.pi / 2 := by rw [abs_of_pos him1]; exact him2
+  have hnorm : ‖s‖ = Real.pi * ‖1 - z‖ := by
+    rw [hsdef, norm_mul, norm_mul, Complex.norm_I, mul_one, Complex.norm_real,
+      Real.norm_eq_abs, abs_of_pos hpi]
+  rw [(hasDerivAt_Fc hs).deriv, norm_mul, Complex.norm_I, one_mul, ← hnorm]
+  exact norm_deriv_mul_coth_le hs0 habs
+
+/-- The numerical core of the case `½ ≤ x < 1`: `π a ≤ 1.78 + 1/(πxb)` whenever
+`a² ≤ (1-x)² + ¼` and `b² ≤ 5/4`.
+
+`a` is `‖1-z‖` and `b` is `‖x+iy‖`. Worst at `x = ½`, where it reads `2.2214 ≤ 2.3494`; the
+`x`-dependence has to be kept on both sides, since the uniform bounds give `2.2214 ≤ 2.0648`. -/
+theorem cothder_numeric {x a b : ℝ} (hx : 1 / 2 ≤ x) (hx1 : x ≤ 1)
+    (ha0 : 0 ≤ a) (ha2 : a ^ 2 ≤ (1 - x) ^ 2 + 1 / 4)
+    (hb0 : 0 < b) (hb2 : b ^ 2 ≤ 5 / 4) :
+    Real.pi * a ≤ 1.78 + 1 / (Real.pi * x * b) := by
+  have hpi1 : (3.141592 : ℝ) < Real.pi := Real.pi_gt_d6
+  have hpi2 : Real.pi < 3.141593 := Real.pi_lt_d6
+  have hpisq : Real.pi ^ 2 ≤ 9.86961 := by nlinarith
+  have hx0 : (0 : ℝ) < x := by linarith
+  have hax : (0 : ℝ) ≤ a * x := mul_nonneg ha0 hx0.le
+  have hb : b ≤ 1.1181 := by nlinarith
+  have hden : (0 : ℝ) < Real.pi * x * b := by positivity
+  have hden' : (0 : ℝ) < Real.pi * x * 1.1181 := by positivity
+  have hstep : 1 / (Real.pi * x * 1.1181) ≤ 1 / (Real.pi * x * b) := by
+    refine one_div_le_one_div_of_le hden ?_
+    nlinarith
+  have hmain : Real.pi * a ≤ 1.78 + 1 / (Real.pi * x * 1.1181) := by
+    rw [← sub_le_iff_le_add', le_div_iff₀ hden']
+    -- the polynomial inequality
+    have hu : (0 : ℝ) ≤ x - 1 / 2 := by linarith
+    have hu2 : (0 : ℝ) ≤ 1 / 4 - (x - 1 / 2) ^ 2 := by nlinarith
+    have hkey : (0 : ℝ) ≤ (x - 1 / 2) ^ 2 * (1 / 4 - (x - 1 / 2) ^ 2) :=
+      mul_nonneg (sq_nonneg _) hu2
+    have hsq : (11.0353 * (a * x)) ^ 2 ≤ (6.2524 * x + 1) ^ 2 := by
+      have hax2 : a ^ 2 * x ^ 2 ≤ ((1 - x) ^ 2 + 1 / 4) * x ^ 2 :=
+        mul_le_mul_of_nonneg_right ha2 (sq_nonneg x)
+      nlinarith [hkey, hu, hax2]
+    have hR : (0 : ℝ) < 6.2524 * x + 1 := by linarith
+    have hle : 11.0353 * (a * x) ≤ 6.2524 * x + 1 := by
+      nlinarith [hsq, hax, hR]
+    have h1 : (1.1181 : ℝ) * Real.pi ^ 2 ≤ 11.0353 := by nlinarith
+    have h2 : (6.2524 : ℝ) * x ≤ 1.78 * 1.1181 * Real.pi * x := by nlinarith
+    calc (Real.pi * a - 1.78) * (Real.pi * x * 1.1181)
+        = 1.1181 * Real.pi ^ 2 * (a * x) - 1.78 * 1.1181 * Real.pi * x := by ring
+      _ ≤ 11.0353 * (a * x) - 1.78 * 1.1181 * Real.pi * x := by nlinarith [h1, hax]
+      _ ≤ (6.2524 * x + 1) - 1.78 * 1.1181 * Real.pi * x := by linarith
+      _ ≤ 1 := by linarith
+  linarith
+
+/-- `sinh(iπ(1-w)) ≠ 0` on the strip `½ ≤ Re w < 1`. -/
+theorem sinh_ne_zero_Fc {w : ℂ} (hx : 1 / 2 ≤ w.re) (hx1 : w.re < 1) :
+    Complex.sinh ((Real.pi : ℂ) * (1 - w) * Complex.I) ≠ 0 := by
+  have hpi := Real.pi_pos
+  have hsim : ((Real.pi : ℂ) * (1 - w) * Complex.I).im = Real.pi * (1 - w.re) := by simp
+  refine sinh_ne_zero_of_im_pos ?_ ?_
+  · rw [hsim]; nlinarith
+  · rw [hsim]; nlinarith
+
+/-- **`lem:sibelius` (b) for `½ ≤ x < 1`.**
+
+The mean value inequality along the vertical segment, with `|F'| ≤ π|1-w|` from `lem:cothder` and
+`cothder_numeric` closing the arithmetic. -/
+theorem norm_Fc_sub_le_upper {x y : ℝ} (hx : 1 / 2 ≤ x) (hx1 : x < 1) (hy : |y| ≤ 1 / 2) :
+    ‖Fc ((x : ℂ) + (y : ℂ) * Complex.I) - Fc (x : ℂ)‖
+      ≤ |y| / (Real.pi * x * ‖(x : ℂ) + (y : ℂ) * Complex.I‖) + 1.78 * |y| := by
+  have hpi := Real.pi_pos
+  have hx0 : (0 : ℝ) < x := by linarith
+  set b : ℝ := ‖(x : ℂ) + (y : ℂ) * Complex.I‖ with hbdef
+  have hb2 : b ^ 2 = x ^ 2 + y ^ 2 := by
+    rw [hbdef, Complex.sq_norm, Complex.normSq_apply]
+    simp
+    ring
+  have hb0 : (0 : ℝ) < b := by
+    have : (0 : ℝ) < x ^ 2 + y ^ 2 := by positivity
+    nlinarith [norm_nonneg ((x : ℂ) + (y : ℂ) * Complex.I)]
+  have hy2 : y ^ 2 ≤ 1 / 4 := by nlinarith [abs_nonneg y, sq_abs y]
+  have hb54 : b ^ 2 ≤ 5 / 4 := by rw [hb2]; nlinarith
+  set K : ℝ := 1.78 + 1 / (Real.pi * x * b) with hK
+  set S : Set ℂ := vertSeg x with hS
+  have hmemA : (x : ℂ) ∈ S := by
+    refine ⟨by simp, ?_⟩
+    simp only [Complex.ofReal_im, abs_zero]
+    norm_num
+  have hmemB : (x : ℂ) + (y : ℂ) * Complex.I ∈ S := by
+    refine ⟨by simp, ?_⟩
+    simpa using hy
+  have hbound : ∀ w ∈ S, ‖(ContinuousLinearMap.smulRight (1 : ℂ →L[ℂ] ℂ) (deriv Fc w))‖ ≤ K := by
+    intro w hw
+    have hre : w.re = x := hw.1
+    have hw1 : 1 / 2 ≤ w.re := by rw [hre]; linarith
+    have hw2 : w.re < 1 := by rw [hre]; linarith
+    have ha := norm_deriv_Fc_le hw1 hw2
+    have ha2 : ‖1 - w‖ ^ 2 ≤ (1 - x) ^ 2 + 1 / 4 := by
+      rw [Complex.sq_norm, Complex.normSq_apply]
+      have him : w.im ^ 2 ≤ 1 / 4 := by
+        have := hw.2
+        nlinarith [abs_nonneg w.im, sq_abs w.im]
+      simp only [Complex.sub_re, Complex.one_re, Complex.sub_im, Complex.one_im, zero_sub]
+      rw [hre]
+      nlinarith
+    rw [ContinuousLinearMap.norm_smulRight_apply, norm_one, one_mul]
+    refine le_trans ha ?_
+    exact cothder_numeric hx hx1.le (norm_nonneg _) ha2 hb0 hb54
+  have hderiv : ∀ w ∈ S, HasFDerivWithinAt Fc
+      (ContinuousLinearMap.smulRight (1 : ℂ →L[ℂ] ℂ) (deriv Fc w)) S w := by
+    intro w hw
+    have hre : w.re = x := hw.1
+    have hw1 : 1 / 2 ≤ w.re := by rw [hre]; linarith
+    have hw2 : w.re < 1 := by rw [hre]; linarith
+    have hd := hasDerivAt_Fc (sinh_ne_zero_Fc hw1 hw2)
+    have hd' : HasDerivAt Fc (deriv Fc w) w := by rw [hd.deriv]; exact hd
+    exact hd'.hasFDerivAt.hasFDerivWithinAt
+  have key := (convex_vertSeg x).norm_image_sub_le_of_norm_hasFDerivWithin_le
+    hderiv hbound hmemA hmemB
+  have hdist : ‖((x : ℂ) + (y : ℂ) * Complex.I) - (x : ℂ)‖ = |y| := by
+    rw [show ((x : ℂ) + (y : ℂ) * Complex.I) - (x : ℂ) = (y : ℂ) * Complex.I by ring,
+      norm_mul, Complex.norm_I, mul_one, Complex.norm_real, Real.norm_eq_abs]
+  rw [hdist, hK] at key
+  have hDne : Real.pi * x * b ≠ 0 := by positivity
+  have hid : (1.78 + 1 / (Real.pi * x * b)) * |y|
+      = |y| / (Real.pi * x * b) + 1.78 * |y| := by
+    field_simp
+    ring
+  rw [hid] at key
+  exact key
+
+/-- **`lem:sibelius` (b)**, both cases, on `0 < x < 1`.
+
+The case `x ≤ ½` is part (c) plus `|1/(x+iy) - 1/x| = |y|/(x|x+iy|)`; the case `x ≥ ½` is
+`lem:cothder` and the mean value inequality. The endpoint `x = 1` is excluded because Lean's `Fc`
+is a junk value there. -/
+theorem sibelius_b
+    (hcs : CotangentSeries.v1.cot_series_zeta_values)
+    {x y : ℝ} (hx0 : 0 < x) (hx1 : x < 1) (hy : |y| ≤ 1 / 2) :
+    ‖Fc ((x : ℂ) + (y : ℂ) * Complex.I) - Fc (x : ℂ)‖
+      ≤ |y| / (Real.pi * x * ‖(x : ℂ) + (y : ℂ) * Complex.I‖) + 1.78 * |y| := by
+  rcases le_or_gt x (1 / 2) with h | h
+  · exact norm_Fc_sub_le hcs hx0 h hy
+  · exact norm_Fc_sub_le_upper h.le hx1 hy
+
 end CH2Section7
