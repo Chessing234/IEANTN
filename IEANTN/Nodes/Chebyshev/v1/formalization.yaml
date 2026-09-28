@@ -1,0 +1,186 @@
+# Node metadata for `Chebyshev.v1`.  See docs/NODES.md.
+#
+# The one node in the network that imports nothing and is meant to be proved rather than cited.
+# Its `none` import status is a real none: Chebyshev's estimates need no zero-free region, no
+# verification height and no zero-density input, which is exactly what makes them the floor the
+# rest of the network stands on.
+version: "v0.4"
+
+node:
+  id: Chebyshev.v1
+  family: Chebyshev
+  version: v1
+  kind: paper
+  status: awaiting-verification
+
+project:
+  name: "Chebyshev's elementary bounds on psi"
+  description: >-
+    The classical elementary estimates for the Chebyshev function psi(x), with explicit constants
+    and no analytic input: psi(x) >= a x - 5 log x + 5 and psi(x) <= 6 a x / 5 +
+    (log(x/5)/log 6)(5 log x - 5) for x >= 30, where a = (7/15) log 2 + (3/10) log 3 + (1/6) log 5
+    = 0.9212920..., together with the numerical value of a and the small-range bound
+    psi(x) <= 1.015 x for 0 < x <= 30. The argument is Chebyshev's, in the form Diamond's survey
+    presents it: compare T(x) = sum_{n <= x} log n with its integral, rewrite it through
+    log n = sum_{d | n} Lambda(d), and weight by nu = e_1 - e_2 - e_3 - e_5 + e_30, whose associated
+    step function E takes only the values 0 and 1.
+  authors: ["Terence Tao"]
+  license: "Apache-2.0"
+  responsible_maintainers: ["Terence Tao"]
+
+repository:
+  role: substantive-development
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11N05", "11A41"]
+
+conclusions:
+- id: constant_bounds
+  declaration: Chebyshev.v1.constant_bounds
+  challenge: Chebyshev.v1.challenge_constant_bounds
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof is in Solutions/Chebyshev.v1, awaiting a Comparator receipt. The statement is
+      arithmetic about three logarithms and rests on nothing else; the solution proves the log
+      bounds it needs from Mathlib rather than from an interval-arithmetic package, so that the
+      axiom set stays within the three Comparator permits.
+  designated: unjustified
+  progress:
+    solution: Solutions/Chebyshev.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: psi_lower
+  declaration: Chebyshev.v1.psi_lower
+  challenge: Chebyshev.v1.challenge_psi_lower
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof is in Solutions/Chebyshev.v1, awaiting a Comparator receipt. Imports nothing,
+      and the none is real: the argument is Chebyshev's elementary one and consumes no zero-free
+      region, no verification height and no computation.
+  designated: unjustified
+  progress:
+    solution: Solutions/Chebyshev.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: psi_upper
+  declaration: Chebyshev.v1.psi_upper
+  challenge: Chebyshev.v1.challenge_psi_upper
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof is in Solutions/Chebyshev.v1, awaiting a Comparator receipt. Obtained by
+      iterating psi(x) - psi(x/6) <= a x + 5 log x - 5 down to the range psi_le_small covers, so
+      the two conclusions are proved together.
+  designated: unjustified
+  progress:
+    solution: Solutions/Chebyshev.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: psi_le_small
+  declaration: Chebyshev.v1.psi_le_small
+  challenge: Chebyshev.v1.challenge_psi_le_small
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof is in Solutions/Chebyshev.v1, awaiting a Comparator receipt. A finite check over
+      the prime powers below 30, done in Lean from bounds on log p for p <= 29 that the solution
+      proves from Mathlib's exponential bounds.
+  designated: unjustified
+  progress:
+    solution: Solutions/Chebyshev.v1/
+    state: in-progress
+    remaining_holes: 0
+- id: psi_upper_clean
+  declaration: Chebyshev.v1.psi_upper_clean
+  challenge: Chebyshev.v1.challenge_psi_upper_clean
+  imports:
+  - node: ChebyshevNumerics.v1
+    conclusion: psi_le_below_11723
+  imports_status: identified
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof of the IMPLICATION is in Solutions/Chebyshev.v1, awaiting a Comparator receipt.
+      The only conditional conclusion on this node: the induction proving psi(x) <= 1.11 x steps
+      from x to x/6 and closes only above 11723, and the finite check below that point is
+      ChebyshevNumerics.v1 rather than a lemma, because PNT+ does it with native_decide and
+      Comparator does not admit Lean.ofReduceBool. The import is a real edge and the one input is a
+      node, hence identified.
+  designated: unjustified
+
+  progress:
+    solution: Solutions/Chebyshev.v1/
+    state: in-progress
+    remaining_holes: 0
+sources:
+- title: "Elementary methods in the study of the distribution of prime numbers"
+  authors: ["Harold G. Diamond"]
+  type: "paper"
+  id: "https://doi.org/10.1090/S0273-0979-1982-15057-1"
+  location: "Bull. Amer. Math. Soc. (N.S.) 7 (1982), no. 3, 553-589"
+  relationship: adapts
+  note: >-
+    The presentation followed here, rather than the origin of the result: Chebyshev's estimates
+    date from 1852 and are textbook material. Diamond's survey is where the particular weight
+    nu = e_1 - e_2 - e_3 - e_5 + e_30 and the resulting constant are set out in the form the proof
+    uses. The constants stated here are not quoted from it; they are what the Lean proof produces.
+
+related_formalizations:
+- id: "https://github.com/AlexKontorovich/PrimeNumberTheoremAnd"
+  relationship: builds-on
+  note: >-
+    PrimeNumberTheoremAnd/IEANTN/Chebyshev.lean is where this development comes from, and the
+    solution is a port of it. Two things did not come across. Its log tables are proved by
+    LeanCert's interval_decide, and its psi(x) <= 1.11 x needs a native_decide check over the
+    integers up to 11723; both are outside the axiom set Comparator permits, so the solution
+    reproves the log bounds from Mathlib and this node does not state the 1.11 bound.
+
+automation:
+  methods:
+  - method: agent
+    models: ["Claude Opus 5 (Anthropic)"]
+    framework: "Claude Code"
+    role: >-
+      Ported the development from PrimeNumberTheoremAnd under the direction of the maintainer:
+      transcribed the conclusions into this network's vocabulary, replaced the LeanCert-backed log
+      tables with proofs from Mathlib's exponential bounds, and dropped the parts that rest on
+      native_decide. The mathematics and the original Lean are from PNT+.
+
+review:
+  status: self-assessed
+  reviewers: ["Terence Tao"]
+  notes: >-
+    The statements are transcribed from the PNT+ development rather than from Diamond, and differ
+    from the blueprint text there in one place: PNT+'s blueprint states the lower bound with a
+    -1 where its own Lean proves +5. The Lean is what is stated here, and it is the stronger of
+    the two.
+
+limitations:
+- >-
+  Bounded ranges. psi_lower and psi_upper say nothing below x = 30, and psi_le_small says nothing
+  above it. Together they cover every x > 0, but a consumer wanting one statement across the whole
+  range has to assemble it.
+- >-
+  psi_upper_clean is conditional, and the other four are not. It rests on ChebyshevNumerics.v1,
+  which is a computation rather than a proof: PNT+ verifies the base case with native_decide, which
+  Comparator does not admit. A consumer that wants an unconditional bound wants psi_upper, whose
+  second term is of order (log x)^2, or psi_le_small below 30.
+- >-
+  No novelty is claimed. Chebyshev's estimates are from 1852; what is new here is only the Lean
+  proof, and that is a port of PNT+'s.

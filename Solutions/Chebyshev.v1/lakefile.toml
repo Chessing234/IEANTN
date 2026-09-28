@@ -1,0 +1,21 @@
+name = "solution_Chebyshev_v1"
+defaultTargets = ["LogBounds", "ChebyshevDev", "Solution"]
+
+# The core library, for the node's `Conclusions`. Nothing else is required: the port deliberately
+# avoids LeanCert, whose `interval_decide` and `native_decide` are both outside the axioms a
+# Comparator receipt admits.
+[[require]]
+name = "IEANTN"
+path = "../.."
+
+[[lean_lib]]
+name = "LogBounds"
+roots = ["LogBounds"]
+
+[[lean_lib]]
+name = "ChebyshevDev"
+roots = ["ChebyshevDev"]
+
+[[lean_lib]]
+name = "Solution"
+roots = ["Solution"]
