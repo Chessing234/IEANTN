@@ -11,7 +11,7 @@ node:
   family: Chebyshev
   version: v1
   kind: paper
-  status: awaiting-verification
+  status: active
 
 project:
   name: "Chebyshev's elementary bounds on psi"
@@ -49,11 +49,10 @@ conclusions:
       arithmetic about three logarithms and rests on nothing else; the solution proves the log
       bounds it needs from Mathlib rather than from an interval-arithmetic package, so that the
       axiom set stays within the three Comparator permits.
-  designated: unjustified
-  progress:
-    solution: Solutions/Chebyshev.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36502365219'
+  designated: comparator
 - id: psi_lower
   declaration: Chebyshev.v1.psi_lower
   challenge: Chebyshev.v1.challenge_psi_lower
@@ -66,11 +65,10 @@ conclusions:
       A Lean proof is in Solutions/Chebyshev.v1, awaiting a Comparator receipt. Imports nothing,
       and the none is real: the argument is Chebyshev's elementary one and consumes no zero-free
       region, no verification height and no computation.
-  designated: unjustified
-  progress:
-    solution: Solutions/Chebyshev.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36502365219'
+  designated: comparator
 - id: psi_upper
   declaration: Chebyshev.v1.psi_upper
   challenge: Chebyshev.v1.challenge_psi_upper
@@ -83,11 +81,10 @@ conclusions:
       A Lean proof is in Solutions/Chebyshev.v1, awaiting a Comparator receipt. Obtained by
       iterating psi(x) - psi(x/6) <= a x + 5 log x - 5 down to the range psi_le_small covers, so
       the two conclusions are proved together.
-  designated: unjustified
-  progress:
-    solution: Solutions/Chebyshev.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36502365219'
+  designated: comparator
 - id: psi_le_small
   declaration: Chebyshev.v1.psi_le_small
   challenge: Chebyshev.v1.challenge_psi_le_small
@@ -100,11 +97,10 @@ conclusions:
       A Lean proof is in Solutions/Chebyshev.v1, awaiting a Comparator receipt. A finite check over
       the prime powers below 30, done in Lean from bounds on log p for p <= 29 that the solution
       proves from Mathlib's exponential bounds.
-  designated: unjustified
-  progress:
-    solution: Solutions/Chebyshev.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36502365219'
+  designated: comparator
 - id: psi_upper_clean
   declaration: Chebyshev.v1.psi_upper_clean
   challenge: Chebyshev.v1.challenge_psi_upper_clean
@@ -122,12 +118,11 @@ conclusions:
       ChebyshevNumerics.v1 rather than a lemma, because PNT+ does it with native_decide and
       Comparator does not admit Lean.ofReduceBool. The import is a real edge and the one input is a
       node, hence identified.
-  designated: unjustified
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36502365219'
+  designated: comparator
 
-  progress:
-    solution: Solutions/Chebyshev.v1/
-    state: in-progress
-    remaining_holes: 0
 sources:
 - title: "Elementary methods in the study of the distribution of prime numbers"
   authors: ["Harold G. Diamond"]
