@@ -1,0 +1,30 @@
+{
+  "challenge": "Goldbach.v1.challenge_odd_up_to_1_1325e26",
+  "conclusion": "Goldbach.v1.odd_up_to_1_1325e26",
+  "environment": {
+    "lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
+    "mathlib_rev": "71a80585ee495fc24472fd0eaffc89d94e4fd8d6"
+  },
+  "repository": {
+    "commit": "00ed99209edd37a20d7cde6cf646bff09cd56a06"
+  },
+  "run": {
+    "recorded_at": "2026-09-29T20:10:28Z",
+    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/36621914876"
+  },
+  "schema": 2,
+  "solution": {
+    "project": "Solutions/Goldbach.v1"
+  },
+  "statement": {
+    "Goldbach.v1.odd_up_to_1_1325e26": "f8b116e4ab34b2603107ad7284af57ddf49992e73c0228335ea4acd963b06e9b",
+    "OliveiraESilva2014.v1.even_up_to_4e18": "e5728da5a26ab582bbf9818708868a140d2f511cbaab6db69c4f43826a8bb214",
+    "RamareSaouter2003.v1.prime_in_short_interval": "1bfd23448d1a70572236ce2e9838ef48ee0ced9118a31c45ebd57ee7f43af462"
+  },
+  "tools": {
+    "comparator": "10dd2b33dc43751af3257f4d684535375306f162",
+    "landrun": "811cfff51ceaf3d9843708aa6d22e9b84ccac8b4",
+    "lean4export": "cacf989bd75f608700820f6afc595f32e7a99a4d",
+    "nanoda": "68d5ca9db226849b41a6fff59d796ff19d0a8840"
+  }
+}

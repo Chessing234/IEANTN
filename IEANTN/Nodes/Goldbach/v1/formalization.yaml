@@ -10,7 +10,7 @@ node:
   family: Goldbach
   version: v1
   kind: paper
-  status: awaiting-verification
+  status: active
 
 project:
   name: "From even Goldbach to odd Goldbach"
@@ -45,11 +45,10 @@ conclusions:
     note: >-
       A Lean proof is in Solutions/Goldbach.v1, awaiting a Comparator receipt. Imports nothing and
       the none is real: this is a theorem about the two predicates, independent of any computation.
-  designated: unjustified
-  progress:
-    solution: Solutions/Goldbach.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
 - id: even_and_gaps_imply_odd
   declaration: Goldbach.v1.even_and_gaps_imply_odd
   challenge: Goldbach.v1.challenge_even_and_gaps_imply_odd
@@ -63,11 +62,10 @@ conclusions:
       node: every short-interval result and every even verification the network ever holds passes
       through this one implication, which is why it is stated separately from the three ranges below
       rather than inlined into each.
-  designated: unjustified
-  progress:
-    solution: Solutions/Goldbach.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
 - id: even_up_to_30
   declaration: Goldbach.v1.even_up_to_30
   challenge: Goldbach.v1.challenge_even_up_to_30
@@ -80,11 +78,10 @@ conclusions:
       A Lean proof is in Solutions/Goldbach.v1, awaiting a Comparator receipt. Fourteen cases, each
       an explicit pair of primes: the only Goldbach statement in the network that rests on no
       computation at all.
-  designated: unjustified
-  progress:
-    solution: Solutions/Goldbach.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
 - id: odd_up_to_ramare_saouter
   declaration: Goldbach.v1.odd_up_to_ramare_saouter
   challenge: Goldbach.v1.challenge_odd_up_to_ramare_saouter
@@ -102,11 +99,10 @@ conclusions:
       Ramare and Saouter state a range of this size as their own Corollary 1; this derives it from
       their interval result and Richstein's verification rather than citing it, so what is trusted
       is those two inputs and nothing else.
-  designated: unjustified
-  progress:
-    solution: Solutions/Goldbach.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
 - id: odd_up_to_1_1325e26
   declaration: Goldbach.v1.odd_up_to_1_1325e26
   challenge: Goldbach.v1.challenge_odd_up_to_1_1325e26
@@ -124,11 +120,10 @@ conclusions:
       The same conversion as the range above with the 4 x 10^18 verification in place of the
       4 x 10^14 one. Helfgott's Appendix C states a range of this size; his argument goes further
       using unpublished estimates of Ramare, which this does not attempt.
-  designated: unjustified
-  progress:
-    solution: Solutions/Goldbach.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
 - id: odd_up_to_kadiri_lumley
   declaration: Goldbach.v1.odd_up_to_kadiri_lumley
   challenge: Goldbach.v1.challenge_odd_up_to_kadiri_lumley
@@ -154,12 +149,11 @@ conclusions:
       4.2 x 10^25, while the even verification reaches only 4 x 10^18, so something has to carry the
       odd range across the gap between them, and only the wider Ramare-Saouter intervals do. Kadiri
       and Lumley state a range of this size as their Corollary 1.2.
-  designated: unjustified
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
 
-  progress:
-    solution: Solutions/Goldbach.v1/
-    state: in-progress
-    remaining_holes: 0
 sources:
 - title: "From a verification of even Goldbach to a range for odd Goldbach"
   authors: ["folklore"]
