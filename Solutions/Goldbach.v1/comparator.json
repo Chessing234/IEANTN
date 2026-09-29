@@ -1,0 +1,18 @@
+{
+  "challenge_module": "IEANTN.Nodes.Goldbach.v1.Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "Goldbach.v1.challenge_even_implies_odd",
+    "Goldbach.v1.challenge_even_and_gaps_imply_odd",
+    "Goldbach.v1.challenge_even_up_to_30",
+    "Goldbach.v1.challenge_odd_up_to_ramare_saouter",
+    "Goldbach.v1.challenge_odd_up_to_1_1325e26",
+    "Goldbach.v1.challenge_odd_up_to_kadiri_lumley"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

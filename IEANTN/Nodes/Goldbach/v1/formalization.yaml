@@ -1,0 +1,229 @@
+# Node metadata for `Goldbach.v1`.  See docs/NODES.md.
+#
+# The node where the Goldbach material is actually proved. Three conclusions import nothing and are
+# theorems about the predicates; three import the verification and prime-gap nodes and are the
+# arithmetic of instantiating the second of them.
+version: "v0.4"
+
+node:
+  id: Goldbach.v1
+  family: Goldbach
+  version: v1
+  kind: paper
+  status: active
+
+project:
+  name: "From even Goldbach to odd Goldbach"
+  description: >-
+    The reductions converting a verification of the even Goldbach conjecture into a verified range
+    for the odd one, and the three ranges that follow from the computations and prime-gap results
+    this network holds. The mechanism: to write an odd n as three primes, subtract a prime p just
+    below n and apply the even verification to n - p, which is even and within x/Delta of zero
+    distance -- so a verification to H covers odd numbers to about H*Delta. With Ramare and
+    Saouter's intervals Delta is 28314000; with Kadiri and Lumley's it is 1966196911, giving odd
+    Goldbach to about 7.86 x 10^27.
+  authors: ["Terence Tao"]
+  license: "Apache-2.0"
+  responsible_maintainers: ["Terence Tao"]
+
+repository:
+  role: substantive-development
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11P32", "11N05"]
+
+conclusions:
+- id: even_implies_odd
+  declaration: Goldbach.v1.even_implies_odd
+  challenge: Goldbach.v1.challenge_even_implies_odd
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof is in Solutions/Goldbach.v1, awaiting a Comparator receipt. Imports nothing and
+      the none is real: this is a theorem about the two predicates, independent of any computation.
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
+- id: even_and_gaps_imply_odd
+  declaration: Goldbach.v1.even_and_gaps_imply_odd
+  challenge: Goldbach.v1.challenge_even_and_gaps_imply_odd
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof is in Solutions/Goldbach.v1, awaiting a Comparator receipt. The substance of the
+      node: every short-interval result and every even verification the network ever holds passes
+      through this one implication, which is why it is stated separately from the three ranges below
+      rather than inlined into each.
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
+- id: even_up_to_30
+  declaration: Goldbach.v1.even_up_to_30
+  challenge: Goldbach.v1.challenge_even_up_to_30
+  imports: []
+  imports_status: none
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof is in Solutions/Goldbach.v1, awaiting a Comparator receipt. Fourteen cases, each
+      an explicit pair of primes: the only Goldbach statement in the network that rests on no
+      computation at all.
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
+- id: odd_up_to_ramare_saouter
+  declaration: Goldbach.v1.odd_up_to_ramare_saouter
+  challenge: Goldbach.v1.challenge_odd_up_to_ramare_saouter
+  imports:
+  - node: Richstein2001.v1
+    conclusion: even_up_to_4e14
+  - node: RamareSaouter2003.v1
+    conclusion: prime_in_short_interval
+  imports_status: identified
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof of the implication is in Solutions/Goldbach.v1, awaiting a Comparator receipt.
+      Ramare and Saouter state a range of this size as their own Corollary 1; this derives it from
+      their interval result and Richstein's verification rather than citing it, so what is trusted
+      is those two inputs and nothing else.
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
+- id: odd_up_to_1_1325e26
+  declaration: Goldbach.v1.odd_up_to_1_1325e26
+  challenge: Goldbach.v1.challenge_odd_up_to_1_1325e26
+  imports:
+  - node: OliveiraESilva2014.v1
+    conclusion: even_up_to_4e18
+  - node: RamareSaouter2003.v1
+    conclusion: prime_in_short_interval
+  imports_status: identified
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof of the implication is in Solutions/Goldbach.v1, awaiting a Comparator receipt.
+      The same conversion as the range above with the 4 x 10^18 verification in place of the
+      4 x 10^14 one. Helfgott's Appendix C states a range of this size; his argument goes further
+      using unpublished estimates of Ramare, which this does not attempt.
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
+- id: odd_up_to_kadiri_lumley
+  declaration: Goldbach.v1.odd_up_to_kadiri_lumley
+  challenge: Goldbach.v1.challenge_odd_up_to_kadiri_lumley
+  imports:
+  - node: OliveiraESilva2014.v1
+    conclusion: even_up_to_4e18
+  - node: KadiriLumley.v1
+    conclusion: prime_in_interval_above_exp_59
+  - node: KadiriLumley.v1
+    conclusion: prime_in_interval_above_exp_60
+  - node: RamareSaouter2003.v1
+    conclusion: prime_in_short_interval
+  imports_status: identified
+  justifications:
+  - id: unjustified
+    kind: none-yet
+    note: >-
+      A Lean proof of the implication is in Solutions/Goldbach.v1, awaiting a Comparator receipt.
+      The best range the network's inputs support. Both Kadiri-Lumley rows are needed, not just the
+      sharper one: the exp(60) row applies only above exp(60), and the exp(59) row is what carries
+      the induction from the Helfgott range up to that point. Ramare-Saouter is needed as well, and
+      that is not visible in the statement: the Kadiri-Lumley rows begin at exp(59), about
+      4.2 x 10^25, while the even verification reaches only 4 x 10^18, so something has to carry the
+      odd range across the gap between them, and only the wider Ramare-Saouter intervals do. Kadiri
+      and Lumley state a range of this size as their Corollary 1.2.
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/36621914876'
+  designated: comparator
+
+sources:
+- title: "From a verification of even Goldbach to a range for odd Goldbach"
+  authors: ["folklore"]
+  type: "folklore"
+  id: "goldbach-even-to-odd"
+  relationship: formalizes
+  note: >-
+    The reduction is standard and is used wherever a finite odd-Goldbach range is quoted -- by
+    Ramare and Saouter, by Helfgott, by Kadiri and Lumley -- without any of them being its source.
+    The `folklore` type is used in the sense the schema allows rather than the usual one, as
+    ContourIntegration.v1 and CotangentSeries.v1 also do: this is not an unproved claim circulating
+    in the literature but an argument everybody in the area writes down when they need it. The
+    particular form here follows PrimeNumberTheoremAnd's.
+
+- title: "The ternary Goldbach conjecture is true"
+  authors: ["Harald Andres Helfgott"]
+  type: "paper"
+  id: "arXiv:1312.7748"
+  location: "arXiv:1312.7748, Appendix C"
+  relationship: background
+  note: >-
+    States a finite odd-Goldbach range of the size `odd_up_to_1_1325e26` records, by this method,
+    and then goes further using unpublished estimates of Ramare which are not reproduced here or in
+    PrimeNumberTheoremAnd. Recorded as background because nothing in this node depends on it: the
+    range is derived from the imports, not taken from the paper.
+
+related_formalizations:
+- id: "https://github.com/AlexKontorovich/PrimeNumberTheoremAnd"
+  relationship: builds-on
+  note: >-
+    PrimeNumberTheoremAnd/IEANTN/Goldbach.lean is where this comes from, and the solution is a port
+    of it. Two differences. Its two verification statements carry `sorry` and are nodes here, which
+    is what lets the rest be verified. And its extension of the 4 x 10^18 verification to
+    4 x 10^18 + 4, which needs Pocklington certificates from the external `PrimeCert` package, is
+    not ported; the Kadiri-Lumley range is stated from 4 x 10^18 instead, which costs a relative
+    10^-18.
+
+automation:
+  methods:
+  - method: agent
+    models: ["Claude Opus 5 (Anthropic)"]
+    framework: "Claude Code"
+    role: >-
+      Ported the development from PrimeNumberTheoremAnd under the direction of the maintainer:
+      transcribed the conclusions into this network's vocabulary, split the two computations out as
+      their own nodes, replaced the LeanCert-backed numeric steps with proofs from Mathlib, and
+      dropped the part resting on an external primality package. The mathematics and the original
+      Lean are PNT+'s.
+
+review:
+  status: self-assessed
+  reviewers: ["Terence Tao"]
+  notes: >-
+    Statements transcribed from the PNT+ development. The three ranges were recomputed here rather
+    than copied: the Ramare-Saouter number 11325599999999886744004 is exactly
+    (4 x 10^14 - 4) * 28314000 + 4, which matches PNT+'s literal, and the Kadiri-Lumley one differs
+    from PNT+'s deliberately, as recorded above.
+
+limitations:
+- >-
+  Nothing here is a case of the Goldbach conjecture that was not already known. The content is the
+  conversion: what it buys is that a better even verification, or a narrower prime interval, gives
+  a better odd range by re-instantiating rather than by re-arguing.
+- >-
+  Three of the six conclusions are conditional, on two computations that no kernel checks and two
+  papers the library does not hold. A consumer of the ranges trusts Richstein, Oliveira e Silva et
+  al., Ramare-Saouter and Kadiri-Lumley exactly as far as their own nodes say.
+- >-
+  The Kadiri-Lumley range stops just short of PNT+'s, by design: the four integers above 4 x 10^18
+  need an external primality package. Recovering them means writing the two Pocklington arguments
+  by hand against Mathlib, which is a well-posed and self-contained task.
+- >-
+  No novelty is claimed. The reduction is standard and the Lean is a port.

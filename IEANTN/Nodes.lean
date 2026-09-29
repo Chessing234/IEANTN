@@ -38,9 +38,11 @@ import IEANTN.Nodes.FKS2.v2.Challenge
 import IEANTN.Nodes.FKS2Numerics.v1.Challenge
 import IEANTN.Nodes.GammaAsymptotics.v1.Challenge
 import IEANTN.Nodes.GammaAsymptotics.v2.Challenge
+import IEANTN.Nodes.Goldbach.v1.Challenge
 import IEANTN.Nodes.Hiary2016.v1.Challenge
 import IEANTN.Nodes.KLN.v1.Challenge
 import IEANTN.Nodes.Kadiri2005.v1.Challenge
+import IEANTN.Nodes.KadiriLumley.v1.Challenge
 import IEANTN.Nodes.Lcm.v1.Challenge
 import IEANTN.Nodes.Lcm.v1.Examples
 import IEANTN.Nodes.Lcm.v2.Challenge
@@ -48,6 +50,7 @@ import IEANTN.Nodes.LowZeroes.v1.Challenge
 import IEANTN.Nodes.MT.v1.Challenge
 import IEANTN.Nodes.MT.v2.Challenge
 import IEANTN.Nodes.MTY.v1.Challenge
+import IEANTN.Nodes.OliveiraESilva2014.v1.Challenge
 import IEANTN.Nodes.Platt2015.v1.Challenge
 import IEANTN.Nodes.Platt2017.v1.Challenge
 import IEANTN.Nodes.PlattTrudgian.v1.Challenge
@@ -56,6 +59,8 @@ import IEANTN.Nodes.PlattTrudgian2021.v1.Challenge
 import IEANTN.Nodes.PlattZeroSum.v1.Challenge
 import IEANTN.Nodes.PrimeInterval.v1.Challenge
 import IEANTN.Nodes.PrimeInterval.v1.Examples
+import IEANTN.Nodes.RamareSaouter2003.v1.Challenge
+import IEANTN.Nodes.Richstein2001.v1.Challenge
 import IEANTN.Nodes.RosserSchoenfeld.v1.Challenge
 import IEANTN.Nodes.Trudgian2011.v1.Challenge
 import IEANTN.Nodes.Wedeniwski.v1.Challenge
