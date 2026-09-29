@@ -1,0 +1,121 @@
+# Node metadata for `ChebyshevNumerics.v1`.  See docs/NODES.md.
+#
+# The finite check behind Chebyshev.v1.psi_upper_clean, split off for the reason BKLNWNumerics.v1
+# and FKS2Numerics.v1 exist: a computation is not a proposition anyone proves in Lean, and hiding
+# it inside a solution would make the solution unverifiable rather than make the computation go
+# away.
+version: "v0.4"
+
+node:
+  id: ChebyshevNumerics.v1
+  family: ChebyshevNumerics
+  version: v1
+  kind: computation
+  status: active
+
+project:
+  name: "The finite check behind Chebyshev's clean upper bound"
+  description: >-
+    psi(n) <= 1.11 n for every integer n <= 11723. This is the base case of the induction proving
+    psi(x) <= 1.11 x for all x > 0: the inductive step, which passes from x to x/6, closes only
+    once 5 log x - 5 <= (37/10000) x, and 11723 is where that begins. The check is a finite
+    computation over a step function -- eleven thousand comparisons -- rather than an argument, and
+    is recorded here as a computation so that the analytic half of the bound can carry a Lean proof.
+  authors: ["Terence Tao"]
+  license: "Apache-2.0"
+  responsible_maintainers: ["Terence Tao"]
+
+repository:
+  role: substantive-development
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11N05", "11Y70"]
+
+conclusions:
+- id: psi_le_below_11723
+  declaration: ChebyshevNumerics.v1.psi_le_below_11723
+  challenge: ChebyshevNumerics.v1.challenge_psi_le_below_11723
+  imports: []
+  imports_status: none
+  justifications:
+  - id: pnt-plus-native-decide
+    kind: numerical
+    source: chebyshev-small-values
+    locator: PrimeNumberTheoremAnd/IEANTN/Chebyshev.lean, `allChecks_11723` and `psi_num_2`
+    note: >-
+      Verified by computation, not by proof. PrimeNumberTheoremAnd evaluates LeanCert's O(N)
+      incremental checker, checkAllPsiLeMulWith 11723 (111/100) 20, with native_decide, and derives
+      psi_num_2 from it. That is Lean.ofReduceBool, which Comparator does not admit, so the check is
+      recorded here rather than reproduced in Solutions/Chebyshev.v1 -- the solution takes this
+      conclusion as an import and proves the implication.
+      Independently true on stronger grounds: Rosser and Schoenfeld prove psi(x) < 1.03883 x for
+      every x > 0, which dominates this on the whole range. That is not recorded as the
+      justification because RosserSchoenfeld.v1 does not yet state it; when it does, this node can
+      be re-grounded as literature or discharged by a bridge, and the solution need not change.
+  designated: pnt-plus-native-decide
+
+sources:
+- title: "Values of the Chebyshev psi function below 11723"
+  authors: ["folklore"]
+  type: "folklore"
+  id: "chebyshev-small-values"
+  relationship: formalizes
+  note: >-
+    A finite computation over the prime powers below 11723, not a result anyone publishes. The
+    `folklore` type is used in the sense the schema allows rather than the usual one, as
+    ContourIntegration.v1 and CotangentSeries.v1 also do: this is not an unproved claim circulating
+    in the literature but an arithmetic fact anybody can recompute. The particular numbers -- the
+    constant 1.11 and the range 11723 -- come from the induction in
+    PrimeNumberTheoremAnd/IEANTN/Chebyshev.lean that consumes them.
+
+- title: "Approximate formulas for some functions of prime numbers"
+  authors: ["J. Barkley Rosser", "Lowell Schoenfeld"]
+  type: "paper"
+  id: "https://doi.org/10.1215/ijm/1255631807"
+  location: "Illinois J. Math. 6 (1962), 64-94, Theorem 12"
+  relationship: background
+  note: >-
+    Proves psi(x) < 1.03883 x for all x > 0, which implies this node's conclusion outright. Recorded
+    to make clear that nothing here is in doubt mathematically, and to name the route by which this
+    node could stop being a computation. Buethe's 2018 paper quotes the bound in that form, at its
+    equation (6.8). Not an edge: RosserSchoenfeld.v1 states nothing yet.
+
+related_formalizations:
+- id: "https://github.com/AlexKontorovich/PrimeNumberTheoremAnd"
+  relationship: builds-on
+  note: >-
+    The computation is PNT+'s, in IEANTN/Chebyshev.lean. What this node adds is a place to put it:
+    PNT+ can use native_decide inline, and a Comparator receipt cannot, so the fact has to be a
+    node before the surrounding argument can be verified at all.
+
+automation:
+  methods:
+  - method: agent
+    models: ["Claude Opus 5 (Anthropic)"]
+    framework: "Claude Code"
+    role: >-
+      Split this conclusion out of the PNT+ development and wrote the metadata, under the direction
+      of the maintainer. The computation itself is PNT+'s and is not rerun here.
+
+review:
+  status: self-assessed
+  reviewers: ["Terence Tao"]
+  notes: >-
+    The statement is what PNT+'s checker verifies, transcribed over the naturals rather than the
+    reals. The Rosser-Schoenfeld bound that dominates it was read from Buethe's quotation of it
+    rather than from the 1962 paper, and is recorded as background rather than as the justification
+    for that reason.
+
+limitations:
+- >-
+  Computed, not proved. The justification is a native_decide evaluation in another repository; this
+  node asserts its result. Anybody wanting to check it must rerun that computation, or prove the
+  Rosser-Schoenfeld bound that implies it.
+- >-
+  Integers only. The conclusion quantifies over n : ℕ, which is what the checker ranges over. The
+  real-variable form follows by monotonicity of psi, and Solutions/Chebyshev.v1 does that step.
+- >-
+  The constant and the range are artefacts of one consumer. 1.11 and 11723 are what
+  Chebyshev.v1.psi_upper_clean's induction needs; neither is natural in itself, and a different
+  constant would move the range.

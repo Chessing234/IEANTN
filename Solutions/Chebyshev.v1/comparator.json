@@ -1,0 +1,17 @@
+{
+  "challenge_module": "IEANTN.Nodes.Chebyshev.v1.Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "Chebyshev.v1.challenge_constant_bounds",
+    "Chebyshev.v1.challenge_psi_lower",
+    "Chebyshev.v1.challenge_psi_upper",
+    "Chebyshev.v1.challenge_psi_le_small",
+    "Chebyshev.v1.challenge_psi_upper_clean"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
