@@ -3798,7 +3798,7 @@ def spinoff(key: str, out: str, compile_check: bool) -> bool:
         body, namespace = slice_source(sources[decl["module"]], decl, decl["name"])
         here = (decl["module"], namespace)
         if here != current:
-            if current is not None:
+            if current is not None and current[1]:
                 blocks.append(f"end {current[1]}\n\n")
             blocks.append(f"namespace {namespace}\n" if namespace else "")
             # A definition body uses whatever its own file had `open`. `log x` and
@@ -3810,7 +3810,7 @@ def spinoff(key: str, out: str, compile_check: bool) -> bool:
                 blocks.append(directive + "\n")
             current = here
         blocks.append("\n" + body + "\n")
-    if current:
+    if current and current[1]:
         blocks.append(f"end {current[1]}\n")
 
     binders = "".join(
@@ -3853,7 +3853,8 @@ What the statement rests on:
     (target / "Challenge.lean").write_text(challenge, encoding="utf-8", newline="\n")
 
     # --- Solution --------------------------------------------------------------------------
-    vendored = sorted(path.stem for path in solution_dir.glob("*.lean"))
+    vendored = sorted("NodeSolution" if path.stem == "Solution" else path.stem
+                      for path in solution_dir.glob("*.lean"))
     arguments = " ".join(
         hypothesis_name({"node": leaf.rsplit(".", 1)[0], "conclusion": leaf.rsplit(".", 1)[1]})
         for leaf in leaves)
