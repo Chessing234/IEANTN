@@ -40,6 +40,7 @@ import os
 import pathlib
 import re
 import subprocess
+import tempfile
 import time
 import sys
 
@@ -865,17 +866,25 @@ def solution_holes(node: str) -> tuple[bool, list[str], dict[str, bool]] | None:
     if not names:
         return (True, holes, {})
 
-    probe = directory / "_ieantn_axioms.lean"
-    probe.write_text("import Solution\n"
-                     + "".join(f"#print axioms {name}\n" for name in names),
-                     encoding="utf-8", newline="\n")
+    # Use an exclusive temporary file: a contributor may already have a scratch file named
+    # `_ieantn_axioms.lean`, and a progress report must never overwrite or delete it.
+    with tempfile.NamedTemporaryFile(mode="w", prefix="_ieantn_axioms_", suffix=".lean",
+                                     dir=directory, encoding="utf-8", delete=False) as handle:
+        probe = pathlib.Path(handle.name)
     try:
+        module = settings.get("solution_module") or "Solution"
+        probe.write_text(f"import {module}\n"
+                         + "".join(f"#print axioms {name}\n" for name in names),
+                         encoding="utf-8", newline="\n")
         checked = subprocess.run(["lake", "env", "lean", probe.name], cwd=directory,
                                  capture_output=True, text=True, encoding="utf-8",
                                  errors="replace")
     finally:
         probe.unlink(missing_ok=True)
     seen = (checked.stdout or "") + (checked.stderr or "")
+    if checked.returncode != 0:
+        print("  the axiom probe failed; progress cannot be recorded until it succeeds")
+        return (False, [], {})
     records = axiom_records(seen, names)
     proved = {name: (name in records and "sorryAx" not in records[name]) for name in names}
     return (True, holes, proved)
