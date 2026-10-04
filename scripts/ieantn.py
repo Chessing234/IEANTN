@@ -3459,19 +3459,19 @@ def state_at(ref: str | None) -> dict:
             for path in (RECEIPTS.glob("*.json") if RECEIPTS.is_dir() else [])
         }
     else:
-        listing = subprocess.run(
+        listed = subprocess.run(
             ["git", "ls-tree", "-r", "--name-only", ref],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        ).stdout.splitlines()
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+        )
+        if listed.returncode != 0:
+            sys.exit(f"error: cannot read network base `{ref}`: " + listed.stderr.strip())
+        listing = listed.stdout.splitlines()
         nodes = {}
         for path in listing:
             if path.startswith("IEANTN/Nodes/") and path.endswith("formalization.yaml"):
                 raw = git_show(ref, path)
                 if raw is None:
-                    continue
+                    sys.exit(f"error: cannot read `{path}` at network base `{ref}`")
                 data = yaml.safe_load(raw) or {}
                 if is_inactive(data):
                     continue
