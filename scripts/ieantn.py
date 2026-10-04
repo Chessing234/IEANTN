@@ -4145,6 +4145,23 @@ def deprecate(node_id: str, replacement: str) -> bool:
     return True
 
 
+def referenced_nodes(node: dict) -> set[str]:
+    """Nodes which must remain live for this node's metadata to be well-formed."""
+    references = {
+        str(d.get("node"))
+        for c in conclusions_of(node) for d in (c.get("imports") or [])
+    }
+    references.update(
+        source.rsplit(".", 1)[0]
+        for c in conclusions_of(node) for j in justifications_of(c)
+        if j.get("kind") == "bridged" for source in bridge_sources(j)
+    )
+    replacement = (node.get("node") or {}).get("superseded_by")
+    if replacement:
+        references.add(replacement)
+    return references
+
+
 def deactivate(node_ids: list[str], reason: str) -> bool:
     """Take nodes out of the network without deleting them.
 
@@ -4169,15 +4186,13 @@ def deactivate(node_ids: list[str], reason: str) -> bool:
 
     going = set(node_ids)
     blockers = sorted(
-        f"{node_id}.{c.get('id')} -> {d.get('node')}.{d.get('conclusion')}"
+        f"{node_id} -> {target}"
         for node_id, node in everything.items()
         if node_id not in going and not is_inactive(node)
-        for c in conclusions_of(node)
-        for d in (c.get("imports") or [])
-        if d.get("node") in going
+        for target in referenced_nodes(node) & going
     )
     if blockers:
-        print("error: still imported by live conclusions:")
+        print("error: still imported or referenced by live nodes:")
         for line in blockers:
             print(f"  {line}")
         print("deactivate those too, or drop the edges first.")
@@ -4220,13 +4235,11 @@ def reactivate(node_id: str) -> bool:
         print(f"error: `{node_id}` is not inactive")
         return False
     still_off = sorted(
-        {d.get("node") for c in conclusions_of(everything[node_id])
-         for d in (c.get("imports") or [])
-         if d.get("node") != node_id  # a later conclusion may import an earlier one
-         and d.get("node") in everything and is_inactive(everything[d.get("node")])}
+        target for target in referenced_nodes(everything[node_id])
+        if target != node_id and target in everything and is_inactive(everything[target])
     )
     if still_off:
-        print(f"error: `{node_id}` imports inactive {', '.join(still_off)}; reactivate those first")
+        print(f"error: `{node_id}` references inactive {', '.join(still_off)}; reactivate those first")
         return False
 
     path = everything[node_id]["_dir"] / "formalization.yaml"
