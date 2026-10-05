@@ -2057,6 +2057,24 @@ class TestStaleness(FixtureRepo):
 
 
 class TestGraphQueries(FixtureRepo):
+    def test_housekeeping_without_gh_still_reports_claimed_work(self) -> None:
+        self.write_node("A.v1", LITERATURE.replace("- id: main", "- id: main\n  issue: 1"))
+        printed = io.StringIO()
+        with unittest.mock.patch.object(
+            ieantn.subprocess, "run", side_effect=FileNotFoundError("gh")
+        ), contextlib.redirect_stdout(printed):
+            self.assertTrue(ieantn.housekeeping())
+        self.assertIn("formalize A.v1.main", printed.getvalue())
+        self.assertIn("[#1]", printed.getvalue())
+        self.assertNotIn("CLOSED", printed.getvalue())
+
+    def test_unreadable_issue_does_not_hide_readable_closed_issue(self) -> None:
+        closed = ieantn.subprocess.CompletedProcess([], 0, stdout="CLOSED\n")
+        with unittest.mock.patch.object(
+            ieantn.subprocess, "run", side_effect=[PermissionError("gh"), closed]
+        ):
+            self.assertEqual(ieantn.closed_issues({1, 2}), {2})
+
     def test_importers_are_found(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
         self.write_node("Downstream.v1", IMPORTING)

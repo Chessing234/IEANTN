@@ -2505,10 +2505,13 @@ def closed_issues(numbers: set[int]) -> set[int]:
     """
     closed: set[int] = set()
     for number in sorted(numbers):
-        finished = subprocess.run(
-            ["gh", "issue", "view", str(number), "--json", "state", "--jq", ".state"],
-            cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
-        )
+        try:
+            finished = subprocess.run(
+                ["gh", "issue", "view", str(number), "--json", "state", "--jq", ".state"],
+                cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+            )
+        except OSError:
+            continue
         if finished.returncode == 0 and finished.stdout.strip().upper() == "CLOSED":
             closed.add(number)
     return closed
