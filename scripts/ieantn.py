@@ -2797,7 +2797,7 @@ def read_declaration(node_id: str, cid: str) -> tuple[str, str]:
     body = [lines[start]]
     for line in lines[start + 1:]:
         stripped = line.lstrip()
-        if stripped and not any(stripped.startswith(prefix) for prefix in _DECLARATION_START):
+        if not any(stripped.startswith(prefix) for prefix in _DECLARATION_START):
             body.append(line)
             continue
         break

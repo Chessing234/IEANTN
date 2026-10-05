@@ -2657,3 +2657,14 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDeclarationBody(FixtureRepo):
+    def test_blank_lines_inside_conclusion_are_preserved(self) -> None:
+        directory = self.write_node("Example.v1", LITERATURE)
+        source = "/-- A compound claim. -/\ndef main : Prop :=\n  True ∧\n\n  True\n\ndef next : Prop := False\n"
+        (directory / "Conclusions.lean").write_text(source, encoding="utf-8")
+        doc, body = ieantn.read_declaration("Example.v1", "main")
+        self.assertEqual(doc, "A compound claim.")
+        self.assertEqual(body, "def main : Prop :=\n  True ∧\n\n  True")
+        self.assertNotIn("next", body)
