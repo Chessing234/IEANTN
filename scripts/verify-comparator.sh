@@ -30,6 +30,12 @@ config="$solution_dir/comparator.json"
 [ -f "$config" ] || { echo "error: no $config" >&2; exit 1; }
 
 cache_root=${IEANTN_COMPARATOR_CACHE:-"$repository_root/.cache/comparator"}
+# Later commands change into the solution project; keep custom relative cache
+# paths anchored to the caller's directory rather than resolving them there.
+case "$cache_root" in
+  /*) ;;
+  *) cache_root="$PWD/$cache_root" ;;
+esac
 bin_dir="$cache_root/bin"
 comparator_dir="$cache_root/comparator"
 lean4export_dir="$cache_root/lean4export"
