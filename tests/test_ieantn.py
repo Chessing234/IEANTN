@@ -2655,5 +2655,18 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("scripts/ieantn.py state", printed)
 
 
+class TestLeanConfigPins(FixtureRepo):
+    def test_lean_lake_projects_need_the_same_pin_as_toml_projects(self) -> None:
+        project = self.root / "Solutions" / "A.v1"
+        project.mkdir(parents=True)
+        (project / "lakefile.lean").write_text("import Lake\nopen Lake DSL\npackage solution\n", encoding="utf-8")
+        self.assertFalse(ieantn.check_closure())
+        pin = project / "lean-toolchain"
+        pin.write_text("leanprover/lean4:v4.33.0\n", encoding="utf-8")
+        self.assertFalse(ieantn.check_closure())
+        pin.write_text((self.root / "lean-toolchain").read_text(), encoding="utf-8")
+        self.assertTrue(ieantn.check_closure())
+
+
 if __name__ == "__main__":
     unittest.main()

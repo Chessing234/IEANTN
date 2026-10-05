@@ -1142,7 +1142,7 @@ def check_closure() -> bool:
     # an hour of compiling. The right rule is equality, not absence.
     root_toolchain = (ROOT / "lean-toolchain").read_text(encoding="utf-8").strip()
     for directory in sorted(SOLUTIONS.iterdir()) if SOLUTIONS.is_dir() else []:
-        if not (directory / "lakefile.toml").is_file():
+        if not any((directory / name).is_file() for name in ("lakefile.toml", "lakefile.lean")):
             continue
         toolchain = directory / "lean-toolchain"
         if not toolchain.is_file():
