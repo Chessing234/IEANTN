@@ -2655,5 +2655,25 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("scripts/ieantn.py state", printed)
 
 
+class TestLifecycleLeanImports(FixtureRepo):
+    def test_deactivation_refuses_unrecorded_lean_consumers_before_writing(self) -> None:
+        upstream = self.write_node("A.v1", LITERATURE)
+        consumer = self.write_node("B.v1", LITERATURE)
+        (consumer / "Conclusions.lean").write_text("import IEANTN.Nodes.A.v1.Conclusions\n", encoding="utf-8")
+        before = (upstream / "formalization.yaml").read_bytes()
+        self.assertFalse(ieantn.deactivate(["A.v1"], "Unused"))
+        self.assertEqual((upstream / "formalization.yaml").read_bytes(), before)
+        self.assertTrue(ieantn.deactivate(["A.v1", "B.v1"], "Unused pair"))
+
+    def test_reactivation_refuses_an_inactive_lean_import_before_writing(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        consumer = self.write_node("B.v1", LITERATURE)
+        self.assertTrue(ieantn.deactivate(["A.v1", "B.v1"], "Unused pair"))
+        (consumer / "Conclusions.lean").write_text("import IEANTN.Nodes.A.v1.Conclusions\n", encoding="utf-8")
+        before = (consumer / "formalization.yaml").read_bytes()
+        self.assertFalse(ieantn.reactivate("B.v1"))
+        self.assertEqual((consumer / "formalization.yaml").read_bytes(), before)
+
+
 if __name__ == "__main__":
     unittest.main()

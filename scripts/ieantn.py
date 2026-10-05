@@ -4145,6 +4145,16 @@ def deprecate(node_id: str, replacement: str) -> bool:
     return True
 
 
+def _lean_import_blockers(paths: list[pathlib.Path], node_ids: set[str]) -> list[str]:
+    """Lean consumers of the nodes, including edges not recorded in metadata."""
+    prefixes = [f"IEANTN.Nodes.{node_id}" for node_id in node_ids]
+    return sorted(
+        f"{rel(path)} -> {module}"
+        for path in paths for module in imports_of(path)
+        if any(under(module, prefix) for prefix in prefixes)
+    )
+
+
 def deactivate(node_ids: list[str], reason: str) -> bool:
     """Take nodes out of the network without deleting them.
 
@@ -4176,6 +4186,12 @@ def deactivate(node_ids: list[str], reason: str) -> bool:
         for d in (c.get("imports") or [])
         if d.get("node") in going
     )
+    live_files = [
+        path for node_id, node in everything.items()
+        if node_id not in going and not is_inactive(node)
+        for path in node["_dir"].glob("*.lean")
+    ] + list(BRIDGES_DIR.rglob("*.lean"))
+    blockers += _lean_import_blockers(live_files, going)
     if blockers:
         print("error: still imported by live conclusions:")
         for line in blockers:
@@ -4227,6 +4243,16 @@ def reactivate(node_id: str) -> bool:
     )
     if still_off:
         print(f"error: `{node_id}` imports inactive {', '.join(still_off)}; reactivate those first")
+        return False
+
+    lean_blockers = _lean_import_blockers(
+        list(everything[node_id]["_dir"].glob("*.lean")),
+        {other for other, node in everything.items() if other != node_id and is_inactive(node)},
+    )
+    if lean_blockers:
+        print("error: Lean files still import inactive nodes:")
+        for line in lean_blockers:
+            print(f"  {line}")
         return False
 
     path = everything[node_id]["_dir"] / "formalization.yaml"
