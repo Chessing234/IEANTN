@@ -2655,5 +2655,18 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("scripts/ieantn.py state", printed)
 
 
+class TestMalformedReceiptObjects(FixtureRepo):
+    def test_invalid_json_shapes_are_unusable_receipts(self) -> None:
+        self.write_node("A.v1", LITERATURE.replace("kind: literature", "kind: lean-comparator"))
+        ieantn.RECEIPTS.mkdir()
+        path = ieantn.receipt_path("A.v1.main")
+        for raw in ("null", "[]", '"receipt"', '{"statement": []}', '{"run": "bad"}', '{broken'):
+            with self.subTest(raw=raw):
+                path.write_text(raw, encoding="utf-8")
+                self.assertIsNone(ieantn.load_receipt("A.v1.main"))
+                self.assertEqual(ieantn.receipt_state("A.v1.main", ieantn.load_nodes()["A.v1"]["conclusions"][0])[0], "BROKEN")
+                self.assertFalse(ieantn.check_receipts(online=False))
+
+
 if __name__ == "__main__":
     unittest.main()
