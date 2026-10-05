@@ -1388,13 +1388,21 @@ def check_graph() -> bool:
                             f"conclusion `{cid}`, justification `{jid}`: bridge file "
                             f"`{justification['bridge']}` is missing",
                         )
-                    elif not justification["bridge"].startswith("IEANTN/Bridges/"):
+                    elif (
+                        not justification["bridge"].startswith("IEANTN/Bridges/")
+                        or ".." in pathlib.PurePosixPath(justification["bridge"]).parts
+                        or pathlib.PurePosixPath(justification["bridge"]).suffix != ".lean"
+                        or not (ROOT / justification["bridge"]).resolve().is_relative_to(
+                            BRIDGES_DIR.resolve()
+                        )
+                    ):
                         # A bridge outside the library is never compiled, so it would keep
                         # justifying its target after either statement moved out from under it.
                         problems.add(
                             where,
                             f"conclusion `{cid}`, justification `{jid}`: bridge file "
-                            f"`{justification['bridge']}` must live under `IEANTN/Bridges/` so "
+                            f"`{justification['bridge']}` must be a .lean file under "
+                            "`IEANTN/Bridges/`, without parent-directory traversal, so "
                             "that the core build compiles it; a bridge nothing builds attests "
                             "nothing",
                         )

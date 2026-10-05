@@ -2655,5 +2655,21 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("scripts/ieantn.py state", printed)
 
 
+class TestCompiledBridgePaths(FixtureRepo):
+    def test_only_compiled_lean_bridge_paths_are_accepted(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        path = self.write_bridge()
+        for invalid in ("IEANTN/Bridges/../../unchecked.lean", "IEANTN/Bridges/proof.txt"):
+            with self.subTest(path=invalid):
+                target = self.root / invalid
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("-- not in the bridge umbrella\n", encoding="utf-8")
+                self.write_node("B.v1", bridged("A.v1.main").replace("IEANTN/Bridges/a.lean", invalid))
+                self.assertFalse(ieantn.check_graph())
+        self.write_node("B.v1", bridged("A.v1.main"))
+        self.assertTrue(path.is_file())
+        self.assertTrue(ieantn.check_graph())
+
+
 if __name__ == "__main__":
     unittest.main()
