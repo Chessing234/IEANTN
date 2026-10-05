@@ -1737,9 +1737,14 @@ def compute_fingerprints() -> dict[str, str]:
     )
     if payload is None:
         sys.exit("error: ieantn_hash produced no output")
+    statements = json.loads(payload)
+    if not isinstance(statements, dict) or set(statements) != set(declarations):
+        sys.exit("error: ieantn_hash output does not cover exactly the requested conclusions")
+    if not all(isinstance(text, str) for text in statements.values()):
+        sys.exit("error: ieantn_hash returned a non-text statement")
     return {
         name: hashlib.sha256(text.encode("utf-8")).hexdigest()
-        for name, text in json.loads(payload).items()
+        for name, text in statements.items()
     }
 
 
