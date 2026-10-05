@@ -147,7 +147,10 @@ NODE_STATUSES = {
 #: `reactivate` is a status change and a regeneration rather than an archaeology project.
 INACTIVE = "inactive"
 
-IMPORT_RE = re.compile(r"^import\s+(\S+)", re.MULTILINE)
+IMPORT_RE = re.compile(
+    r"^[ \t]*(?:public\s+)?(?:meta\s+)?import\s+(?:all\s+)?(\S+)",
+    re.MULTILINE,
+)
 
 #: What may appear as a conclusion id, or as either half of an import reference. These strings are
 #: interpolated verbatim into generated Lean, so anything not an identifier is either a typo or an

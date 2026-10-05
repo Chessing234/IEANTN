@@ -1460,6 +1460,22 @@ class TestImportParsing(FixtureRepo):
         )
         self.assertFalse(ieantn.check_closure())
 
+    def test_valid_import_header_forms_cannot_bypass_closure(self) -> None:
+        target = self.root / "IEANTN" / "Vocabulary" / "Bad.lean"
+        for prefix in ["  ", "\t", "public ", "  public ", "meta ", "public meta "]:
+            with self.subTest(prefix=prefix):
+                target.write_text(
+                    "module\n" + prefix + "import Solutions.A.v1.Solution\n",
+                    encoding="utf-8",
+                )
+                self.assertFalse(ieantn.check_closure())
+
+    def test_import_all_reads_the_module_instead_of_the_modifier(self) -> None:
+        target = self.root / "IEANTN" / "Vocabulary" / "Bad.lean"
+        target.write_text("module\nimport all Solutions.A.v1.Solution\n", encoding="utf-8")
+        self.assertEqual(ieantn.imports_of(target), ["Solutions.A.v1.Solution"])
+        self.assertFalse(ieantn.check_closure())
+
     def test_a_commented_out_import_is_not_an_import(self) -> None:
         (self.root / "IEANTN" / "Vocabulary" / "Fine.lean").write_text(
             "-- import Solutions.A.v1.Solution\n/- import PNT.Everything -/\nimport Mathlib.Data.Nat.Defs\n",
