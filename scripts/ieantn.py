@@ -2963,7 +2963,9 @@ def mermaid_id(key: str) -> str:
     `bridged` justification ids, the evidence kind `lean-comparator` -- and every one of them
     ends a node id early in Mermaid, which fails at render time rather than here.
     """
-    return re.sub(r"[^0-9A-Za-z_]", "_", key)
+    # Escape underscores too: replacing every separator with `_` merged valid
+    # keys such as A.v1.v1_main and A_v1.v1.main into a single diagram node.
+    return re.sub(r"[^0-9A-Za-z]", lambda match: f"_{ord(match[0]):x}_", key)
 
 
 def render_graph(nodes: dict[str, dict]) -> str:

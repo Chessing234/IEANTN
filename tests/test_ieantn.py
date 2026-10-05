@@ -485,10 +485,10 @@ class TestImportStatus(FixtureRepo):
     def test_the_graph_dashes_only_undetermined_boxes(self) -> None:
         self._with(None, imports=False)
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("style A_v1_main stroke-dasharray: 2 3", rendered)
+        self.assertIn("style A_2e_v1_2e_main stroke-dasharray: 2 3", rendered)
         self._with("none", imports=False)
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertNotIn("style A_v1_main stroke-dasharray", rendered)
+        self.assertNotIn("style A_2e_v1_2e_main stroke-dasharray", rendered)
 
 
 class TestReceiptHealthInTheViews(FixtureRepo):
@@ -562,7 +562,7 @@ class TestReceiptHealthInTheViews(FixtureRepo):
         rendered = chr(10).join(
             ieantn.render_node_overview(nodes, ieantn.index_conclusions(nodes)))
         self.assertIn("verified, drifted", rendered)
-        self.assertIn("lean_comparator_drifted", rendered)
+        self.assertIn("lean_2d_comparator_2d_drifted", rendered)
 
     def test_state_names_the_claim_that_moved(self) -> None:
         """A pull request that voids a receipt should carry that fact in its own diff."""
@@ -602,24 +602,24 @@ class TestNodeOverview(FixtureRepo):
     def test_an_edge_is_drawn_between_the_nodes_not_the_claims(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
         self.write_node("A.v1", importing("Upstream.v1"))
-        self.assertIn("NUpstream_v1 --> NA_v1", self._overview())
+        self.assertIn("NUpstream_2e_v1 --> NA_2e_v1", self._overview())
 
     def test_a_node_with_nothing_stated_still_appears(self) -> None:
         """A recorded paper with no claim yet is an open invitation, not an absence."""
         self.write_node("Upstream.v1", LITERATURE)
         rendered = self._overview()
-        self.assertIn("NUpstream_v1", rendered)
+        self.assertIn("NUpstream_2e_v1", rendered)
 
     def test_the_overview_dashes_a_node_with_any_untraced_claim(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
-        self.assertIn("style NUpstream_v1 stroke-dasharray", self._overview())
+        self.assertIn("style NUpstream_2e_v1 stroke-dasharray", self._overview())
 
     def test_both_pictures_are_in_the_page(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
         rendered = ieantn.render_graph(ieantn.load_nodes())
         self.assertIn("## The network at a glance", rendered)
         self.assertIn("## Every claim", rendered)
-        self.assertIn('subgraph sgUpstream_v1["Upstream.v1"]', rendered)
+        self.assertIn('subgraph sgUpstream_2e_v1["Upstream.v1"]', rendered)
 
 
 class TestBridgesInTheGraph(FixtureRepo):
@@ -652,8 +652,8 @@ class TestBridgesInTheGraph(FixtureRepo):
         self.assertEqual(len(found), 1)
         self.assertEqual(sorted(found[0]["premises"]), ["Up.v1.main", "Up2.v1.main"])
         rendered = ieantn.render_graph(nodes)
-        self.assertIn("Up_v1_main ==> BR", rendered)
-        self.assertIn("Up2_v1_main ==> BR", rendered)
+        self.assertIn("Up_2e_v1_2e_main ==> BR", rendered)
+        self.assertIn("Up2_2e_v1_2e_main ==> BR", rendered)
 
     def test_the_bridge_node_is_a_hexagon_named_for_its_file(self) -> None:
         rendered = ieantn.render_graph(self._bridged(["Up.v1.main"]))
@@ -669,11 +669,11 @@ class TestBridgesInTheGraph(FixtureRepo):
         nodes = self._bridged(["Up.v1.main"])
         rendered = chr(10).join(
             ieantn.render_node_overview(nodes, ieantn.index_conclusions(nodes)))
-        self.assertIn("NUp_v1 ==>|bridge| NA_v1", rendered)
+        self.assertIn("NUp_2e_v1 ==>|bridge| NA_2e_v1", rendered)
 
     def test_mermaid_ids_survive_dots_dashes_and_colons(self) -> None:
         """Every one of these appears in a real key, and each ends a Mermaid id early."""
-        self.assertEqual(ieantn.mermaid_id("Lcm.v1.main::br-2"), "Lcm_v1_main__br_2")
+        self.assertEqual(ieantn.mermaid_id("Lcm.v1.main::br-2"), "Lcm_2e_v1_2e_main_3a__3a_br_2d_2")
 
 
 class TestDeclarationLinks(FixtureRepo):
@@ -716,7 +716,7 @@ class TestDeclarationLinks(FixtureRepo):
         self.write_node("A.v1", LITERATURE)
         self._lean("def main : Prop := True" + chr(10))
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("click A_v1_main href", rendered)
+        self.assertIn("click A_2e_v1_2e_main href", rendered)
         self.assertIn("[`A.v1.main`](", rendered)
 
 
@@ -1003,8 +1003,8 @@ class TestTracedStatus(FixtureRepo):
         """Three states, three renderings; collapsing any two loses the distinction."""
         self._with("traced")
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("style A_v1_main stroke-dasharray: 8 4", rendered)
-        self.assertNotIn("style A_v1_main stroke-dasharray: 2 3", rendered)
+        self.assertIn("style A_2e_v1_2e_main stroke-dasharray: 8 4", rendered)
+        self.assertNotIn("style A_2e_v1_2e_main stroke-dasharray: 2 3", rendered)
 
     def test_traced_is_not_queued_by_housekeeping(self) -> None:
         """Some missing edges await a node that could exist and some await one that never can;
@@ -1206,11 +1206,27 @@ class TestGraphPage(FixtureRepo):
     def test_it_draws_an_edge_for_each_import(self) -> None:
         self._chain()
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("Upstream_v1_main --> A_v1_main", rendered)
+        self.assertIn("Upstream_2e_v1_2e_main --> A_2e_v1_2e_main", rendered)
+
+    def test_distinct_valid_conclusion_keys_remain_distinct_in_mermaid(self) -> None:
+        keys = ["A.v1.v1_main", "A_v1.v1.main"]
+        self.assertNotEqual(ieantn.mermaid_id(keys[0]), ieantn.mermaid_id(keys[1]))
+        self.write_node("A.v1", LITERATURE.replace("main", "v1_main"))
+        self.write_node("A_v1.v1", LITERATURE)
+        rendered = ieantn.render_graph(ieantn.load_nodes())
+        for key in keys:
+            self.assertIn(f"click {ieantn.mermaid_id(key)} href", rendered)
+
+    def test_mermaid_escaping_cannot_collide_with_literal_escape_text(self) -> None:
+        keys = ["A.v1.main-x", "A.v1.main_x", "A.v1.main_2d_x", "A.v1.main:x"]
+        ids = [ieantn.mermaid_id(key) for key in keys]
+        self.assertEqual(len(set(ids)), len(keys))
+        for identifier in ids:
+            self.assertRegex(identifier, r"^[A-Za-z0-9_]+$")
 
     def test_mermaid_ids_carry_no_dots(self) -> None:
         """Mermaid rejects dots in node ids, and a conclusion key is full of them."""
-        self.assertEqual(ieantn.mermaid_id("A.v1.main-x"), "A_v1_main_x")
+        self.assertEqual(ieantn.mermaid_id("A.v1.main-x"), "A_2e_v1_2e_main_2d_x")
 
     def test_only_roots_head_the_trees(self) -> None:
         """An imported conclusion appears inside the tree of whatever imports it, not as its own
