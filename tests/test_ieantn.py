@@ -2655,5 +2655,35 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("scripts/ieantn.py state", printed)
 
 
+class TestLocalDefinitionChurn(FixtureRepo):
+    def test_changing_an_imported_vocabulary_definition_is_not_environment_churn(self) -> None:
+        import subprocess
+        self.write_node("A.v1", LITERATURE)
+        vocabulary = self.root / "IEANTN" / "Vocabulary.lean"
+        vocabulary.write_text("import IEANTN.Vocabulary.Values\n", encoding="utf-8")
+        definition = self.root / "IEANTN" / "Vocabulary" / "Values.lean"
+        definition.write_text("def bound : Nat := 1\n", encoding="utf-8")
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "IEANTN"], cwd=self.root, check=True)
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Fixture"], cwd=self.root, check=True)
+        commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.root, check=True, capture_output=True, text=True).stdout.strip()
+        self.assertTrue(ieantn.statement_source_unchanged("A.v1.main", commit))
+        definition.write_text("def bound : Nat := 2\n", encoding="utf-8")
+        self.assertFalse(ieantn.statement_source_unchanged("A.v1.main", commit))
+
+    def test_unrelated_local_definitions_do_not_break_the_source_check(self) -> None:
+        import subprocess
+        self.write_node("A.v1", LITERATURE)
+        (self.root / "IEANTN" / "Vocabulary.lean").write_text("", encoding="utf-8")
+        unrelated = self.root / "IEANTN" / "Vocabulary" / "Unrelated.lean"
+        unrelated.write_text("def other : Nat := 1\n", encoding="utf-8")
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "IEANTN"], cwd=self.root, check=True)
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Fixture"], cwd=self.root, check=True)
+        commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.root, check=True, capture_output=True, text=True).stdout.strip()
+        unrelated.write_text("def other : Nat := 2\n", encoding="utf-8")
+        self.assertTrue(ieantn.statement_source_unchanged("A.v1.main", commit))
+
+
 if __name__ == "__main__":
     unittest.main()

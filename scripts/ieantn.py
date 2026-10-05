@@ -2005,8 +2005,24 @@ def statement_source_unchanged(conclusion_name: str, commit: str | None) -> bool
         cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
     if known.returncode != 0:
         return False
+    # Local imported definitions can change a statement's meaning while this
+    # Conclusions file stays untouched. Only an unchanged import closure lets
+    # a moved fingerprint be attributed to the external environment.
+    pending = [ROOT / path]
+    sources: set[pathlib.Path] = set()
+    while pending:
+        source = pending.pop()
+        if source in sources:
+            continue
+        if not source.is_file():
+            return False
+        sources.add(source)
+        pending.extend(
+            ROOT / (module.replace(".", "/") + ".lean")
+            for module in imports_of(source) if under(module, "IEANTN")
+        )
     changed = subprocess.run(
-        ["git", "diff", "--name-only", commit, "--", path],
+        ["git", "diff", "--name-only", commit, "--", *sorted(rel(p) for p in sources)],
         cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
     if changed.returncode != 0:
         return False
