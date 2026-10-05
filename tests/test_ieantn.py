@@ -2657,3 +2657,22 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestVerificationJustificationIds(FixtureRepo):
+    def test_existing_comparator_id_does_not_become_ambiguous(self) -> None:
+        directory = self.write_node("Example.v1", LITERATURE.replace("id: citation", "id: comparator").replace("designated: citation", "designated: comparator"))
+        metadata = directory / "formalization.yaml"
+        data = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))
+        # Reserve the default ID for a different evidence source.
+        data["conclusions"][0]["justifications"] = [{"id": "comparator", "kind": "none-yet"}]
+        data["conclusions"][0]["designated"] = "comparator"
+        metadata.write_text(ieantn.yaml.safe_dump(data), encoding="utf-8")
+        ieantn.designate_verification("Example.v1", "https://example.com/run/1")
+        conclusion = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))["conclusions"][0]
+        ids = [j["id"] for j in conclusion["justifications"]]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual(ieantn.designated_kind(conclusion), "lean-comparator")
+        ieantn.designate_verification("Example.v1", "https://example.com/run/2")
+        refreshed = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))["conclusions"][0]
+        self.assertEqual([j["id"] for j in refreshed["justifications"]], ids)

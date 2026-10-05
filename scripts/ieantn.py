@@ -2405,8 +2405,14 @@ def designate_verification(node_id: str, run_url: str) -> None:
             (j for j in justifications if j.get("kind") == "lean-comparator"), None
         )
         if existing is None:
+            used_ids = {j.get("id") for j in justifications}
+            identifier = "comparator"
+            suffix = 2
+            while identifier in used_ids:
+                identifier = f"comparator-{suffix}"
+                suffix += 1
             existing = {
-                "id": "comparator",
+                "id": identifier,
                 "kind": "lean-comparator",
                 "note": f"Comparator accepted the solution. Run: {run_url}",
             }
