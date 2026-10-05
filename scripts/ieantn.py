@@ -529,7 +529,11 @@ def check_receipts(online: bool = True) -> bool:
              "--jq", ".jobs[].name"],
             cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
         )
-        names = jobs.stdout.split("\n") if jobs.returncode == 0 else []
+        if jobs.returncode != 0:
+            problems.add(rel(path),
+                         f"run {run_id} jobs could not be read: {jobs.stderr.strip()}")
+            continue
+        names = jobs.stdout.split("\n")
         if any("(" in name for name in names) and not any(f"({node_of})" in name for name in names):
             problems.add(
                 rel(path),

@@ -2657,3 +2657,18 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestReceiptJobLookup(TestReceiptProvenance):
+    def test_unreadable_job_list_is_refused(self) -> None:
+        self._receipt("https://github.com/teorth/IEANTN/actions/runs/123")
+        def response(args, **kwargs):
+            if args[0] == "git":
+                return ieantn.subprocess.CompletedProcess(args, 0, "https://github.com/teorth/IEANTN.git\n", "")
+            if args[2].endswith("/jobs"):
+                return ieantn.subprocess.CompletedProcess(args, 1, "", "API rate limit exceeded")
+            return ieantn.subprocess.CompletedProcess(args, 0, "success\t.github/workflows/verify.yml\n", "")
+        printed = io.StringIO()
+        with unittest.mock.patch.object(ieantn.subprocess, "run", side_effect=response), contextlib.redirect_stdout(printed):
+            self.assertFalse(ieantn.check_receipts(online=True))
+        self.assertIn("API rate limit exceeded", printed.getvalue())
