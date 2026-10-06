@@ -1418,6 +1418,31 @@ class TestSpinoffOpens(unittest.TestCase):
             self.assertEqual(ieantn.opens_of(f), [])
 
 
+class TestReportReceiptHealth(FixtureRepo):
+    _verified = TestReceiptHealthInTheViews._verified
+
+    def test_a_broken_receipt_cannot_report_a_fully_verified_claim(self) -> None:
+        key = self._verified("A.v1", statement={"A.v1.main": "before"})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertTrue(ieantn.report())
+        self.assertIn("lean-comparator-drifted", output.getvalue())
+        self.assertNotIn("fully verified in Lean", output.getvalue())
+        index = ieantn.index_conclusions(ieantn.load_nodes())
+        self.assertIn(key, ieantn.unjustified_leaves(index, key))
+        with contextlib.redirect_stdout(output):
+            self.assertFalse(ieantn.spinoff(key, "out", False))
+        self.assertIn("standing verification receipt", output.getvalue())
+
+    def test_environment_staleness_does_not_invalidate_the_proof(self) -> None:
+        key = self._verified("A.v1", mathlib_rev="b" * 40)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertTrue(ieantn.report())
+        self.assertIn("fully verified in Lean", output.getvalue())
+        self.assertEqual(ieantn.unjustified_leaves(ieantn.index_conclusions(ieantn.load_nodes()), key), [])
+
+
 class TestUnjustifiedLeaves(FixtureRepo):
     """What a spun-off Challenge must take as hypotheses.
 
@@ -2659,30 +2684,6 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("derived.yml", printed)
         self.assertIn("scripts/ieantn.py state", printed)
 
-
-class TestReportReceiptHealth(FixtureRepo):
-    _verified = TestReceiptHealthInTheViews._verified
-
-    def test_a_broken_receipt_cannot_report_a_fully_verified_claim(self) -> None:
-        key = self._verified("A.v1", statement={"A.v1.main": "before"})
-        output = io.StringIO()
-        with contextlib.redirect_stdout(output):
-            self.assertTrue(ieantn.report())
-        self.assertIn("lean-comparator-drifted", output.getvalue())
-        self.assertNotIn("fully verified in Lean", output.getvalue())
-        index = ieantn.index_conclusions(ieantn.load_nodes())
-        self.assertIn(key, ieantn.unjustified_leaves(index, key))
-        with contextlib.redirect_stdout(output):
-            self.assertFalse(ieantn.spinoff(key, "out", False))
-        self.assertIn("standing verification receipt", output.getvalue())
-
-    def test_environment_staleness_does_not_invalidate_the_proof(self) -> None:
-        key = self._verified("A.v1", mathlib_rev="b" * 40)
-        output = io.StringIO()
-        with contextlib.redirect_stdout(output):
-            self.assertTrue(ieantn.report())
-        self.assertIn("fully verified in Lean", output.getvalue())
-        self.assertEqual(ieantn.unjustified_leaves(ieantn.index_conclusions(ieantn.load_nodes()), key), [])
 
 
 if __name__ == "__main__":
