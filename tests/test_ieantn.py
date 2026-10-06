@@ -2675,6 +2675,5 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("scripts/ieantn.py state", printed)
 
 
-
 if __name__ == "__main__":
     unittest.main()
