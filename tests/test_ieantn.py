@@ -2552,6 +2552,26 @@ class TestState(FixtureRepo):
         self.assertIn("| `Upstream.v1.main` | 1 |", text)
 
 
+class TestHashPayloadCoverage(FixtureRepo):
+    def test_hash_output_cannot_silently_omit_or_add_conclusions(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        for payload in ({}, {"B.v1.main": "True"}, {"A.v1.main": "True", "B.v1.main": "True"},
+                        {"A.v1.main": None}, []):
+            with self.subTest(payload=payload):
+                completed = ieantn.subprocess.CompletedProcess([], 0, json.dumps(payload), "")
+                with unittest.mock.patch.object(ieantn.subprocess, "run", return_value=completed):
+                    with self.assertRaises(SystemExit):
+                        ieantn.compute_fingerprints()
+
+    def test_complete_output_is_fingerprinted(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        completed = ieantn.subprocess.CompletedProcess([], 0, '{"A.v1.main": "True"}', "")
+        with unittest.mock.patch.object(ieantn.subprocess, "run", return_value=completed):
+            result = ieantn.compute_fingerprints()
+        self.assertEqual(set(result), {"A.v1.main"})
+        self.assertEqual(len(result["A.v1.main"]), 64)
+
+
 class TestFingerprintSharding(FixtureRepo):
     """Fingerprints live one file per node, beside the yaml they describe.
 
@@ -2654,25 +2674,6 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("derived.yml", printed)
         self.assertIn("scripts/ieantn.py state", printed)
 
-
-class TestHashPayloadCoverage(FixtureRepo):
-    def test_hash_output_cannot_silently_omit_or_add_conclusions(self) -> None:
-        self.write_node("A.v1", LITERATURE)
-        for payload in ({}, {"B.v1.main": "True"}, {"A.v1.main": "True", "B.v1.main": "True"},
-                        {"A.v1.main": None}, []):
-            with self.subTest(payload=payload):
-                completed = ieantn.subprocess.CompletedProcess([], 0, json.dumps(payload), "")
-                with unittest.mock.patch.object(ieantn.subprocess, "run", return_value=completed):
-                    with self.assertRaises(SystemExit):
-                        ieantn.compute_fingerprints()
-
-    def test_complete_output_is_fingerprinted(self) -> None:
-        self.write_node("A.v1", LITERATURE)
-        completed = ieantn.subprocess.CompletedProcess([], 0, '{"A.v1.main": "True"}', "")
-        with unittest.mock.patch.object(ieantn.subprocess, "run", return_value=completed):
-            result = ieantn.compute_fingerprints()
-        self.assertEqual(set(result), {"A.v1.main"})
-        self.assertEqual(len(result["A.v1.main"]), 64)
 
 
 if __name__ == "__main__":
