@@ -2660,7 +2660,8 @@ class TestMalformedReceiptObjects(FixtureRepo):
         self.write_node("A.v1", LITERATURE.replace("kind: literature", "kind: lean-comparator"))
         ieantn.RECEIPTS.mkdir()
         path = ieantn.receipt_path("A.v1.main")
-        for raw in ("null", "[]", '"receipt"', '{"statement": []}', '{"run": "bad"}', '{broken'):
+        for raw in ("null", "[]", '"receipt"', '{"statement": []}', '{"run": "bad"}',
+                    '{"run": {"workflow_run": []}}', '{"environment": {"lean_toolchain": 4}}', '{broken'):
             with self.subTest(raw=raw):
                 path.write_text(raw, encoding="utf-8")
                 self.assertIsNone(ieantn.load_receipt("A.v1.main"))
