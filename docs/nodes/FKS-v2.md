@@ -27,7 +27,7 @@
 Identical to `FKS.v1.psi_bound_all_x`, and kept in the paper's own normalisation so the
 transcription can be checked against the printed statement by eye. What changed is its standing:
 it is `bridged` from `psi_classical_bound` below rather than cited, because that is the direction
-the paper's own proof runs.
+the paper's own proof runs where it uses the classical form (Lemma 5.3).
 
 ```lean
 def psi_bound_all_x : Prop :=
@@ -39,7 +39,7 @@ def psi_bound_all_x : Prop :=
 |---|---|
 | Lean name | `FKS.v2.psi_bound_all_x` |
 | Challenge | `FKS.v2.challenge_psi_bound_all_x` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v2/Conclusions.lean#L71) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v2/Conclusions.lean#L74) |
 | Evidence | bridged (`bridged`) |
 | Sources traced | traced |
 | Assumes | [`KLN.v1.subconvexity_bound`](KLN-v1.md#subconvexity_bound), [`MT.v1.zero_free_region_sharpened`](MT-v1.md#zero_free_region_sharpened), [`PlattTrudgian.v1.rh_up_to`](PlattTrudgian-v1.md#rh_up_to) |
@@ -49,7 +49,7 @@ def psi_bound_all_x : Prop :=
   
   Bridged from FKS.v1.psi_classical_bound via `IEANTN/Bridges/FKS/ClassicalToAllX.lean`.
 
-> Not a second citation. The paper derives the all-x bound FROM the classical one, in the proof of Corollary 1.4: "We now simply verify that 121.096/5.5666305^(3/2) < 9.22022 to complete the result." The bridge carries out that rescaling in Lean from FKS.v1.psi_classical_bound, using Mathlib and ThresholdTwo.lean and nothing else, and is compiled by the core build. What it needs is 121.096 < 9.22022 R^(3/2) and 0.8476836 sqrt(R) <= 2 -- the two inequalities FKS.v1.rescaled_A_exceeds_printed and FKS.v1.rescaled_C_is_short_of_two record, read in the direction that closes. No margin index is involved. FKS.v1's own note observes that the converse rescaling fails; that is true and is the other direction.
+> Not a second citation. Where the paper uses the classical form, it derives the all-x bound FROM it: the proof of Lemma 5.3, the step of the proof of Corollary 1.4 that covers 2100 < log x <= 200000, ends "We now simply verify that 121.096/5.5666305^(3/2) < 9.22022 to complete the result." The bridge carries out that rescaling in Lean from FKS.v1.psi_classical_bound, using Mathlib and ThresholdTwo.lean and nothing else, and is compiled by the core build. What it needs is 121.096 < 9.22022 R^(3/2) and 0.8476836 sqrt(R) <= 2 -- the two inequalities FKS.v1.rescaled_A_exceeds_printed and FKS.v1.rescaled_C_is_short_of_two record, read in the direction that closes. No margin index is involved. FKS.v1's own note observes that the converse rescaling fails; that is true and is the other direction.
 
 ### `psi_classical_bound`
 
@@ -74,7 +74,7 @@ def psi_classical_bound : Prop :=
 |---|---|
 | Lean name | `FKS.v2.psi_classical_bound` |
 | Challenge | `FKS.v2.challenge_psi_classical_bound` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v2/Conclusions.lean#L86) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/FKS/v2/Conclusions.lean#L89) |
 | Evidence | bridged (`bridged`) |
 | Sources traced | traced |
 | Assumes | [`KLN.v1.subconvexity_bound`](KLN-v1.md#subconvexity_bound), [`MT.v1.zero_free_region_sharpened`](MT-v1.md#zero_free_region_sharpened), [`PlattTrudgian.v1.rh_up_to`](PlattTrudgian-v1.md#rh_up_to) |
@@ -91,8 +91,9 @@ def psi_classical_bound : Prop :=
 Recorded by the node itself, not derived.
 
 - Both conclusions rest on the cited paper; neither is proved in Lean here.
-- The preprint (arXiv:2204.02588v2) numbers the all-x bound as Corollary 1.4; that is now checked against the rendered preprint. The second conclusion's locator remains FKS2's "[8, Corollary 1.3]" for the published numbering, which the preprint does not use.
-- psi_classical_bound is not derivable from psi_bound_all_x by rescaling at R = 5.5666305. The two new conclusions record the A and C gaps as claims.
+- Numbering, settled in #52. The published version and arXiv:2204.02588v2 and v3 number the all-x bound Corollary 1.4 and have no Corollary 1.3. The "[8, Corollary 1.3]" that FKS2 cites is the arXiv v1 number, from the version whose constant was 9.22106. The classical form is not a numbered statement in any version; in arXiv v2 and v3 it appears only inside the proof of Lemma 5.3, on 2100 < log x <= 200000 (see the note on FKS.v1.psi_classical_bound). Neither conclusion here carries a locator, since both are bridged from FKS.v1.psi_classical_bound.
+- psi_classical_bound is not derivable from psi_bound_all_x by rescaling at R = 5.5666305; FKS.v1.rescaled_A_exceeds_printed and FKS.v1.rescaled_C_is_short_of_two record the two gaps. The converse, which the paper's proof of Lemma 5.3 takes, is IEANTN/Bridges/FKS/ClassicalToAllX.lean.
+- Lemma 5.2 of the paper (arXiv v3 numbering, which PrimeNumberTheoremAnd follows) is false as printed. It states E_psi(x) <= 2 (log x)^(3/2) exp(-0.8476836 sqrt(log x)) for 0 < log x <= 2100. For 1 < x < 2, psi(x) = 0 and E_psi(x) = 1, and at x = 2, E_psi = 0.65343... against a right-hand side of 0.56986...; the bound fails on all of (1, 2.2901308748...) and holds from x = 2.2902 on: checked box by box in interval arithmetic up to e^4 in #52, and above that the paper's comparisons with Buthe 2018 and BKLNW Table 8 go through. The slip is the proof's "For 0 < log x <= 4 the bound we are claiming is trivial", which the published version prints too. The paper's proof of Corollary 1.4 applies the lemma on all of 0 < log x <= 2100, so that proof has a gap on (2, 2.2901308748...). The statements here are unaffected: below e^30 their right-hand sides exceed 2 while E_psi <= 2 by Mathlib's Chebyshev bound (the argument of IEANTN/Bridges/FKS/ThresholdTwo.lean), and above e^30 the lemma holds. PrimeNumberTheoremAnd's lemma_5_2 carries the printed statement, over Ioc 0 2100. A node that states the paper's lemmas should use the corrected range, 2.2902 <= x <= e^2100, and record this falsity in its limitations.
 - R = 5.5666305 is not this paper's constant but Mossinghoff and Trudgian's, J. Number Theory 157 (2015). A sharper value is available from MTY.v1 and is the first thing to change when the chain is re-run.
 - No novelty is claimed. The results are Fiori, Kadiri and Swidinsky's.
 
