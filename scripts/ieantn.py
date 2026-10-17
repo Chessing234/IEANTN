@@ -2499,6 +2499,9 @@ def report() -> bool:
         _, conclusion = index[key]
         justification = designated_of(conclusion) or {}
         kind = justification.get("kind")
+        health = receipt_state(key, conclusion)
+        if health is not None and health[0] == "BROKEN":
+            kind = "lean-comparator-drifted"
         spares = len(justifications_of(conclusion)) - 1
         result: set[str] = set()
         if kind == "bridged":
@@ -3717,7 +3720,10 @@ def unjustified_leaves(index: dict, key: str, seen: set[str] | None = None) -> l
     if justification.get("kind") == "bridged":
         for source in bridge_sources(justification):
             found += unjustified_leaves(index, source, seen)
-    elif justification.get("kind") not in VERIFIED_KINDS:
+    elif (
+        justification.get("kind") not in VERIFIED_KINDS
+        or (receipt_state(key, conclusion) or (None, ""))[0] == "BROKEN"
+    ):
         found.append(key)
     for dependency in conclusion.get("imports") or []:
         found += unjustified_leaves(
@@ -3787,6 +3793,10 @@ def spinoff(key: str, out: str, compile_check: bool) -> bool:
     if designated.get("kind") not in VERIFIED_KINDS:
         print(f"error: `{key}` designates `{designated.get('kind')}`, so there is no Lean proof to "
               "submit. Palomar records a verified formalization, not a claim.")
+        return False
+    health = receipt_state(key, conclusion)
+    if health is not None and health[0] == "BROKEN":
+        print(f"error: `{key}` has no standing verification receipt: {health[1]}")
         return False
 
     # Multi-level composition -- chaining several nodes' solutions into one -- is the part of
