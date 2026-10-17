@@ -208,11 +208,17 @@ Notes:
   the spares is useful, but only the designated one carries trust or appears in the dependency
   report. Re-designating is a one-line change and is often the cheapest fix when the designated
   justification goes stale.
-- `kind` is one of `lean-comparator`, `numerical`, `literature`, `asserted`, `bridged`,
-  `none-yet`. Use `literature` when the source proves the claim, `asserted` when it merely states
-  it — the distinction is the point of recording it. `bridged` borrows another version's evidence
+- `kind` is one of `lean-comparator`, `lean-noncompliant`, `numerical`, `literature`, `asserted`,
+  `bridged`, `none-yet`. Use `literature` when the source proves the claim, `asserted` when it
+  merely states it — the distinction is the point of recording it. `bridged` borrows another version's evidence
   and must name `from` and the `bridge` file; chains of *designated* `bridged` justifications must
   terminate at a primitive kind, which CI checks.
+  `lean-noncompliant` is for a complete Lean proof that no receipt is available for — it uses an
+  axiom Comparator does not permit, or the verification workflow cannot be run on it as it stands.
+  It must name in `note` what stands between the proof and a receipt, the solution must actually be
+  there at `Solutions/<node>/Solution.lean`, and the conclusion should carry the `issue` where
+  removing the obstruction is tracked. `status` reports it as unverified; see
+  [ARCHITECTURE.md](ARCHITECTURE.md) section 3.
 - Editing a node's metadata with `new-version` or `deprecate` requires `ruamel.yaml`
   (`pip install ruamel.yaml`), which preserves comments. The read-only checks need only PyYAML,
   so CI does not install it.

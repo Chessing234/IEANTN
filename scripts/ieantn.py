@@ -122,7 +122,19 @@ def import_status(conclusion: dict) -> str:
 
 
 #: A justification that stands on its own evidence.
-PRIMITIVE_KINDS = {"lean-comparator", "numerical", "literature", "asserted", "none-yet"}
+PRIMITIVE_KINDS = {"lean-comparator", "lean-noncompliant", "numerical", "literature", "asserted",
+                   "none-yet"}
+
+#: A complete Lean proof that no receipt is available for. Two cases, which a reader of the views
+#: need not distinguish: the proof uses an axiom Comparator does not permit -- `native_decide`
+#: goes through `Lean.ofReduceBool` -- or the verification workflow cannot be run on it as it
+#: stands, because of a dependency the network has not admitted to its trust base, or a build no
+#: runner will finish. The proof is in this repository under `Solutions/`, where anyone may build
+#: it; what is missing is our own certificate that it proves the challenge. So it is a leaf of the
+#: trust graph -- what a reader relies on is the author's report that it builds and audits -- and
+#: it is kept apart from `none-yet` because "nobody has written a proof" and "the proof is written
+#: and we have not certified it" call for entirely different work.
+NONCOMPLIANT_KIND = "lean-noncompliant"
 #: A justification borrowed from another version via a proved bridge.
 DERIVED_KINDS = {"bridged"}
 JUSTIFICATION_KINDS = PRIMITIVE_KINDS | DERIVED_KINDS
@@ -1387,6 +1399,24 @@ def check_graph() -> bool:
                             f"conclusion `{cid}`: {rel(receipt_path(key))} records "
                             f"`{receipt.get('conclusion')}`",
                         )
+                if kind == NONCOMPLIANT_KIND:
+                    # The claim being made is that the code is here. A `lean-noncompliant`
+                    # justification with no solution beside it is an `asserted` one wearing a
+                    # borrowed coat.
+                    solution = SOLUTIONS / node_id / "Solution.lean"
+                    if not solution.is_file():
+                        problems.add(
+                            where,
+                            f"conclusion `{cid}`, justification `{jid}`: `{NONCOMPLIANT_KIND}` "
+                            f"means the Lean proof is supplied, and {rel(solution)} is not there.",
+                        )
+                    if not str(justification.get("note") or "").strip():
+                        problems.add(
+                            where,
+                            f"conclusion `{cid}`, justification `{jid}`: `{NONCOMPLIANT_KIND}` "
+                            "must say in `note` what stands between this proof and a receipt. "
+                            "Without that, nobody can tell whether it still stands.",
+                        )
                 if kind == "bridged":
                     sources = bridge_sources(justification)
                     if not sources:
@@ -1516,6 +1546,13 @@ def check_graph() -> bool:
                     where,
                     f"conclusion `{cid}` is unjustified and names no `issue`: nobody can claim "
                     "work nobody can find. Open an issue and record its number.",
+                )
+            elif designated_kind(conclusion) == NONCOMPLIANT_KIND and issue is None:
+                problems.warn(
+                    where,
+                    f"conclusion `{cid}` designates `{NONCOMPLIANT_KIND}` and names no `issue`: "
+                    "what stands between the proof and a receipt is tracked work. Open an issue "
+                    "and record its number.",
                 )
 
             if designated_kind(conclusion) == "none-yet" and len(available) > 1:
@@ -2225,6 +2262,14 @@ def status() -> bool:
         for conclusion in conclusions_of(node):
             key = f"{node_id}.{conclusion.get('id')}"
             kind = designated_kind(conclusion)
+            if kind == NONCOMPLIANT_KIND:
+                # Saying "not Lean-verified" of this one would be false: the kernel accepted it.
+                # What it has not got, and will not get while the obstruction stands, is a receipt
+                # from this network.
+                lights["-"] += 1
+                print(f"  -       {key}")
+                print("          a Lean proof this network has not certified; see its `note`")
+                continue
             if kind != "lean-comparator":
                 lights["-"] += 1
                 print(f"  -       {key}")
@@ -2613,7 +2658,8 @@ def housekeeping() -> bool:
         conclusion.get("issue")
         for node in nodes.values()
         for conclusion in conclusions_of(node)
-        if designated_kind(conclusion) in {"none-yet", "literature", "asserted"}
+        if designated_kind(conclusion) in {"none-yet", "literature", "asserted",
+                                           NONCOMPLIANT_KIND}
         and isinstance(conclusion.get("issue"), int)
     }
     stale_issues = closed_issues({n for n in outstanding if isinstance(n, int)})
@@ -2657,6 +2703,9 @@ def housekeeping() -> bool:
                 tasks.append(f"justify   {node_id}.{conclusion.get('id')}  [{claim}]")
             elif kind in {"literature", "asserted"}:
                 tasks.append(f"formalize {node_id}.{conclusion.get('id')}  ({kind}) [{claim}]")
+            elif kind == NONCOMPLIANT_KIND:
+                tasks.append(f"certify   {node_id}.{conclusion.get('id')}  "
+                             f"(Lean proof, no receipt available) [{claim}]")
 
     print("Housekeeping queue")
     print("=" * 62)
@@ -2825,6 +2874,7 @@ EVIDENCE_STYLE = {
     "lean-comparator": ("verified", "#1a7f37", "#dafbe1"),
     "lean-comparator-stale": ("verified, stale", "#2da44e", "#e9f7ec"),
     "lean-comparator-drifted": ("verified, drifted", "#8b949e", "#eef2ef"),
+    "lean-noncompliant": ("lean, noncompliant", "#4f5661", "#eaeef2"),
     "numerical": ("computation", "#9a6700", "#fff8c5"),
     "literature": ("cited", "#0969da", "#ddf4ff"),
     "asserted": ("asserted", "#bc4c00", "#fff1e5"),
@@ -2954,8 +3004,11 @@ def bridges_in(nodes: dict) -> list[dict]:
 #: assertion -- an assertion is at least a claim someone stands behind, where a voided receipt
 #: supports nothing about the statement as it currently reads -- even though the node it belongs
 #: to is usually one Comparator run away from being green again.
+#: `lean-noncompliant` sits above the two kinds a reader can only take on authority: the proof is
+#: here, the Lean kernel accepted it, and anyone may build it. It stays below `bridged` because a
+#: bridge terminates in something this network checked, and nothing has checked this.
 EVIDENCE_ORDER = ["none-yet", "lean-comparator-drifted", "asserted", "literature", "numerical",
-                  "bridged", "lean-comparator-stale", "lean-comparator"]
+                  "lean-noncompliant", "bridged", "lean-comparator-stale", "lean-comparator"]
 
 
 def weakest_kind(node_id: str, conclusions: list[dict]) -> str:
