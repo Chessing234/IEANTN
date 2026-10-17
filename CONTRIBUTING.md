@@ -291,6 +291,21 @@ On success the workflow also designates the verification, because a Lean-verifie
 rests on no citation, no external computation and no other version, and so is almost always what a
 conclusion should point at. You can re-designate afterwards; that is an ordinary reviewed edit.
 
+### When Comparator cannot be run on the proof at all
+
+Some complete proofs cannot be given a receipt as they stand. Either they use an axiom Comparator
+does not permit — `native_decide` goes through `Lean.ofReduceBool` — or the verification workflow
+cannot be run on them: a dependency the network has not admitted to its trust base, such as a
+third-party LeanCert or PrimeCert pin, or a build no runner will finish. Nothing need be wrong with
+such a proof; what is outstanding is usually a policy question rather than a defect in the
+solution.
+
+Designate `kind: lean-noncompliant` for it. Say in the justification's `note` exactly what the
+obstruction is, and record the `issue` where removing it is tracked. The node then reads as what it
+is: the code is here, the Lean kernel accepted it, and this network has not certified it. Do not
+designate `lean-comparator` in the hope that a receipt will follow, and do not downgrade it to
+`none-yet` as though no proof existed.
+
 Check the result with `python scripts/ieantn.py status`, which grades each receipt `green`,
 `yellow`, `orange` or `BROKEN`. `BROKEN` means a statement moved — the conclusion's own, or one it
 imports — so the verified implication no longer connects to what is now claimed. That is not

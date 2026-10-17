@@ -156,6 +156,7 @@ The kinds are:
 | Kind | Meaning |
 |---|---|
 | `lean-comparator` | A Lean solution, checked by Comparator against the generated challenge. |
+| `lean-noncompliant` | A Lean solution in this repository that no receipt is available for: it uses an axiom Comparator does not permit, or the verification workflow cannot be run on it as it stands. |
 | `numerical` | A computation not currently expressible in Lean (large interval-arithmetic runs, exhaustive searches). |
 | `literature` | Proved in a cited source, and accepted on that source's authority. |
 | `asserted` | **Claimed in a cited source without proof.** Folklore. |
@@ -168,6 +169,28 @@ nobody has written one down. Both are common in explicit analytic number theory 
 different weight, so collapsing them would hide exactly what the network exists to show. Alaoglu
 and Erdős writing "it would be easy to see that…" and offering no argument is `asserted`, not
 `literature`.
+
+`lean-noncompliant` is the one kind that is neither a citation nor a certificate. The proof is in
+this repository, the Lean kernel accepted it, and anyone may build it; what is absent is our own
+check that it proves the challenge. That happens for two reasons. Either the proof uses an axiom
+Comparator does not permit — `native_decide` goes through `Lean.ofReduceBool` — or the verification
+workflow cannot be run on it as it stands: a dependency the network has not admitted to its trust
+base, or a build no runner will finish.
+
+`RosserSchoenfeld1962.v1` is the worked case. Its finite certificates come from a third-party
+LeanCert pin, and whether a verification run may fetch such a thing is a question about the trust
+base, not about this proof. It is a question with a likely answer: the tier A argument in
+[ROADMAP.md](ROADMAP.md) holds that a certificate *re-checked inside Lean* leaves the trusted base
+entirely — a bug in the generator causes a failed build, not an unsound theorem — and should end in
+an ordinary `lean-comparator` receipt. This kind is where such a node waits while that is settled,
+not a verdict against the proof.
+
+So it is a **leaf of the trust graph**, like a citation: what a reader relies on is the author's
+report that it builds and audits. It is not `none-yet`, because the work left is to settle a policy
+question, to replace a dependency or to get a run to complete — not to find a proof; and it is not
+`lean-comparator`, because no receipt is in hand. `check` requires such a justification to name the
+obstruction in its `note` and to have the solution actually present beside it, and `housekeeping`
+queues it as `certify`.
 
 `none-yet` and `asserted` are healthy states. A node whose formalization stalls because the source
 paper uses an unproved folklore fact should **surface that fact as its own node** and import it.
