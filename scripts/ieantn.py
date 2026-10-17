@@ -1245,8 +1245,7 @@ def check_graph() -> bool:
             )
 
     if not nodes:
-        print("ok  node graph (no nodes yet)")
-        return True
+        return problems.report("node graph (no active nodes)")
 
     every_conclusion = {
         f"{other_id}.{c.get('id')}"
