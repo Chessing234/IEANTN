@@ -4112,6 +4112,8 @@ def new_version(family: str) -> bool:
             }
         ]
         conclusion["designated"] = "unjustified"
+        # Solutions are not copied: the old hole count and path do not describe this version.
+        conclusion.pop("progress", None)
     with metadata.open("w", encoding="utf-8", newline="\n") as handle:
         writer.dump(data, handle)
 
