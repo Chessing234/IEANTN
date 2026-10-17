@@ -20,7 +20,10 @@ class TestSpinoffLayout(FixtureRepo):
                     startLine=2, startCol=0, endLine=2, endCol=len(f"def {name} : Prop := True"),
                     nameStartLine=2, nameStartCol=4, nameEndLine=2, nameEndCol=4 + len(name))
         result = ieantn.subprocess.CompletedProcess([], 0, json.dumps({"declarations": [decl]}), "")
+        # The layout is what is under test, not the receipt: these fixtures designate
+        # `lean-comparator` without a receipt file, which `spinoff` otherwise refuses.
         with unittest.mock.patch.object(ieantn, "load_nodes", return_value=nodes), \
+             unittest.mock.patch.object(ieantn, "receipt_state", return_value=None), \
              unittest.mock.patch.object(ieantn.subprocess, "run", return_value=result):
             self.assertTrue(ieantn.spinoff("A.v1.main", "export", False))
         return self.root / "export"

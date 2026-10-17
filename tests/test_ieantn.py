@@ -1105,7 +1105,7 @@ class TestSolutionHoles(FixtureRepo):
                     args, 1, "lakefile.lean:1:0: error: Lake command unavailable\n", "")
             if args[-1] == "Aux.lean":
                 output = "Aux.lean:3:0: warning: declaration uses 'sorry'\n"
-            elif args[-1] == "_ieantn_axioms.lean":
+            elif args[-1].startswith("_ieantn_axioms"):
                 output = f"'{name}' depends on axioms: [propext, sorryAx]\n"
             else:
                 self.assertEqual(args[-1], "Solution.lean")
@@ -2853,10 +2853,6 @@ class TestCompiledBridgePaths(FixtureRepo):
         self.assertTrue(ieantn.check_graph())
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestDeclarationBody(FixtureRepo):
     def test_blank_lines_inside_conclusion_are_preserved(self) -> None:
         directory = self.write_node("Example.v1", LITERATURE)
@@ -2866,3 +2862,26 @@ class TestDeclarationBody(FixtureRepo):
         self.assertEqual(doc, "A compound claim.")
         self.assertEqual(body, "def main : Prop :=\n  True ∧\n\n  True")
         self.assertNotIn("next", body)
+
+
+class TestVerificationJustificationIds(FixtureRepo):
+    def test_existing_comparator_id_does_not_become_ambiguous(self) -> None:
+        directory = self.write_node("Example.v1", LITERATURE.replace("id: citation", "id: comparator").replace("designated: citation", "designated: comparator"))
+        metadata = directory / "formalization.yaml"
+        data = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))
+        # Reserve the default ID for a different evidence source.
+        data["conclusions"][0]["justifications"] = [{"id": "comparator", "kind": "none-yet"}]
+        data["conclusions"][0]["designated"] = "comparator"
+        metadata.write_text(ieantn.yaml.safe_dump(data), encoding="utf-8")
+        ieantn.designate_verification("Example.v1", "https://example.com/run/1")
+        conclusion = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))["conclusions"][0]
+        ids = [j["id"] for j in conclusion["justifications"]]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual(ieantn.designated_kind(conclusion), "lean-comparator")
+        ieantn.designate_verification("Example.v1", "https://example.com/run/2")
+        refreshed = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))["conclusions"][0]
+        self.assertEqual([j["id"] for j in refreshed["justifications"]], ids)
+
+
+if __name__ == "__main__":
+    unittest.main()
