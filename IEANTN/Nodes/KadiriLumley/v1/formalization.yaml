@@ -1,0 +1,118 @@
+# Node metadata for `KadiriLumley.v1`.  See docs/NODES.md.
+#
+# Two instances rather than the paper's Table 2, deliberately: the paper is not in the library, and
+# a twenty-row table transcribed from another formalization and checkable against nothing would be
+# a liability. See the Conclusions module docstring.
+version: "v0.4"
+
+node:
+  id: KadiriLumley.v1
+  family: KadiriLumley
+  version: v1
+  kind: paper
+  status: active
+
+project:
+  name: "Kadiri and Lumley: short effective intervals containing primes"
+  description: >-
+    Two instances of the paper's Theorem 1.1: every x above exp(59) has a prime in
+    (x(1 - 1/1946282821), x), and every x above exp(60) has a prime in (x(1 - 1/1966196911), x).
+    These are the rows of the paper's Table 2 that the network's odd-Goldbach range consumes. The
+    intervals are narrower than Ramare and Saouter's by a factor of about seventy, which is what
+    pushes the derived odd-Goldbach height from 10^26 to 10^27.
+  authors: ["Terence Tao"]
+  license: "Apache-2.0"
+  responsible_maintainers: ["Terence Tao"]
+
+repository:
+  role: substantive-development
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11N05", "11Y35"]
+
+conclusions:
+- id: prime_in_interval_above_exp_59
+  declaration: KadiriLumley.v1.prime_in_interval_above_exp_59
+  challenge: KadiriLumley.v1.challenge_prime_in_interval_above_exp_59
+  imports: []
+  imports_status: undetermined
+  justifications:
+  - id: kadiri-lumley-paper
+    kind: literature
+    source: kadiri-lumley
+    locator: Theorem 1.1 with Table 2, the row at log x_0 = 59
+    note: >-
+      Asserted on the authority of the paper. Its own inputs -- a zero-density estimate, a zero-free
+      region and a verification height -- are not traced, because the paper is not held here. The
+      statement is transcribed from PrimeNumberTheoremAnd's `TMEEMT.KadiriLumley`, where the general
+      theorem carries a `sorry` and Table 2 is transcribed in full; what is taken from that
+      transcription here is the threshold and the constant Delta, both of which appear in the
+      consequence rather than inside the method.
+  designated: kadiri-lumley-paper
+- id: prime_in_interval_above_exp_60
+  declaration: KadiriLumley.v1.prime_in_interval_above_exp_60
+  challenge: KadiriLumley.v1.challenge_prime_in_interval_above_exp_60
+  imports: []
+  imports_status: undetermined
+  justifications:
+  - id: kadiri-lumley-paper-row60
+    kind: literature
+    source: kadiri-lumley
+    locator: Theorem 1.1 with Table 2, the row at log x_0 = 60
+    note: >-
+      As for the row above, and from the same transcription. This is the sharper of the two and the
+      one that sets the final odd-Goldbach height; the exp(59) row is needed to reach it.
+  designated: kadiri-lumley-paper-row60
+
+sources:
+- title: "Short effective intervals containing primes"
+  authors: ["Habiba Kadiri", "Allysa Lumley"]
+  type: "paper"
+  id: "https://mathscinet.ams.org/mathscinet-getitem?mr=3274183"
+  location: "Integers 14 (2014), Paper No. A61, 18 pp."
+  relationship: formalizes
+  note: >-
+    Identified by its MathSciNet number rather than a DOI: Integers is an independent electronic
+    journal and Crossref has no record of this article. A Crossref search for the title returns a
+    DIFFERENT paper -- Kadiri's 2008 "Short effective intervals containing primes in arithmetic
+    progressions and the seven cubes problem", Math. Comp. 77 -- which is close enough in title and
+    author to be mistaken for it, and is not this. Bibliographic details here follow
+    PrimeNumberTheoremAnd's bibliography, which agrees with the MathSciNet record.
+
+related_formalizations:
+- id: "https://github.com/AlexKontorovich/PrimeNumberTheoremAnd"
+  relationship: builds-on
+  note: >-
+    PNT+ states the general Theorem 1.1 in `TMEEMT.lean` with a `sorry`, alongside a full
+    transcription of Table 2, and instantiates it at these two rows inside its odd-Goldbach proof.
+
+automation:
+  methods:
+  - method: agent
+    models: ["Claude Opus 5 (Anthropic)"]
+    framework: "Claude Code"
+    role: >-
+      Transcribed the two instances and wrote this metadata under the direction of the maintainer,
+      and checked the bibliographic record, which is how the near-miss Crossref match was found.
+
+review:
+  status: self-assessed
+  reviewers: ["Terence Tao"]
+  notes: >-
+    Statements taken from PNT+, not from the paper, which the library does not hold. The interval
+    convention -- open on the right, unlike Ramare-Saouter's -- was taken from PNT+'s blueprint
+    text, which flags it explicitly against the paper's own display.
+
+limitations:
+- >-
+  Cited, not proved, and its inputs are not traced: the paper is not held here, so what the result
+  assumes is not recorded.
+- >-
+  Two rows, not the theorem. The paper's Theorem 1.1 is a general statement over the rows of its
+  Table 2; only the two rows the network consumes are stated. Carrying the table whole is the right
+  shape once someone holds the paper, and is a natural v2.
+- >-
+  Transcribed from a transcription. Neither the thresholds nor the constants have been read from
+  the source. The two numbers that matter -- 1946282821 and 1966196911 -- appear in the conclusions
+  above and should be the first thing checked when the paper arrives.

@@ -485,10 +485,10 @@ class TestImportStatus(FixtureRepo):
     def test_the_graph_dashes_only_undetermined_boxes(self) -> None:
         self._with(None, imports=False)
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("style A_v1_main stroke-dasharray: 2 3", rendered)
+        self.assertIn("style A_2e_v1_2e_main stroke-dasharray: 2 3", rendered)
         self._with("none", imports=False)
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertNotIn("style A_v1_main stroke-dasharray", rendered)
+        self.assertNotIn("style A_2e_v1_2e_main stroke-dasharray", rendered)
 
 
 class TestReceiptHealthInTheViews(FixtureRepo):
@@ -562,7 +562,7 @@ class TestReceiptHealthInTheViews(FixtureRepo):
         rendered = chr(10).join(
             ieantn.render_node_overview(nodes, ieantn.index_conclusions(nodes)))
         self.assertIn("verified, drifted", rendered)
-        self.assertIn("lean_comparator_drifted", rendered)
+        self.assertIn("lean_2d_comparator_2d_drifted", rendered)
 
     def test_state_names_the_claim_that_moved(self) -> None:
         """A pull request that voids a receipt should carry that fact in its own diff."""
@@ -602,24 +602,24 @@ class TestNodeOverview(FixtureRepo):
     def test_an_edge_is_drawn_between_the_nodes_not_the_claims(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
         self.write_node("A.v1", importing("Upstream.v1"))
-        self.assertIn("NUpstream_v1 --> NA_v1", self._overview())
+        self.assertIn("NUpstream_2e_v1 --> NA_2e_v1", self._overview())
 
     def test_a_node_with_nothing_stated_still_appears(self) -> None:
         """A recorded paper with no claim yet is an open invitation, not an absence."""
         self.write_node("Upstream.v1", LITERATURE)
         rendered = self._overview()
-        self.assertIn("NUpstream_v1", rendered)
+        self.assertIn("NUpstream_2e_v1", rendered)
 
     def test_the_overview_dashes_a_node_with_any_untraced_claim(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
-        self.assertIn("style NUpstream_v1 stroke-dasharray", self._overview())
+        self.assertIn("style NUpstream_2e_v1 stroke-dasharray", self._overview())
 
     def test_both_pictures_are_in_the_page(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
         rendered = ieantn.render_graph(ieantn.load_nodes())
         self.assertIn("## The network at a glance", rendered)
         self.assertIn("## Every claim", rendered)
-        self.assertIn('subgraph sgUpstream_v1["Upstream.v1"]', rendered)
+        self.assertIn('subgraph sgUpstream_2e_v1["Upstream.v1"]', rendered)
 
 
 class TestBridgesInTheGraph(FixtureRepo):
@@ -652,8 +652,8 @@ class TestBridgesInTheGraph(FixtureRepo):
         self.assertEqual(len(found), 1)
         self.assertEqual(sorted(found[0]["premises"]), ["Up.v1.main", "Up2.v1.main"])
         rendered = ieantn.render_graph(nodes)
-        self.assertIn("Up_v1_main ==> BR", rendered)
-        self.assertIn("Up2_v1_main ==> BR", rendered)
+        self.assertIn("Up_2e_v1_2e_main ==> BR", rendered)
+        self.assertIn("Up2_2e_v1_2e_main ==> BR", rendered)
 
     def test_the_bridge_node_is_a_hexagon_named_for_its_file(self) -> None:
         rendered = ieantn.render_graph(self._bridged(["Up.v1.main"]))
@@ -669,11 +669,11 @@ class TestBridgesInTheGraph(FixtureRepo):
         nodes = self._bridged(["Up.v1.main"])
         rendered = chr(10).join(
             ieantn.render_node_overview(nodes, ieantn.index_conclusions(nodes)))
-        self.assertIn("NUp_v1 ==>|bridge| NA_v1", rendered)
+        self.assertIn("NUp_2e_v1 ==>|bridge| NA_2e_v1", rendered)
 
     def test_mermaid_ids_survive_dots_dashes_and_colons(self) -> None:
         """Every one of these appears in a real key, and each ends a Mermaid id early."""
-        self.assertEqual(ieantn.mermaid_id("Lcm.v1.main::br-2"), "Lcm_v1_main__br_2")
+        self.assertEqual(ieantn.mermaid_id("Lcm.v1.main::br-2"), "Lcm_2e_v1_2e_main_3a__3a_br_2d_2")
 
 
 class TestDeclarationLinks(FixtureRepo):
@@ -716,7 +716,7 @@ class TestDeclarationLinks(FixtureRepo):
         self.write_node("A.v1", LITERATURE)
         self._lean("def main : Prop := True" + chr(10))
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("click A_v1_main href", rendered)
+        self.assertIn("click A_2e_v1_2e_main href", rendered)
         self.assertIn("[`A.v1.main`](", rendered)
 
 
@@ -1003,8 +1003,8 @@ class TestTracedStatus(FixtureRepo):
         """Three states, three renderings; collapsing any two loses the distinction."""
         self._with("traced")
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("style A_v1_main stroke-dasharray: 8 4", rendered)
-        self.assertNotIn("style A_v1_main stroke-dasharray: 2 3", rendered)
+        self.assertIn("style A_2e_v1_2e_main stroke-dasharray: 8 4", rendered)
+        self.assertNotIn("style A_2e_v1_2e_main stroke-dasharray: 2 3", rendered)
 
     def test_traced_is_not_queued_by_housekeeping(self) -> None:
         """Some missing edges await a node that could exist and some await one that never can;
@@ -1080,6 +1080,47 @@ class TestProgressMarker(FixtureRepo):
             passed = ieantn.progress("A.v1", write=False)
         self.assertFalse(passed)
         self.assertIn("no solution", printed.getvalue())
+
+
+class TestSolutionHoles(FixtureRepo):
+    """Lake validates its configuration; the progress probe must still check proof files."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.write_node("A.v1", LITERATURE)
+        self.write_comparator_config("A.v1")
+        self.directory = self.root / "Solutions" / "A.v1"
+        for name in ("lakefile.lean", "Solution.lean", "Aux.lean"):
+            (self.directory / name).write_text("-- fixture\n", encoding="utf-8")
+
+    def test_lake_config_is_not_reelaborated_as_a_proof_but_holes_are_detected(self) -> None:
+        """Regression: ordinary Lean cannot elaborate Lake's configuration commands."""
+        name = "A.v1.challenge_main"
+
+        def fake_run(args: list[str], **_kwargs):
+            if args == ["lake", "build"]:
+                return ieantn.subprocess.CompletedProcess(args, 0, "", "")
+            if args[-1] == "lakefile.lean":
+                return ieantn.subprocess.CompletedProcess(
+                    args, 1, "lakefile.lean:1:0: error: Lake command unavailable\n", "")
+            if args[-1] == "Aux.lean":
+                output = "Aux.lean:3:0: warning: declaration uses 'sorry'\n"
+            elif args[-1].startswith("_ieantn_axioms"):
+                output = f"'{name}' depends on axioms: [propext, sorryAx]\n"
+            else:
+                self.assertEqual(args[-1], "Solution.lean")
+                output = ""
+            return ieantn.subprocess.CompletedProcess(args, 0, output, "")
+
+        with unittest.mock.patch.object(ieantn.subprocess, "run", fake_run):
+            result = ieantn.solution_holes("A.v1")
+        self.assertEqual(result, (True, ["Aux.lean:3"], {name: False}))
+
+    def test_failed_lake_build_still_blocks_the_progress_probe(self) -> None:
+        failed = ieantn.subprocess.CompletedProcess(["lake", "build"], 1, "", "bad config")
+        with unittest.mock.patch.object(ieantn.subprocess, "run", return_value=failed) as run:
+            self.assertEqual(ieantn.solution_holes("A.v1"), (False, [], {}))
+        self.assertEqual(run.call_count, 1)
 
 
 class TestAxiomReportParsing(unittest.TestCase):
@@ -1206,11 +1247,27 @@ class TestGraphPage(FixtureRepo):
     def test_it_draws_an_edge_for_each_import(self) -> None:
         self._chain()
         rendered = ieantn.render_graph(ieantn.load_nodes())
-        self.assertIn("Upstream_v1_main --> A_v1_main", rendered)
+        self.assertIn("Upstream_2e_v1_2e_main --> A_2e_v1_2e_main", rendered)
+
+    def test_distinct_valid_conclusion_keys_remain_distinct_in_mermaid(self) -> None:
+        keys = ["A.v1.v1_main", "A_v1.v1.main"]
+        self.assertNotEqual(ieantn.mermaid_id(keys[0]), ieantn.mermaid_id(keys[1]))
+        self.write_node("A.v1", LITERATURE.replace("main", "v1_main"))
+        self.write_node("A_v1.v1", LITERATURE)
+        rendered = ieantn.render_graph(ieantn.load_nodes())
+        for key in keys:
+            self.assertIn(f"click {ieantn.mermaid_id(key)} href", rendered)
+
+    def test_mermaid_escaping_cannot_collide_with_literal_escape_text(self) -> None:
+        keys = ["A.v1.main-x", "A.v1.main_x", "A.v1.main_2d_x", "A.v1.main:x"]
+        ids = [ieantn.mermaid_id(key) for key in keys]
+        self.assertEqual(len(set(ids)), len(keys))
+        for identifier in ids:
+            self.assertRegex(identifier, r"^[A-Za-z0-9_]+$")
 
     def test_mermaid_ids_carry_no_dots(self) -> None:
         """Mermaid rejects dots in node ids, and a conclusion key is full of them."""
-        self.assertEqual(ieantn.mermaid_id("A.v1.main-x"), "A_v1_main_x")
+        self.assertEqual(ieantn.mermaid_id("A.v1.main-x"), "A_2e_v1_2e_main_2d_x")
 
     def test_only_roots_head_the_trees(self) -> None:
         """An imported conclusion appears inside the tree of whatever imports it, not as its own
@@ -1418,6 +1475,31 @@ class TestSpinoffOpens(unittest.TestCase):
             self.assertEqual(ieantn.opens_of(f), [])
 
 
+class TestReportReceiptHealth(FixtureRepo):
+    _verified = TestReceiptHealthInTheViews._verified
+
+    def test_a_broken_receipt_cannot_report_a_fully_verified_claim(self) -> None:
+        key = self._verified("A.v1", statement={"A.v1.main": "before"})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertTrue(ieantn.report())
+        self.assertIn("lean-comparator-drifted", output.getvalue())
+        self.assertNotIn("fully verified in Lean", output.getvalue())
+        index = ieantn.index_conclusions(ieantn.load_nodes())
+        self.assertIn(key, ieantn.unjustified_leaves(index, key))
+        with contextlib.redirect_stdout(output):
+            self.assertFalse(ieantn.spinoff(key, "out", False))
+        self.assertIn("standing verification receipt", output.getvalue())
+
+    def test_environment_staleness_does_not_invalidate_the_proof(self) -> None:
+        key = self._verified("A.v1", mathlib_rev="b" * 40)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertTrue(ieantn.report())
+        self.assertIn("fully verified in Lean", output.getvalue())
+        self.assertEqual(ieantn.unjustified_leaves(ieantn.index_conclusions(ieantn.load_nodes()), key), [])
+
+
 class TestUnjustifiedLeaves(FixtureRepo):
     """What a spun-off Challenge must take as hypotheses.
 
@@ -1443,7 +1525,12 @@ class TestUnjustifiedLeaves(FixtureRepo):
     def _receipt_for(self, key: str) -> None:
         (self.root / "receipts").mkdir(exist_ok=True)
         (self.root / "receipts" / f"{key}.json").write_text(
-            json.dumps({"conclusion": key}), encoding="utf-8")
+            json.dumps({"conclusion": key, "statement": {key: "d"},
+                        "environment": {"lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
+                                        "mathlib_rev": "a" * 40}}), encoding="utf-8")
+        family, version, _ = key.split(".")
+        (self.root / "IEANTN" / "Nodes" / family / version / "fingerprints.json").write_text(
+            json.dumps({key: "d"}), encoding="utf-8")
 
 
 class TestImportParsing(FixtureRepo):
@@ -1458,6 +1545,22 @@ class TestImportParsing(FixtureRepo):
         (self.root / "IEANTN" / "Vocabulary" / "Bad.lean").write_text(
             "import Solutions.A.v1.Solution -- just for now\n", encoding="utf-8"
         )
+        self.assertFalse(ieantn.check_closure())
+
+    def test_valid_import_header_forms_cannot_bypass_closure(self) -> None:
+        target = self.root / "IEANTN" / "Vocabulary" / "Bad.lean"
+        for prefix in ["  ", "\t", "public ", "  public ", "meta ", "public meta "]:
+            with self.subTest(prefix=prefix):
+                target.write_text(
+                    "module\n" + prefix + "import Solutions.A.v1.Solution\n",
+                    encoding="utf-8",
+                )
+                self.assertFalse(ieantn.check_closure())
+
+    def test_import_all_reads_the_module_instead_of_the_modifier(self) -> None:
+        target = self.root / "IEANTN" / "Vocabulary" / "Bad.lean"
+        target.write_text("module\nimport all Solutions.A.v1.Solution\n", encoding="utf-8")
+        self.assertEqual(ieantn.imports_of(target), ["Solutions.A.v1.Solution"])
         self.assertFalse(ieantn.check_closure())
 
     def test_a_commented_out_import_is_not_an_import(self) -> None:
@@ -1537,6 +1640,26 @@ class TestDeprecateGuards(FixtureRepo):
         printed = io.StringIO()
         with contextlib.redirect_stdout(printed):
             self.assertFalse(ieantn.deprecate("A.v1", "A.v2"))
+
+
+class TestLifecycleLeanImports(FixtureRepo):
+    def test_deactivation_refuses_unrecorded_lean_consumers_before_writing(self) -> None:
+        upstream = self.write_node("A.v1", LITERATURE)
+        consumer = self.write_node("B.v1", LITERATURE)
+        (consumer / "Conclusions.lean").write_text("import IEANTN.Nodes.A.v1.Conclusions\n", encoding="utf-8")
+        before = (upstream / "formalization.yaml").read_bytes()
+        self.assertFalse(ieantn.deactivate(["A.v1"], "Unused"))
+        self.assertEqual((upstream / "formalization.yaml").read_bytes(), before)
+        self.assertTrue(ieantn.deactivate(["A.v1", "B.v1"], "Unused pair"))
+
+    def test_reactivation_refuses_an_inactive_lean_import_before_writing(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        consumer = self.write_node("B.v1", LITERATURE)
+        self.assertTrue(ieantn.deactivate(["A.v1", "B.v1"], "Unused pair"))
+        (consumer / "Conclusions.lean").write_text("import IEANTN.Nodes.A.v1.Conclusions\n", encoding="utf-8")
+        before = (consumer / "formalization.yaml").read_bytes()
+        self.assertFalse(ieantn.reactivate("B.v1"))
+        self.assertEqual((consumer / "formalization.yaml").read_bytes(), before)
 
 
 class TestInactiveNodes(FixtureRepo):
@@ -1851,6 +1974,19 @@ class TestBridgeClosure(FixtureRepo):
         self.assertIn("import IEANTN.Bridges.Nested.b\n", umbrella)
 
 
+class TestLeanConfigPins(FixtureRepo):
+    def test_lean_lake_projects_need_the_same_pin_as_toml_projects(self) -> None:
+        project = self.root / "Solutions" / "A.v1"
+        project.mkdir(parents=True)
+        (project / "lakefile.lean").write_text("import Lake\nopen Lake DSL\npackage solution\n", encoding="utf-8")
+        self.assertFalse(ieantn.check_closure())
+        pin = project / "lean-toolchain"
+        pin.write_text("leanprover/lean4:v4.33.0\n", encoding="utf-8")
+        self.assertFalse(ieantn.check_closure())
+        pin.write_text((self.root / "lean-toolchain").read_text(), encoding="utf-8")
+        self.assertTrue(ieantn.check_closure())
+
+
 class TestClosure(FixtureRepo):
     def test_vocabulary_may_not_leave_mathlib(self) -> None:
         (self.root / "IEANTN" / "Vocabulary" / "Bad.lean").write_text(
@@ -1929,6 +2065,36 @@ class TestChallengeGeneration(FixtureRepo):
         self.generate()
         text = (self.root / "IEANTN/Nodes/Upstream/v1/Challenge.lean").read_text(encoding="utf-8")
         self.assertIn("theorem Upstream.v1.challenge_main : Upstream.v1.main := by", text)
+
+
+class TestLocalDefinitionChurn(FixtureRepo):
+    def test_changing_an_imported_vocabulary_definition_is_not_environment_churn(self) -> None:
+        import subprocess
+        self.write_node("A.v1", LITERATURE)
+        vocabulary = self.root / "IEANTN" / "Vocabulary.lean"
+        vocabulary.write_text("import IEANTN.Vocabulary.Values\n", encoding="utf-8")
+        definition = self.root / "IEANTN" / "Vocabulary" / "Values.lean"
+        definition.write_text("def bound : Nat := 1\n", encoding="utf-8")
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "IEANTN"], cwd=self.root, check=True)
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Fixture"], cwd=self.root, check=True)
+        commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.root, check=True, capture_output=True, text=True).stdout.strip()
+        self.assertTrue(ieantn.statement_source_unchanged("A.v1.main", commit))
+        definition.write_text("def bound : Nat := 2\n", encoding="utf-8")
+        self.assertFalse(ieantn.statement_source_unchanged("A.v1.main", commit))
+
+    def test_unrelated_local_definitions_do_not_break_the_source_check(self) -> None:
+        import subprocess
+        self.write_node("A.v1", LITERATURE)
+        (self.root / "IEANTN" / "Vocabulary.lean").write_text("", encoding="utf-8")
+        unrelated = self.root / "IEANTN" / "Vocabulary" / "Unrelated.lean"
+        unrelated.write_text("def other : Nat := 1\n", encoding="utf-8")
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "IEANTN"], cwd=self.root, check=True)
+        subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "Fixture"], cwd=self.root, check=True)
+        commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.root, check=True, capture_output=True, text=True).stdout.strip()
+        unrelated.write_text("def other : Nat := 2\n", encoding="utf-8")
+        self.assertTrue(ieantn.statement_source_unchanged("A.v1.main", commit))
 
 
 class TestStaleness(FixtureRepo):
@@ -2057,6 +2223,24 @@ class TestStaleness(FixtureRepo):
 
 
 class TestGraphQueries(FixtureRepo):
+    def test_housekeeping_without_gh_still_reports_claimed_work(self) -> None:
+        self.write_node("A.v1", LITERATURE.replace("- id: main", "- id: main\n  issue: 1"))
+        printed = io.StringIO()
+        with unittest.mock.patch.object(
+            ieantn.subprocess, "run", side_effect=FileNotFoundError("gh")
+        ), contextlib.redirect_stdout(printed):
+            self.assertTrue(ieantn.housekeeping())
+        self.assertIn("formalize A.v1.main", printed.getvalue())
+        self.assertIn("[#1]", printed.getvalue())
+        self.assertNotIn("CLOSED", printed.getvalue())
+
+    def test_unreadable_issue_does_not_hide_readable_closed_issue(self) -> None:
+        closed = ieantn.subprocess.CompletedProcess([], 0, stdout="CLOSED\n")
+        with unittest.mock.patch.object(
+            ieantn.subprocess, "run", side_effect=[PermissionError("gh"), closed]
+        ):
+            self.assertEqual(ieantn.closed_issues({1, 2}), {2})
+
     def test_importers_are_found(self) -> None:
         self.write_node("Upstream.v1", LITERATURE)
         self.write_node("Downstream.v1", IMPORTING)
@@ -2489,6 +2673,20 @@ class TestProvenanceCannotBeBypassed(FixtureRepo):
         self.assertTrue(ieantn.check_receipts(online=True))
 
 
+class TestMalformedReceiptObjects(FixtureRepo):
+    def test_invalid_json_shapes_are_unusable_receipts(self) -> None:
+        self.write_node("A.v1", LITERATURE.replace("kind: literature", "kind: lean-comparator"))
+        ieantn.RECEIPTS.mkdir()
+        path = ieantn.receipt_path("A.v1.main")
+        for raw in ("null", "[]", '"receipt"', '{"statement": []}', '{"run": "bad"}',
+                    '{"run": {"workflow_run": []}}', '{"environment": {"lean_toolchain": 4}}', '{broken'):
+            with self.subTest(raw=raw):
+                path.write_text(raw, encoding="utf-8")
+                self.assertIsNone(ieantn.load_receipt("A.v1.main"))
+                self.assertEqual(ieantn.receipt_state("A.v1.main", ieantn.load_nodes()["A.v1"]["conclusions"][0])[0], "BROKEN")
+                self.assertFalse(ieantn.check_receipts(online=False))
+
+
 class TestReceiptProvenance(FixtureRepo):
     """A receipt must name a real, successful run of the verification workflow.
 
@@ -2550,6 +2748,26 @@ class TestState(FixtureRepo):
         text = (self.root / "STATE.md").read_text(encoding="utf-8")
         self.assertIn("#42", text)
         self.assertIn("| `Upstream.v1.main` | 1 |", text)
+
+
+class TestHashPayloadCoverage(FixtureRepo):
+    def test_hash_output_cannot_silently_omit_or_add_conclusions(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        for payload in ({}, {"B.v1.main": "True"}, {"A.v1.main": "True", "B.v1.main": "True"},
+                        {"A.v1.main": None}, []):
+            with self.subTest(payload=payload):
+                completed = ieantn.subprocess.CompletedProcess([], 0, json.dumps(payload), "")
+                with unittest.mock.patch.object(ieantn.subprocess, "run", return_value=completed):
+                    with self.assertRaises(SystemExit):
+                        ieantn.compute_fingerprints()
+
+    def test_complete_output_is_fingerprinted(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        completed = ieantn.subprocess.CompletedProcess([], 0, '{"A.v1.main": "True"}', "")
+        with unittest.mock.patch.object(ieantn.subprocess, "run", return_value=completed):
+            result = ieantn.compute_fingerprints()
+        self.assertEqual(set(result), {"A.v1.main"})
+        self.assertEqual(len(result["A.v1.main"]), 64)
 
 
 class TestFingerprintSharding(FixtureRepo):
@@ -2655,5 +2873,66 @@ class TestDerivedViewsAreAdvisory(FixtureRepo):
         self.assertIn("scripts/ieantn.py state", printed)
 
 
+class TestCompiledBridgePaths(FixtureRepo):
+    def test_only_compiled_lean_bridge_paths_are_accepted(self) -> None:
+        self.write_node("A.v1", LITERATURE)
+        path = self.write_bridge()
+        for invalid in ("IEANTN/Bridges/../../unchecked.lean", "IEANTN/Bridges/proof.txt"):
+            with self.subTest(path=invalid):
+                target = self.root / invalid
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("-- not in the bridge umbrella\n", encoding="utf-8")
+                self.write_node("B.v1", bridged("A.v1.main").replace("IEANTN/Bridges/a.lean", invalid))
+                self.assertFalse(ieantn.check_graph())
+        self.write_node("B.v1", bridged("A.v1.main"))
+        self.assertTrue(path.is_file())
+        self.assertTrue(ieantn.check_graph())
+
+
+class TestDeclarationBody(FixtureRepo):
+    def test_blank_lines_inside_conclusion_are_preserved(self) -> None:
+        directory = self.write_node("Example.v1", LITERATURE)
+        source = "/-- A compound claim. -/\ndef main : Prop :=\n  True ∧\n\n  True\n\ndef next : Prop := False\n"
+        (directory / "Conclusions.lean").write_text(source, encoding="utf-8")
+        doc, body = ieantn.read_declaration("Example.v1", "main")
+        self.assertEqual(doc, "A compound claim.")
+        self.assertEqual(body, "def main : Prop :=\n  True ∧\n\n  True")
+        self.assertNotIn("next", body)
+
+
+class TestVerificationJustificationIds(FixtureRepo):
+    def test_existing_comparator_id_does_not_become_ambiguous(self) -> None:
+        directory = self.write_node("Example.v1", LITERATURE.replace("id: citation", "id: comparator").replace("designated: citation", "designated: comparator"))
+        metadata = directory / "formalization.yaml"
+        data = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))
+        # Reserve the default ID for a different evidence source.
+        data["conclusions"][0]["justifications"] = [{"id": "comparator", "kind": "none-yet"}]
+        data["conclusions"][0]["designated"] = "comparator"
+        metadata.write_text(ieantn.yaml.safe_dump(data), encoding="utf-8")
+        ieantn.designate_verification("Example.v1", "https://example.com/run/1")
+        conclusion = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))["conclusions"][0]
+        ids = [j["id"] for j in conclusion["justifications"]]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual(ieantn.designated_kind(conclusion), "lean-comparator")
+        ieantn.designate_verification("Example.v1", "https://example.com/run/2")
+        refreshed = ieantn.yaml.safe_load(metadata.read_text(encoding="utf-8"))["conclusions"][0]
+        self.assertEqual([j["id"] for j in refreshed["justifications"]], ids)
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestReceiptJobLookup(TestReceiptProvenance):
+    def test_unreadable_job_list_is_refused(self) -> None:
+        self._receipt("https://github.com/teorth/IEANTN/actions/runs/123")
+        def response(args, **kwargs):
+            if args[0] == "git":
+                return ieantn.subprocess.CompletedProcess(args, 0, "https://github.com/teorth/IEANTN.git\n", "")
+            if args[2].endswith("/jobs"):
+                return ieantn.subprocess.CompletedProcess(args, 1, "", "API rate limit exceeded")
+            return ieantn.subprocess.CompletedProcess(args, 0, "success\t.github/workflows/verify.yml\n", "")
+        printed = io.StringIO()
+        with unittest.mock.patch.object(ieantn.subprocess, "run", side_effect=response), contextlib.redirect_stdout(printed):
+            self.assertFalse(ieantn.check_receipts(online=True))
+        self.assertIn("API rate limit exceeded", printed.getvalue())

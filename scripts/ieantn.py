@@ -40,6 +40,7 @@ import os
 import pathlib
 import re
 import subprocess
+import tempfile
 import time
 import sys
 
@@ -121,7 +122,19 @@ def import_status(conclusion: dict) -> str:
 
 
 #: A justification that stands on its own evidence.
-PRIMITIVE_KINDS = {"lean-comparator", "numerical", "literature", "asserted", "none-yet"}
+PRIMITIVE_KINDS = {"lean-comparator", "lean-noncompliant", "numerical", "literature", "asserted",
+                   "none-yet"}
+
+#: A complete Lean proof that no receipt is available for. Two cases, which a reader of the views
+#: need not distinguish: the proof uses an axiom Comparator does not permit -- `native_decide`
+#: goes through `Lean.ofReduceBool` -- or the verification workflow cannot be run on it as it
+#: stands, because of a dependency the network has not admitted to its trust base, or a build no
+#: runner will finish. The proof is in this repository under `Solutions/`, where anyone may build
+#: it; what is missing is our own certificate that it proves the challenge. So it is a leaf of the
+#: trust graph -- what a reader relies on is the author's report that it builds and audits -- and
+#: it is kept apart from `none-yet` because "nobody has written a proof" and "the proof is written
+#: and we have not certified it" call for entirely different work.
+NONCOMPLIANT_KIND = "lean-noncompliant"
 #: A justification borrowed from another version via a proved bridge.
 DERIVED_KINDS = {"bridged"}
 JUSTIFICATION_KINDS = PRIMITIVE_KINDS | DERIVED_KINDS
@@ -147,7 +160,10 @@ NODE_STATUSES = {
 #: `reactivate` is a status change and a regeneration rather than an archaeology project.
 INACTIVE = "inactive"
 
-IMPORT_RE = re.compile(r"^import\s+(\S+)", re.MULTILINE)
+IMPORT_RE = re.compile(
+    r"^[ \t]*(?:public\s+)?(?:meta\s+)?import\s+(?:all\s+)?(\S+)",
+    re.MULTILINE,
+)
 
 #: What may appear as a conclusion id, or as either half of an import reference. These strings are
 #: interpolated verbatim into generated Lean, so anything not an identifier is either a typo or an
@@ -260,12 +276,16 @@ def strip_lean_comments(text: str) -> str:
     index, depth, length = 0, 0, len(text)
     while index < length:
         if text.startswith("/-", index):
+            out.append("  ")
             depth += 1
             index += 2
         elif depth and text.startswith("-/", index):
+            out.append("  ")
             depth -= 1
             index += 2
         elif depth:
+            # Comments are whitespace: preserve token boundaries and line starts.
+            out.append("\n" if text[index] == "\n" else " ")
             index += 1
         elif text.startswith("--", index):
             newline = text.find("\n", index)
@@ -305,6 +325,42 @@ def load_nodes(include_inactive: bool = False) -> dict[str, dict]:
         if include_inactive or not is_inactive(data):
             nodes[node_id_of(directory)] = data
     return nodes
+
+
+def duplicate_keys(text: str) -> list[tuple[str, str, int]]:
+    """Every key written twice in one mapping: `(containing path, key, line)`.
+
+    A duplicate key is the one metadata error that reads as success. PyYAML keeps the last
+    occurrence, so an edit that adds a key some later duplicate overrides changes nothing at all
+    and every check here goes on passing -- which is how `imports_status: traced` sat unapplied on
+    `FKS.v1` from one pull request to the next. ruamel, which every mutating command goes through,
+    refuses such a file outright with a `DuplicateKeyError`, so the same duplicate also breaks
+    `new-version`, `deprecate`, `deactivate`, `progress --write` and the step that records a
+    receipt. Neither half of that is visible from reading the file, and the two halves disagree
+    about what the file even says.
+
+    Composed rather than constructed: the node graph keeps the source positions, and nothing has
+    to be built to find a repeat.
+    """
+    found: list[tuple[str, str, int]] = []
+
+    def walk(node: yaml.Node, path: str) -> None:
+        if isinstance(node, yaml.MappingNode):
+            seen: set[str] = set()
+            for key, value in node.value:
+                name = str(getattr(key, "value", key))
+                if name in seen:
+                    found.append((path or "the document", name, key.start_mark.line + 1))
+                seen.add(name)
+                walk(value, f"{path}.{name}" if path else name)
+        elif isinstance(node, yaml.SequenceNode):
+            for index, item in enumerate(node.value):
+                walk(item, f"{path}[{index}]")
+
+    root = yaml.compose(text, Loader=yaml.SafeLoader)
+    if root is not None:
+        walk(root, "")
+    return found
 
 
 def inactive_nodes() -> dict[str, dict]:
@@ -479,9 +535,12 @@ def check_receipts(online: bool = True) -> bool:
         return problems.report("receipt provenance")
 
     for path in sorted(RECEIPTS.glob("*.json")) if RECEIPTS.is_dir() else []:
-        receipt = json.loads(path.read_text(encoding="utf-8"))
+        receipt = load_receipt(path.stem)
+        if receipt is None:
+            problems.add(rel(path), "receipt is unreadable or has an invalid JSON object shape")
+            continue
         url = (receipt.get("run") or {}).get("workflow_run", "")
-        match = RUN_URL_RE.match(url)
+        match = RUN_URL_RE.match(url) if isinstance(url, str) else None
         if match is None:
             problems.add(rel(path), f"records no usable workflow run (`{url}`)")
             continue
@@ -529,7 +588,11 @@ def check_receipts(online: bool = True) -> bool:
              "--jq", ".jobs[].name"],
             cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
         )
-        names = jobs.stdout.split("\n") if jobs.returncode == 0 else []
+        if jobs.returncode != 0:
+            problems.add(rel(path),
+                         f"run {run_id} jobs could not be read: {jobs.stderr.strip()}")
+            continue
+        names = jobs.stdout.split("\n")
         if any("(" in name for name in names) and not any(f"({node_of})" in name for name in names):
             problems.add(
                 rel(path),
@@ -841,6 +904,10 @@ def solution_holes(node: str) -> tuple[bool, list[str], dict[str, bool]] | None:
     # the root reports zero while three theorems are plainly open. That is what this did first.
     holes: list[str] = []
     for source in sorted(directory.glob("*.lean")):
+        # Lake already elaborated its configuration during the successful build above.
+        # Its DSL commands are not available to an ordinary `lake env lean` proof probe.
+        if source.name == "lakefile.lean":
+            continue
         fresh = subprocess.run(["lake", "env", "lean", source.name], cwd=directory,
                                capture_output=True, text=True, encoding="utf-8", errors="replace")
         seen_output = (fresh.stdout or "") + (fresh.stderr or "")
@@ -865,17 +932,25 @@ def solution_holes(node: str) -> tuple[bool, list[str], dict[str, bool]] | None:
     if not names:
         return (True, holes, {})
 
-    probe = directory / "_ieantn_axioms.lean"
-    probe.write_text("import Solution\n"
-                     + "".join(f"#print axioms {name}\n" for name in names),
-                     encoding="utf-8", newline="\n")
+    # Use an exclusive temporary file: a contributor may already have a scratch file named
+    # `_ieantn_axioms.lean`, and a progress report must never overwrite or delete it.
+    with tempfile.NamedTemporaryFile(mode="w", prefix="_ieantn_axioms_", suffix=".lean",
+                                     dir=directory, encoding="utf-8", delete=False) as handle:
+        probe = pathlib.Path(handle.name)
     try:
+        module = settings.get("solution_module") or "Solution"
+        probe.write_text(f"import {module}\n"
+                         + "".join(f"#print axioms {name}\n" for name in names),
+                         encoding="utf-8", newline="\n")
         checked = subprocess.run(["lake", "env", "lean", probe.name], cwd=directory,
                                  capture_output=True, text=True, encoding="utf-8",
                                  errors="replace")
     finally:
         probe.unlink(missing_ok=True)
     seen = (checked.stdout or "") + (checked.stderr or "")
+    if checked.returncode != 0:
+        print("  the axiom probe failed; progress cannot be recorded until it succeeds")
+        return (False, [], {})
     records = axiom_records(seen, names)
     proved = {name: (name in records and "sorryAx" not in records[name]) for name in names}
     return (True, holes, proved)
@@ -1142,7 +1217,7 @@ def check_closure() -> bool:
     # an hour of compiling. The right rule is equality, not absence.
     root_toolchain = (ROOT / "lean-toolchain").read_text(encoding="utf-8").strip()
     for directory in sorted(SOLUTIONS.iterdir()) if SOLUTIONS.is_dir() else []:
-        if not (directory / "lakefile.toml").is_file():
+        if not any((directory / name).is_file() for name in ("lakefile.toml", "lakefile.lean")):
             continue
         toolchain = directory / "lean-toolchain"
         if not toolchain.is_file():
@@ -1236,9 +1311,21 @@ def check_graph() -> bool:
                 "retired, so whoever finds the directory can tell whether to reactivate it.",
             )
 
+    # Checked for every node, active or not, and before the early return below: a duplicate in an
+    # inactive node's metadata is what would stop `reactivate` from writing it back.
+    for node_id, node in sorted({**inactive, **nodes}.items()):
+        path = node["_dir"] / "formalization.yaml"
+        for container, key, line in duplicate_keys(path.read_text(encoding="utf-8")):
+            problems.add(
+                rel(path),
+                f"line {line}: `{key}` is given twice in `{container}`. PyYAML keeps the last, so "
+                "one of the two does nothing and every check here passes while the file says "
+                "something nobody wrote; ruamel refuses the file, so the node-editing commands "
+                "fail on it instead. Delete whichever is wrong.",
+            )
+
     if not nodes:
-        print("ok  node graph (no nodes yet)")
-        return True
+        return problems.report("node graph (no active nodes)")
 
     every_conclusion = {
         f"{other_id}.{c.get('id')}"
@@ -1361,6 +1448,24 @@ def check_graph() -> bool:
                             f"conclusion `{cid}`: {rel(receipt_path(key))} records "
                             f"`{receipt.get('conclusion')}`",
                         )
+                if kind == NONCOMPLIANT_KIND:
+                    # The claim being made is that the code is here. A `lean-noncompliant`
+                    # justification with no solution beside it is an `asserted` one wearing a
+                    # borrowed coat.
+                    solution = SOLUTIONS / node_id / "Solution.lean"
+                    if not solution.is_file():
+                        problems.add(
+                            where,
+                            f"conclusion `{cid}`, justification `{jid}`: `{NONCOMPLIANT_KIND}` "
+                            f"means the Lean proof is supplied, and {rel(solution)} is not there.",
+                        )
+                    if not str(justification.get("note") or "").strip():
+                        problems.add(
+                            where,
+                            f"conclusion `{cid}`, justification `{jid}`: `{NONCOMPLIANT_KIND}` "
+                            "must say in `note` what stands between this proof and a receipt. "
+                            "Without that, nobody can tell whether it still stands.",
+                        )
                 if kind == "bridged":
                     sources = bridge_sources(justification)
                     if not sources:
@@ -1388,13 +1493,21 @@ def check_graph() -> bool:
                             f"conclusion `{cid}`, justification `{jid}`: bridge file "
                             f"`{justification['bridge']}` is missing",
                         )
-                    elif not justification["bridge"].startswith("IEANTN/Bridges/"):
+                    elif (
+                        not justification["bridge"].startswith("IEANTN/Bridges/")
+                        or ".." in pathlib.PurePosixPath(justification["bridge"]).parts
+                        or pathlib.PurePosixPath(justification["bridge"]).suffix != ".lean"
+                        or not (ROOT / justification["bridge"]).resolve().is_relative_to(
+                            BRIDGES_DIR.resolve()
+                        )
+                    ):
                         # A bridge outside the library is never compiled, so it would keep
                         # justifying its target after either statement moved out from under it.
                         problems.add(
                             where,
                             f"conclusion `{cid}`, justification `{jid}`: bridge file "
-                            f"`{justification['bridge']}` must live under `IEANTN/Bridges/` so "
+                            f"`{justification['bridge']}` must be a .lean file under "
+                            "`IEANTN/Bridges/`, without parent-directory traversal, so "
                             "that the core build compiles it; a bridge nothing builds attests "
                             "nothing",
                         )
@@ -1482,6 +1595,13 @@ def check_graph() -> bool:
                     where,
                     f"conclusion `{cid}` is unjustified and names no `issue`: nobody can claim "
                     "work nobody can find. Open an issue and record its number.",
+                )
+            elif designated_kind(conclusion) == NONCOMPLIANT_KIND and issue is None:
+                problems.warn(
+                    where,
+                    f"conclusion `{cid}` designates `{NONCOMPLIANT_KIND}` and names no `issue`: "
+                    "what stands between the proof and a receipt is tracked work. Open an issue "
+                    "and record its number.",
                 )
 
             if designated_kind(conclusion) == "none-yet" and len(available) > 1:
@@ -1737,9 +1857,14 @@ def compute_fingerprints() -> dict[str, str]:
     )
     if payload is None:
         sys.exit("error: ieantn_hash produced no output")
+    statements = json.loads(payload)
+    if not isinstance(statements, dict) or set(statements) != set(declarations):
+        sys.exit("error: ieantn_hash output does not cover exactly the requested conclusions")
+    if not all(isinstance(text, str) for text in statements.values()):
+        sys.exit("error: ieantn_hash returned a non-text statement")
     return {
         name: hashlib.sha256(text.encode("utf-8")).hexdigest()
-        for name, text in json.loads(payload).items()
+        for name, text in statements.items()
     }
 
 
@@ -1876,9 +2001,24 @@ def load_receipt(conclusion_key: str) -> dict | None:
     if not path.is_file():
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
         return None
+    if not isinstance(receipt, dict):
+        return None
+    for field in ("statement", "environment", "repository", "solution", "run"):
+        if field in receipt and not isinstance(receipt[field], dict):
+            return None
+    for section, fields in (
+        ("environment", ("lean_toolchain", "mathlib_rev")),
+        ("repository", ("commit",)),
+        ("solution", ("project",)),
+        ("run", ("workflow_run",)),
+    ):
+        values = receipt.get(section, {})
+        if any(values.get(field) is not None and not isinstance(values[field], str) for field in fields):
+            return None
+    return receipt
 
 
 def release_distance(recorded: str, current: str) -> int | None:
@@ -1918,6 +2058,8 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str], *,
     a real clone and does ask.
     """
     recorded = receipt.get("statement") or {}
+    if conclusion_key not in recorded:
+        return "BROKEN", f"receipt records no fingerprint for `{conclusion_key}`"
     commit = (receipt.get("repository") or {}).get("commit")
     churn: str | None = None
     for name, digest in sorted(recorded.items()):
@@ -1943,7 +2085,8 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str], *,
 
     environment = receipt.get("environment") or {}
     current = current_environment()
-    if environment.get("mathlib_rev") == current["mathlib_rev"]:
+    if (environment.get("mathlib_rev") == current["mathlib_rev"]
+            and environment.get("lean_toolchain") == current["lean_toolchain"]):
         return "green", "verified against the current environment"
 
     recorded_toolchain = environment.get("lean_toolchain", "?")
@@ -1957,7 +2100,7 @@ def assess(conclusion_key: str, receipt: dict, fingerprints: dict[str, str], *,
 def environment_gap(recorded: dict, current: dict) -> str:
     """Say which part of the environment moved, rather than always naming the toolchain.
 
-    THE TEST ABOVE IS ON `mathlib_rev`; the message used to report the *toolchain*. A Mathlib bump
+    The message used to report only the *toolchain*. A Mathlib bump
     that keeps the toolchain therefore printed `verified under v4.34.0-rc2, now v4.34.0-rc2` --
     the same string twice, which reads as a bug in this script rather than as a stale receipt, and
     hides the revision that actually moved. Every conclusion verified before the September 2026
@@ -2005,8 +2148,24 @@ def statement_source_unchanged(conclusion_name: str, commit: str | None) -> bool
         cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
     if known.returncode != 0:
         return False
+    # Local imported definitions can change a statement's meaning while this
+    # Conclusions file stays untouched. Only an unchanged import closure lets
+    # a moved fingerprint be attributed to the external environment.
+    pending = [ROOT / path]
+    sources: set[pathlib.Path] = set()
+    while pending:
+        source = pending.pop()
+        if source in sources:
+            continue
+        if not source.is_file():
+            return False
+        sources.add(source)
+        pending.extend(
+            ROOT / (module.replace(".", "/") + ".lean")
+            for module in imports_of(source) if under(module, "IEANTN")
+        )
     changed = subprocess.run(
-        ["git", "diff", "--name-only", commit, "--", path],
+        ["git", "diff", "--name-only", commit, "--", *sorted(rel(p) for p in sources)],
         cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
     if changed.returncode != 0:
         return False
@@ -2152,6 +2311,14 @@ def status() -> bool:
         for conclusion in conclusions_of(node):
             key = f"{node_id}.{conclusion.get('id')}"
             kind = designated_kind(conclusion)
+            if kind == NONCOMPLIANT_KIND:
+                # Saying "not Lean-verified" of this one would be false: the kernel accepted it.
+                # What it has not got, and will not get while the obstruction stands, is a receipt
+                # from this network.
+                lights["-"] += 1
+                print(f"  -       {key}")
+                print("          a Lean proof this network has not certified; see its `note`")
+                continue
             if kind != "lean-comparator":
                 lights["-"] += 1
                 print(f"  -       {key}")
@@ -2405,8 +2572,14 @@ def designate_verification(node_id: str, run_url: str) -> None:
             (j for j in justifications if j.get("kind") == "lean-comparator"), None
         )
         if existing is None:
+            used_ids = {j.get("id") for j in justifications}
+            identifier = "comparator"
+            suffix = 2
+            while identifier in used_ids:
+                identifier = f"comparator-{suffix}"
+                suffix += 1
             existing = {
-                "id": "comparator",
+                "id": identifier,
                 "kind": "lean-comparator",
                 "note": f"Comparator accepted the solution. Run: {run_url}",
             }
@@ -2467,6 +2640,9 @@ def report() -> bool:
         _, conclusion = index[key]
         justification = designated_of(conclusion) or {}
         kind = justification.get("kind")
+        health = receipt_state(key, conclusion)
+        if health is not None and health[0] == "BROKEN":
+            kind = "lean-comparator-drifted"
         spares = len(justifications_of(conclusion)) - 1
         result: set[str] = set()
         if kind == "bridged":
@@ -2505,10 +2681,13 @@ def closed_issues(numbers: set[int]) -> set[int]:
     """
     closed: set[int] = set()
     for number in sorted(numbers):
-        finished = subprocess.run(
-            ["gh", "issue", "view", str(number), "--json", "state", "--jq", ".state"],
-            cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
-        )
+        try:
+            finished = subprocess.run(
+                ["gh", "issue", "view", str(number), "--json", "state", "--jq", ".state"],
+                cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+            )
+        except OSError:
+            continue
         if finished.returncode == 0 and finished.stdout.strip().upper() == "CLOSED":
             closed.add(number)
     return closed
@@ -2528,7 +2707,8 @@ def housekeeping() -> bool:
         conclusion.get("issue")
         for node in nodes.values()
         for conclusion in conclusions_of(node)
-        if designated_kind(conclusion) in {"none-yet", "literature", "asserted"}
+        if designated_kind(conclusion) in {"none-yet", "literature", "asserted",
+                                           NONCOMPLIANT_KIND}
         and isinstance(conclusion.get("issue"), int)
     }
     stale_issues = closed_issues({n for n in outstanding if isinstance(n, int)})
@@ -2572,6 +2752,9 @@ def housekeeping() -> bool:
                 tasks.append(f"justify   {node_id}.{conclusion.get('id')}  [{claim}]")
             elif kind in {"literature", "asserted"}:
                 tasks.append(f"formalize {node_id}.{conclusion.get('id')}  ({kind}) [{claim}]")
+            elif kind == NONCOMPLIANT_KIND:
+                tasks.append(f"certify   {node_id}.{conclusion.get('id')}  "
+                             f"(Lean proof, no receipt available) [{claim}]")
 
     print("Housekeeping queue")
     print("=" * 62)
@@ -2740,6 +2923,7 @@ EVIDENCE_STYLE = {
     "lean-comparator": ("verified", "#1a7f37", "#dafbe1"),
     "lean-comparator-stale": ("verified, stale", "#2da44e", "#e9f7ec"),
     "lean-comparator-drifted": ("verified, drifted", "#8b949e", "#eef2ef"),
+    "lean-noncompliant": ("lean, noncompliant", "#4f5661", "#eaeef2"),
     "numerical": ("computation", "#9a6700", "#fff8c5"),
     "literature": ("cited", "#0969da", "#ddf4ff"),
     "asserted": ("asserted", "#bc4c00", "#fff1e5"),
@@ -2797,7 +2981,7 @@ def read_declaration(node_id: str, cid: str) -> tuple[str, str]:
     body = [lines[start]]
     for line in lines[start + 1:]:
         stripped = line.lstrip()
-        if stripped and not any(stripped.startswith(prefix) for prefix in _DECLARATION_START):
+        if not any(stripped.startswith(prefix) for prefix in _DECLARATION_START):
             body.append(line)
             continue
         break
@@ -2869,8 +3053,11 @@ def bridges_in(nodes: dict) -> list[dict]:
 #: assertion -- an assertion is at least a claim someone stands behind, where a voided receipt
 #: supports nothing about the statement as it currently reads -- even though the node it belongs
 #: to is usually one Comparator run away from being green again.
+#: `lean-noncompliant` sits above the two kinds a reader can only take on authority: the proof is
+#: here, the Lean kernel accepted it, and anyone may build it. It stays below `bridged` because a
+#: bridge terminates in something this network checked, and nothing has checked this.
 EVIDENCE_ORDER = ["none-yet", "lean-comparator-drifted", "asserted", "literature", "numerical",
-                  "bridged", "lean-comparator-stale", "lean-comparator"]
+                  "lean-noncompliant", "bridged", "lean-comparator-stale", "lean-comparator"]
 
 
 def weakest_kind(node_id: str, conclusions: list[dict]) -> str:
@@ -2963,7 +3150,9 @@ def mermaid_id(key: str) -> str:
     `bridged` justification ids, the evidence kind `lean-comparator` -- and every one of them
     ends a node id early in Mermaid, which fails at render time rather than here.
     """
-    return re.sub(r"[^0-9A-Za-z_]", "_", key)
+    # Escape underscores too: replacing every separator with `_` merged valid
+    # keys such as A.v1.v1_main and A_v1.v1.main into a single diagram node.
+    return re.sub(r"[^0-9A-Za-z]", lambda match: f"_{ord(match[0]):x}_", key)
 
 
 def render_graph(nodes: dict[str, dict]) -> str:
@@ -3459,19 +3648,19 @@ def state_at(ref: str | None) -> dict:
             for path in (RECEIPTS.glob("*.json") if RECEIPTS.is_dir() else [])
         }
     else:
-        listing = subprocess.run(
+        listed = subprocess.run(
             ["git", "ls-tree", "-r", "--name-only", ref],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        ).stdout.splitlines()
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+        )
+        if listed.returncode != 0:
+            sys.exit(f"error: cannot read network base `{ref}`: " + listed.stderr.strip())
+        listing = listed.stdout.splitlines()
         nodes = {}
         for path in listing:
             if path.startswith("IEANTN/Nodes/") and path.endswith("formalization.yaml"):
                 raw = git_show(ref, path)
                 if raw is None:
-                    continue
+                    sys.exit(f"error: cannot read `{path}` at network base `{ref}`")
                 data = yaml.safe_load(raw) or {}
                 if is_inactive(data):
                     continue
@@ -3680,7 +3869,10 @@ def unjustified_leaves(index: dict, key: str, seen: set[str] | None = None) -> l
     if justification.get("kind") == "bridged":
         for source in bridge_sources(justification):
             found += unjustified_leaves(index, source, seen)
-    elif justification.get("kind") not in VERIFIED_KINDS:
+    elif (
+        justification.get("kind") not in VERIFIED_KINDS
+        or (receipt_state(key, conclusion) or (None, ""))[0] == "BROKEN"
+    ):
         found.append(key)
     for dependency in conclusion.get("imports") or []:
         found += unjustified_leaves(
@@ -3751,6 +3943,10 @@ def spinoff(key: str, out: str, compile_check: bool) -> bool:
         print(f"error: `{key}` designates `{designated.get('kind')}`, so there is no Lean proof to "
               "submit. Palomar records a verified formalization, not a claim.")
         return False
+    health = receipt_state(key, conclusion)
+    if health is not None and health[0] == "BROKEN":
+        print(f"error: `{key}` has no standing verification receipt: {health[1]}")
+        return False
 
     # Multi-level composition -- chaining several nodes' solutions into one -- is the part of
     # ARCHITECTURE section 7 that is not built. Refuse rather than emit something that looks
@@ -3798,7 +3994,7 @@ def spinoff(key: str, out: str, compile_check: bool) -> bool:
         body, namespace = slice_source(sources[decl["module"]], decl, decl["name"])
         here = (decl["module"], namespace)
         if here != current:
-            if current is not None:
+            if current is not None and current[1]:
                 blocks.append(f"end {current[1]}\n\n")
             blocks.append(f"namespace {namespace}\n" if namespace else "")
             # A definition body uses whatever its own file had `open`. `log x` and
@@ -3810,7 +4006,7 @@ def spinoff(key: str, out: str, compile_check: bool) -> bool:
                 blocks.append(directive + "\n")
             current = here
         blocks.append("\n" + body + "\n")
-    if current:
+    if current and current[1]:
         blocks.append(f"end {current[1]}\n")
 
     binders = "".join(
@@ -3853,7 +4049,8 @@ What the statement rests on:
     (target / "Challenge.lean").write_text(challenge, encoding="utf-8", newline="\n")
 
     # --- Solution --------------------------------------------------------------------------
-    vendored = sorted(path.stem for path in solution_dir.glob("*.lean"))
+    vendored = sorted("NodeSolution" if path.stem == "Solution" else path.stem
+                      for path in solution_dir.glob("*.lean"))
     arguments = " ".join(
         hypothesis_name({"node": leaf.rsplit(".", 1)[0], "conclusion": leaf.rsplit(".", 1)[1]})
         for leaf in leaves)
@@ -4084,7 +4281,9 @@ def new_version(family: str) -> bool:
         # Only this family's own version references may be bumped. A blanket `v1` -> `v2`
         # would also rewrite the *imported* nodes' versions, silently repointing the new node
         # at versions of its dependencies that may not exist.
-        text = text.replace(old_id, new_id)
+        text = re.sub(
+            rf"(?<![\w']){re.escape(old_id)}(?![\w'])", new_id, text
+        )
         (target / name).write_text(text, encoding="utf-8", newline="\n")
 
     metadata = target / "formalization.yaml"
@@ -4102,6 +4301,8 @@ def new_version(family: str) -> bool:
             }
         ]
         conclusion["designated"] = "unjustified"
+        # Solutions are not copied: the old hole count and path do not describe this version.
+        conclusion.pop("progress", None)
     with metadata.open("w", encoding="utf-8", newline="\n") as handle:
         writer.dump(data, handle)
 
@@ -4145,6 +4346,33 @@ def deprecate(node_id: str, replacement: str) -> bool:
     return True
 
 
+def referenced_nodes(node: dict) -> set[str]:
+    """Nodes which must remain live for this node's metadata to be well-formed."""
+    references = {
+        str(d.get("node"))
+        for c in conclusions_of(node) for d in (c.get("imports") or [])
+    }
+    references.update(
+        source.rsplit(".", 1)[0]
+        for c in conclusions_of(node) for j in justifications_of(c)
+        if j.get("kind") == "bridged" for source in bridge_sources(j)
+    )
+    replacement = (node.get("node") or {}).get("superseded_by")
+    if replacement:
+        references.add(replacement)
+    return references
+
+
+def _lean_import_blockers(paths: list[pathlib.Path], node_ids: set[str]) -> list[str]:
+    """Lean consumers of the nodes, including edges not recorded in metadata."""
+    prefixes = [f"IEANTN.Nodes.{node_id}" for node_id in node_ids]
+    return sorted(
+        f"{rel(path)} -> {module}"
+        for path in paths for module in imports_of(path)
+        if any(under(module, prefix) for prefix in prefixes)
+    )
+
+
 def deactivate(node_ids: list[str], reason: str) -> bool:
     """Take nodes out of the network without deleting them.
 
@@ -4153,6 +4381,8 @@ def deactivate(node_ids: list[str], reason: str) -> bool:
     the importer would stop compiling; deactivating several at once is allowed so that a node and
     the one thing it served can go together.
     """
+    # Process each node once so repeated CLI arguments cannot overwrite its saved status.
+    node_ids = list(dict.fromkeys(node_ids))
     reason = " ".join(reason.split())
     if not reason:
         print("error: say why, with --reason; the reason is what lets someone reactivate it later")
@@ -4169,15 +4399,29 @@ def deactivate(node_ids: list[str], reason: str) -> bool:
 
     going = set(node_ids)
     blockers = sorted(
-        f"{node_id}.{c.get('id')} -> {d.get('node')}.{d.get('conclusion')}"
+        f"{node_id} -> {target}"
         for node_id, node in everything.items()
         if node_id not in going and not is_inactive(node)
-        for c in conclusions_of(node)
-        for d in (c.get("imports") or [])
-        if d.get("node") in going
+        for target in referenced_nodes(node) & going
     )
+    # A bridge whose target is going out with the node is not a live consumer of it: a node and
+    # the bridge that justifies it are deactivated together or not at all.
+    going_bridges = {
+        (ROOT / justification["bridge"]).resolve()
+        for node_id in going
+        for conclusion in conclusions_of(everything[node_id])
+        for justification in justifications_of(conclusion)
+        if justification.get("kind") == "bridged" and justification.get("bridge")
+    }
+    live_files = [
+        path for node_id, node in everything.items()
+        if node_id not in going and not is_inactive(node)
+        for path in node["_dir"].glob("*.lean")
+    ] + [path for path in BRIDGES_DIR.rglob("*.lean")
+         if path.resolve() not in going_bridges]
+    blockers += _lean_import_blockers(live_files, going)
     if blockers:
-        print("error: still imported by live conclusions:")
+        print("error: still imported or referenced by live nodes:")
         for line in blockers:
             print(f"  {line}")
         print("deactivate those too, or drop the edges first.")
@@ -4220,13 +4464,21 @@ def reactivate(node_id: str) -> bool:
         print(f"error: `{node_id}` is not inactive")
         return False
     still_off = sorted(
-        {d.get("node") for c in conclusions_of(everything[node_id])
-         for d in (c.get("imports") or [])
-         if d.get("node") != node_id  # a later conclusion may import an earlier one
-         and d.get("node") in everything and is_inactive(everything[d.get("node")])}
+        target for target in referenced_nodes(everything[node_id])
+        if target != node_id and target in everything and is_inactive(everything[target])
     )
     if still_off:
-        print(f"error: `{node_id}` imports inactive {', '.join(still_off)}; reactivate those first")
+        print(f"error: `{node_id}` references inactive {', '.join(still_off)}; reactivate those first")
+        return False
+
+    lean_blockers = _lean_import_blockers(
+        list(everything[node_id]["_dir"].glob("*.lean")),
+        {other for other, node in everything.items() if other != node_id and is_inactive(node)},
+    )
+    if lean_blockers:
+        print("error: Lean files still import inactive nodes:")
+        for line in lean_blockers:
+            print(f"  {line}")
         return False
 
     path = everything[node_id]["_dir"] / "formalization.yaml"

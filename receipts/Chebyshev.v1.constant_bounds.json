@@ -1,0 +1,28 @@
+{
+  "challenge": "Chebyshev.v1.challenge_constant_bounds",
+  "conclusion": "Chebyshev.v1.constant_bounds",
+  "environment": {
+    "lean_toolchain": "leanprover/lean4:v4.34.0-rc2",
+    "mathlib_rev": "71a80585ee495fc24472fd0eaffc89d94e4fd8d6"
+  },
+  "repository": {
+    "commit": "201c3583749e9825b38e3ba38e5da43be8c7ba2d"
+  },
+  "run": {
+    "recorded_at": "2026-09-29T00:33:55Z",
+    "workflow_run": "https://github.com/teorth/IEANTN/actions/runs/36502365219"
+  },
+  "schema": 2,
+  "solution": {
+    "project": "Solutions/Chebyshev.v1"
+  },
+  "statement": {
+    "Chebyshev.v1.constant_bounds": "bbbc15aa396976e923845be5a53f5d3efa9e9c02643d052bcf2750eed5fb4a69"
+  },
+  "tools": {
+    "comparator": "10dd2b33dc43751af3257f4d684535375306f162",
+    "landrun": "811cfff51ceaf3d9843708aa6d22e9b84ccac8b4",
+    "lean4export": "cacf989bd75f608700820f6afc595f32e7a99a4d",
+    "nanoda": "68d5ca9db226849b41a6fff59d796ff19d0a8840"
+  }
+}
