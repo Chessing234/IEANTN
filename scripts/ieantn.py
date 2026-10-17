@@ -484,9 +484,12 @@ def check_receipts(online: bool = True) -> bool:
         return problems.report("receipt provenance")
 
     for path in sorted(RECEIPTS.glob("*.json")) if RECEIPTS.is_dir() else []:
-        receipt = json.loads(path.read_text(encoding="utf-8"))
+        receipt = load_receipt(path.stem)
+        if receipt is None:
+            problems.add(rel(path), "receipt is unreadable or has an invalid JSON object shape")
+            continue
         url = (receipt.get("run") or {}).get("workflow_run", "")
-        match = RUN_URL_RE.match(url)
+        match = RUN_URL_RE.match(url) if isinstance(url, str) else None
         if match is None:
             problems.add(rel(path), f"records no usable workflow run (`{url}`)")
             continue
@@ -1905,9 +1908,24 @@ def load_receipt(conclusion_key: str) -> dict | None:
     if not path.is_file():
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
         return None
+    if not isinstance(receipt, dict):
+        return None
+    for field in ("statement", "environment", "repository", "solution", "run"):
+        if field in receipt and not isinstance(receipt[field], dict):
+            return None
+    for section, fields in (
+        ("environment", ("lean_toolchain", "mathlib_rev")),
+        ("repository", ("commit",)),
+        ("solution", ("project",)),
+        ("run", ("workflow_run",)),
+    ):
+        values = receipt.get(section, {})
+        if any(values.get(field) is not None and not isinstance(values[field], str) for field in fields):
+            return None
+    return receipt
 
 
 def release_distance(recorded: str, current: str) -> int | None:
