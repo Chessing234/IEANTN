@@ -88,7 +88,7 @@ def theorem_2_theta_lower : Prop :=
 | Evidence | cited (`literature`) |
 | Sources traced | traced |
 | Assumes | [`FKBJ.v1.rh_up_to`](FKBJ-v1.md#rh_up_to) |
-| Assumed by | [`BKLNW.v1.corollary_5_1`](BKLNW-v1.md#corollary_5_1), [`BKLNW.v1.theta_error_le_one`](BKLNW-v1.md#theta_error_le_one), [`BKLNW.v2.corollary_5_1`](BKLNW-v2.md#corollary_5_1), [`BKLNWNumerics.v1.theta_error_le_one`](BKLNWNumerics-v1.md#theta_error_le_one), [`Buthe.v1.theorem_2_li_gt_pi`](Buthe-v1.md#theorem_2_li_gt_pi) |
+| Assumed by | [`BKLNW.v1.corollary_5_1`](BKLNW-v1.md#corollary_5_1), [`BKLNW.v1.corollary_5_1_above`](BKLNW-v1.md#corollary_5_1_above), [`BKLNW.v1.theta_error_le_one`](BKLNW-v1.md#theta_error_le_one), [`BKLNW.v2.corollary_5_1`](BKLNW-v2.md#corollary_5_1), [`BKLNWNumerics.v1.theta_error_le_one`](BKLNWNumerics-v1.md#theta_error_le_one), [`Buthe.v1.theorem_2_li_gt_pi`](Buthe-v1.md#theorem_2_li_gt_pi) |
 
 **Justification `buthe-paper`** — **designated** — literature, Theorem 2, equation (1.7)
 
@@ -209,6 +209,37 @@ def table_1_interval_bounds : Prop :=
 
 > Asserted on the authority of the paper. The entries are in Tables.lean, copied from the PNT+ transcription of Table 1 (31 rows) and checked at the first and last printed blocks. Equation (6.2) is the paper's own reading of the table: each row (x, M-, M+) bounds (t - psi(t))/sqrt(t) on [x, 2x]. No external node is an input; the table is Buthe's computation.
 
+### `table_2_interval_bounds`
+
+**Table 2.** If `(x, M⁻, M⁺)` is a row of Table 2, then
+`M⁻ ≤ (li(t) − π*(t)) · (log t) / √t ≤ M⁺` for every `t ∈ [x, 2x]`.
+
+This is the claim *about* Table 2. The paper reads Theorem 2's equation (1.8) for `x ≥ 10⁷`
+from these bounds together with its Lemma 2; below `10⁷` it checks directly (see
+`ButheNumerics.v1`).
+
+```lean
+def table_2_interval_bounds : Prop :=
+  ∀ p ∈ table_2, ∀ t : ℝ,
+    p.1 ≤ t → t ≤ 2 * p.1 →
+      p.2.1 ≤ (li t - riemannPrimeCounting t) * Real.log t / Real.sqrt t ∧
+        (li t - riemannPrimeCounting t) * Real.log t / Real.sqrt t ≤ p.2.2
+```
+
+| | |
+|---|---|
+| Lean name | `Buthe.v1.table_2_interval_bounds` |
+| Challenge | `Buthe.v1.challenge_table_2_interval_bounds` |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/Buthe/v1/Conclusions.lean#L94) |
+| Evidence | cited (`literature`) |
+| Sources traced | none |
+| Assumes | nothing recorded |
+| Assumed by | nothing yet |
+
+**Justification `buthe-paper`** — **designated** — literature, Table 2
+
+> Asserted on the authority of the paper. The entries are in Tables.lean, transcribed from arXiv:1511.02032v2 Table 2 (31 rows) and checked at the first and last printed blocks. Each row (x, M-, M+) bounds (li(t) - pi*(t)) * log(t) / sqrt(t) on [x, 2x]. The paper reads Theorem 2 equation (1.8) for x >= 10^7 from these bounds together with its Lemma 2; no external node is an input.
+
 ## Limitations
 
 Recorded by the node itself, not derived.
@@ -216,7 +247,7 @@ Recorded by the node itself, not derived.
 - Every conclusion rests on the cited paper; none is proved in Lean here.
 - (1.8), (1.9) and (1.10) are stated against li rather than Li, and (1.8) against the Riemann prime-counting function pi* rather than pi. A node consuming them alongside FKS2, which works with Li and pi, must do the conversions rather than assume them away.
 - The import of FKBJ.v1 records a real dependency but understates it: Buthe's algorithm takes the tabulated zeros as input, and the network can state only that there are none off the critical line below that height.
-- Theorem 2 is stated in full, (1.5) through (1.10). Table 1 is now in Tables.lean, and table_1_interval_bounds records the reading of Table 1 that Equation (6.2) sits beside. The sieve bound of Section 6 itself -- -0.8 <= R_psi(t) <= 0.81 for 100 <= t <= 5 x 10^10 -- is stated on ButheNumerics.v1.eq_6_2, where the finite computations live, not here.
+- Theorem 2 is stated in full, (1.5) through (1.10). Tables 1 and 2 are now in Tables.lean; table_1_interval_bounds and table_2_interval_bounds record their interval readings. The sieve bound of Section 6 itself -- -0.8 <= R_psi(t) <= 0.81 for 100 <= t <= 5 x 10^10 -- is stated on ButheNumerics.v1.eq_6_2, where the finite computations live, not here.
 - No novelty is claimed. The results are Buthe's.
 
 ## How this node was made

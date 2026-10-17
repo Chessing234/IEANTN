@@ -6,14 +6,14 @@ One page per node: what it claims, in Lean and in prose, and everything recorded
 
 | Node | Kind | Claims | Weakest evidence |
 |---|---|---:|---|
-| [`BKLNW.v1`](BKLNW-v1.md) | paper | 4 | cited |
+| [`BKLNW.v1`](BKLNW-v1.md) | paper | 5 | cited |
 | [`BKLNW.v2`](BKLNW-v2.md) | pipeline | 2 | cited |
 | [`BKLNWNumerics.v1`](BKLNWNumerics-v1.md) | computation | 2 | computation |
 | [`Brown1967.v1`](Brown1967-v1.md) | paper | 0 | — |
-| [`Buthe.v1`](Buthe-v1.md) | paper | 7 | cited |
+| [`Buthe.v1`](Buthe-v1.md) | paper | 8 | cited |
 | [`Buthe.v2`](Buthe-v2.md) | pipeline | 2 | unjustified |
 | [`Buthe2016.v1`](Buthe2016-v1.md) | paper | 6 | cited |
-| [`ButheNumerics.v1`](ButheNumerics-v1.md) | computation | 4 | computation |
+| [`ButheNumerics.v1`](ButheNumerics-v1.md) | computation | 5 | computation |
 | [`CH2.v1`](CH2-v1.md) | paper | 4 | verified |
 | [`CH2.v2`](CH2-v2.md) | pipeline | 2 | verified, stale |
 | [`CH2.v3`](CH2-v3.md) | pipeline | 2 | verified |
@@ -30,6 +30,7 @@ One page per node: what it claims, in Lean and in prose, and everything recorded
 | [`DudekPlattNumerics.v3`](DudekPlattNumerics-v3.md) | computation | 1 | computation |
 | [`DudekPlattNumerics.v4`](DudekPlattNumerics-v4.md) | computation | 1 | verified |
 | [`Dusart2018.v1`](Dusart2018-v1.md) | paper | 1 | cited |
+| [`Erdos392.v1`](Erdos392-v1.md) | paper | 3 | verified |
 | [`FKBJ.v1`](FKBJ-v1.md) | computation | 1 | computation |
 | [`FKS.v1`](FKS-v1.md) | paper | 4 | cited |
 | [`FKS.v2`](FKS-v2.md) | paper | 2 | bridged |
@@ -59,6 +60,7 @@ One page per node: what it claims, in Lean and in prose, and everything recorded
 | [`RamareSaouter2003.v1`](RamareSaouter2003-v1.md) | paper | 1 | cited |
 | [`Richstein2001.v1`](Richstein2001-v1.md) | computation | 1 | computation |
 | [`RosserSchoenfeld.v1`](RosserSchoenfeld-v1.md) | paper | 2 | cited |
+| [`RosserSchoenfeld1962.v1`](RosserSchoenfeld1962-v1.md) | paper | 1 | cited |
 | [`Trudgian2011.v1`](Trudgian2011-v1.md) | paper | 1 | cited |
 | [`Wedeniwski.v1`](Wedeniwski-v1.md) | computation | 1 | asserted |
 | [`ZeroCount.v1`](ZeroCount-v1.md) | paper | 2 | cited |

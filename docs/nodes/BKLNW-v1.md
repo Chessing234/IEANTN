@@ -40,7 +40,7 @@ def corollary_5_1 : Prop :=
 |---|---|
 | Lean name | `BKLNW.v1.corollary_5_1` |
 | Challenge | `BKLNW.v1.challenge_corollary_5_1` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L63) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L67) |
 | Evidence | cited (`literature`) |
 | Sources traced | identified |
 | Assumes | [`Buthe.v1.theorem_2_theta_lower`](Buthe-v1.md#theorem_2_theta_lower) |
@@ -49,6 +49,39 @@ def corollary_5_1 : Prop :=
 **Justification `bklnw-paper`** — **designated** — literature, Corollary 5.1, equations (2.10) to (2.12), restricted to b <= 38 log 10
 
 > Asserted on the authority of the paper, transcribed from arXiv:2002.11068v2. Stated on 7 <= b <= 38 log 10 only. Above that threshold a1(b) is 1 + eps(b/2) with eps read from the paper's Table 8; below it a1 is the explicit constant 1 + 1.93378e-8, and every current consumer is below it -- FKS2 uses x0 = e^30, and 38 log 10 is about 87.4982. This is a restriction of the paper's range, not a weakening of what it claims on that range. The paper contradicts itself here and the displayed statement is the correct side, so that is what is transcribed. Theorem 5 gives a2 = (1 + alpha) max{...}; Corollary 5.1's proof declares alpha = 1.93378e-8 from Corollary 2.1 and then writes 1.15177e-8 for the same quantity one sentence later, so (2.12) is self-consistent and the proof's figure is a stray -- most likely a leftover from a draft with a different epsilon. It appears on page 9 of both arXiv:2002.11068v2 and the published Math. Comp. version, and never reached PNT+, whose formalization uses the correct value. The difference is lower order and harmless; it is recorded because a stray constant that nobody writes down is the kind of thing that gets propagated later. Imports: the proof applies the paper's Theorem 5 with alpha = 1.93378e-8 from its Corollary 2.1, and its Proposition 4 with x1 = 10^19 'from the work of Buthe [4, Equation (1.7)]' -- that is Buthe.v1.theorem_2_theta_lower, which is the same (1.7). The paper leans on it twice: Corollary 2.1 combines 'theta(x) < x for 0 < x <= 10^19 ([4, Theorem 2, (1.7)])' with M0 = eps(19 log 10) from Table 8, and equation (3.17) quotes (1.7) in full. The other half of that, the Table 8 entry, is this node's own table8_psi_bound_above, so it is not an import.
+
+### `corollary_5_1_above`
+
+**Corollary 5.1**, high branch: `a₁(b) = 1 + ε(b/2)` from Table 8.
+
+For each Table 8 row `(β, ε)` with `b := 2β > 38 log 10`, and every `x ≥ e^b`,
+`ψ(x) − θ(x) < (1 + ε) √x + a₂(b) x^{1/3}`.
+
+Quantified over the tabulated abscissae so `ε(b/2)` is an exact table entry rather than an
+interpolated value. The low branch `corollary_5_1` is untouched: FKS2 receipts pin it.
+
+```lean
+def corollary_5_1_above : Prop :=
+  ∀ p ∈ table8,
+    38 * Real.log 10 < (2 : ℝ) * p.1 →
+    ∀ x ≥ Real.exp ((2 : ℝ) * p.1),
+      Chebyshev.psi x - Chebyshev.theta x <
+        (1 + p.2) * x ^ ((1 : ℝ) / 2) + a₂ ((2 : ℝ) * p.1) * x ^ ((1 : ℝ) / 3)
+```
+
+| | |
+|---|---|
+| Lean name | `BKLNW.v1.corollary_5_1_above` |
+| Challenge | `BKLNW.v1.challenge_corollary_5_1_above` |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L79) |
+| Evidence | cited (`literature`) |
+| Sources traced | identified |
+| Assumes | [`Buthe.v1.theorem_2_theta_lower`](Buthe-v1.md#theorem_2_theta_lower) |
+| Assumed by | nothing yet |
+
+**Justification `bklnw-paper`** — **designated** — literature, Corollary 5.1, equations (2.10) to (2.12), b > 38 log 10
+
+> Asserted on the authority of the paper, transcribed from arXiv:2002.11068v2. The high branch of (2.11): a1(b) = 1 + eps(b/2) with eps read from Table 8, while a2(b) keeps the fixed leading factor of (2.12). Quantified over Table 8 rows (beta, eps) with b = 2*beta so that eps(b/2) is an exact table entry. The low branch corollary_5_1 is unchanged. Imports match the low branch: Buthe.v1.theorem_2_theta_lower via the paper's use of [4, Equation (1.7)].
 
 ### `table8_psi_bound`
 
@@ -73,7 +106,7 @@ def table8_psi_bound : Prop :=
 |---|---|
 | Lean name | `BKLNW.v1.table8_psi_bound` |
 | Challenge | `BKLNW.v1.challenge_table8_psi_bound` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L78) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L96) |
 | Evidence | cited (`literature`) |
 | Sources traced | traced |
 | Assumes | [`Buthe2016.v1.theorem_2_psi`](Buthe2016-v1.md#theorem_2_psi), [`PlattTrudgian2021.v1.theorem_1_numerical`](PlattTrudgian2021-v1.md#theorem_1_numerical) |
@@ -108,7 +141,7 @@ def table8_psi_bound_above : Prop :=
 |---|---|
 | Lean name | `BKLNW.v1.table8_psi_bound_above` |
 | Challenge | `BKLNW.v1.challenge_table8_psi_bound_above` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L94) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L112) |
 | Evidence | cited (`literature`) |
 | Sources traced | traced |
 | Assumes | [`Buthe2016.v1.theorem_2_psi`](Buthe2016-v1.md#theorem_2_psi), [`PlattTrudgian2021.v1.theorem_1_numerical`](PlattTrudgian2021-v1.md#theorem_1_numerical) |
@@ -139,7 +172,7 @@ def theta_error_le_one : Prop :=
 |---|---|
 | Lean name | `BKLNW.v1.theta_error_le_one` |
 | Challenge | `BKLNW.v1.challenge_theta_error_le_one` |
-| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L107) |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/BKLNW/v1/Conclusions.lean#L125) |
 | Evidence | cited (`literature`) |
 | Sources traced | identified |
 | Assumes | [`Buthe.v1.theorem_2_theta_lower`](Buthe-v1.md#theorem_2_theta_lower) |
@@ -154,7 +187,7 @@ def theta_error_le_one : Prop :=
 Recorded by the node itself, not derived.
 
 - Every conclusion rests on the cited paper; none is proved in Lean here.
-- corollary_5_1 is stated on 7 <= b <= 38 log 10 only. Table 8 is now present, so the b > 38 log 10 branch can be stated when something needs it.
+- corollary_5_1 is stated on 7 <= b <= 38 log 10; corollary_5_1_above states the complementary b > 38 log 10 branch with a1(b) = 1 + eps(b/2) from Table 8.
 - The Table 8 conclusions import Buthe2016.v1 and PlattTrudgian2021.v1, but the third input -- the algorithm of Buthe 2018's Theorem 1 -- is not a proposition and can never be an edge. The tabulated values are what those algorithms output, so the edges understate the dependency.
 - theta_error_le_one is transcribed from FKS2's use of Tables 13 and 14, not read off those tables directly.
 - No novelty is claimed. The results are the paper's.

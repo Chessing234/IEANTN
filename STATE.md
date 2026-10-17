@@ -7,7 +7,7 @@ column says what a receipt is presently worth, not merely what was claimed for i
 reason a receipt has stopped standing is below, and `python scripts/ieantn.py status`
 adds the environment detail.
 
-61 node version(s), 125 conclusion(s).  3 state nothing yet.
+63 node version(s), 132 conclusion(s).  3 state nothing yet.
 
 ## Evidence
 
@@ -15,16 +15,17 @@ adds the environment detail.
 |---|---:|
 | `asserted` | 1 |
 | `bridged` | 3 |
-| `lean-comparator` | 44 |
-| `literature` | 42 |
+| `lean-comparator` | 47 |
+| `literature` | 45 |
 | `none-yet` | 4 |
-| `numerical` | 31 |
+| `numerical` | 32 |
 
 ## Nodes
 
 | Node | Status | Conclusion | Evidence | Imports | Issue |
 |---|---|---|---|---:|---|
 | `BKLNW.v1` | active | `corollary_5_1` | literature | 1 | - |
+| `BKLNW.v1` | active | `corollary_5_1_above` | literature | 1 | - |
 | `BKLNW.v1` | active | `table8_psi_bound` | literature | 2 | - |
 | `BKLNW.v1` | active | `table8_psi_bound_above` | literature | 2 | - |
 | `BKLNW.v1` | active | `theta_error_le_one` | literature | 1 | - |
@@ -40,6 +41,7 @@ adds the environment detail.
 | `Buthe.v1` | active | `theorem_2_li_minus_pi` | literature | 5 | - |
 | `Buthe.v1` | active | `theorem_2_li_gt_pi` | literature | 4 | - |
 | `Buthe.v1` | active | `table_1_interval_bounds` | literature | 0 | - |
+| `Buthe.v1` | active | `table_2_interval_bounds` | literature | 0 | - |
 | `Buthe.v2` | awaiting-solution | `lemma_3_bounds` | none-yet | 0 | #56 |
 | `Buthe.v2` | awaiting-solution | `lemma_3_positivity` | none-yet | 0 | #56 |
 | `Buthe2016.v1` | stub | `theorem_2_psi` | literature | 0 | - |
@@ -52,6 +54,7 @@ adds the environment detail.
 | `ButheNumerics.v1` | stub | `li_minus_pi_below_1e7` | numerical | 0 | - |
 | `ButheNumerics.v1` | stub | `lemma_3_constant_gt_at_10` | numerical | 0 | - |
 | `ButheNumerics.v1` | stub | `eq_6_2` | numerical | 0 | - |
+| `ButheNumerics.v1` | stub | `li_minus_riemann_pi_below_1e7` | numerical | 0 | - |
 | `CH2.v1` | active | `corollary_1_2_psi` | lean-comparator | 13 | - |
 | `CH2.v1` | active | `corollary_1_2_lambda_sum` | lean-comparator | 13 | - |
 | `CH2.v1` | active | `corollary_1_3_psi` | lean-comparator | 3 | - |
@@ -78,6 +81,9 @@ adds the environment detail.
 | `DudekPlattNumerics.v3` | stub | `pi_two_sided_footnote` | numerical | 0 | #63 |
 | `DudekPlattNumerics.v4` | active | `pi_two_sided_footnote` | lean-comparator | 1 | #63 |
 | `Dusart2018.v1` | stub | `proposition_5_4` | literature | 0 | - |
+| `Erdos392.v1` | active | `factors_le_n` | lean-comparator | 0 | - |
+| `Erdos392.v1` | active | `factors_le_n_sq` | lean-comparator | 0 | - |
+| `Erdos392.v1` | active | `factors_le_n_sq_lower` | lean-comparator | 0 | - |
 | `FKBJ.v1` | active | `rh_up_to` | numerical | 0 | - |
 | `FKS.v1` | active | `psi_bound_all_x` | literature | 3 | - |
 | `FKS.v1` | active | `psi_classical_bound` | literature | 3 | - |
@@ -134,6 +140,7 @@ adds the environment detail.
 | `Richstein2001.v1` | active | `even_up_to_4e14` | numerical | 0 | - |
 | `RosserSchoenfeld.v1` | stub | `zero_free_region` | literature | 0 | - |
 | `RosserSchoenfeld.v1` | stub | `zero_free_region_classical` | bridged | 0 | - |
+| `RosserSchoenfeld1962.v1` | awaiting-verification | `equation_3_35` | literature | 0 | - |
 | `Trudgian2011.v1` | stub | `integral_S_bound` | literature | 0 | - |
 | `Wedeniwski.v1` | stub | `rh_up_to` | asserted | 0 | - |
 | `ZeroCount.v1` | stub | `rvm_error_bound` | literature | 0 | #64 |
@@ -188,7 +195,7 @@ downstream.
 |---|---:|
 | `PlattTrudgian.v1.rh_up_to` | 7 |
 | `FKBJ.v1.rh_up_to` | 6 |
-| `Buthe.v1.theorem_2_theta_lower` | 5 |
+| `Buthe.v1.theorem_2_theta_lower` | 6 |
 | `MT.v1.zero_free_region_sharpened` | 4 |
 | `KLN.v1.subconvexity_bound` | 4 |
 | `FKS2Numerics.v1.theta_asymp_ge_one_below_e30` | 4 |
