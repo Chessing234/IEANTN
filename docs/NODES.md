@@ -216,6 +216,11 @@ Notes:
 - Editing a node's metadata with `new-version` or `deprecate` requires `ruamel.yaml`
   (`pip install ruamel.yaml`), which preserves comments. The read-only checks need only PyYAML,
   so CI does not install it.
+  One consequence is worth knowing: **a key written twice is an error, not last-one-wins.** PyYAML
+  keeps the last occurrence while ruamel refuses the file outright, so the reading half of the
+  tooling and the writing half disagree about what the file says -- and an edit that adds a key
+  some later duplicate overrides does nothing at all, silently. `check` reports any such repeat,
+  with the line of the second occurrence.
 - There is no `receipt` field. Receipts live in `receipts/`, one JSON file per verified
   conclusion, written by the verification workflow. See [../receipts/README.md](../receipts/README.md).
 - Palomar's required-field list is a **moving target**. CI re-fetches the validator; do not vendor
