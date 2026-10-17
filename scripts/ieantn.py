@@ -4261,6 +4261,16 @@ def referenced_nodes(node: dict) -> set[str]:
     return references
 
 
+def _lean_import_blockers(paths: list[pathlib.Path], node_ids: set[str]) -> list[str]:
+    """Lean consumers of the nodes, including edges not recorded in metadata."""
+    prefixes = [f"IEANTN.Nodes.{node_id}" for node_id in node_ids]
+    return sorted(
+        f"{rel(path)} -> {module}"
+        for path in paths for module in imports_of(path)
+        if any(under(module, prefix) for prefix in prefixes)
+    )
+
+
 def deactivate(node_ids: list[str], reason: str) -> bool:
     """Take nodes out of the network without deleting them.
 
@@ -4292,6 +4302,22 @@ def deactivate(node_ids: list[str], reason: str) -> bool:
         if node_id not in going and not is_inactive(node)
         for target in referenced_nodes(node) & going
     )
+    # A bridge whose target is going out with the node is not a live consumer of it: a node and
+    # the bridge that justifies it are deactivated together or not at all.
+    going_bridges = {
+        (ROOT / justification["bridge"]).resolve()
+        for node_id in going
+        for conclusion in conclusions_of(everything[node_id])
+        for justification in justifications_of(conclusion)
+        if justification.get("kind") == "bridged" and justification.get("bridge")
+    }
+    live_files = [
+        path for node_id, node in everything.items()
+        if node_id not in going and not is_inactive(node)
+        for path in node["_dir"].glob("*.lean")
+    ] + [path for path in BRIDGES_DIR.rglob("*.lean")
+         if path.resolve() not in going_bridges]
+    blockers += _lean_import_blockers(live_files, going)
     if blockers:
         print("error: still imported or referenced by live nodes:")
         for line in blockers:
@@ -4341,6 +4367,16 @@ def reactivate(node_id: str) -> bool:
     )
     if still_off:
         print(f"error: `{node_id}` references inactive {', '.join(still_off)}; reactivate those first")
+        return False
+
+    lean_blockers = _lean_import_blockers(
+        list(everything[node_id]["_dir"].glob("*.lean")),
+        {other for other, node in everything.items() if other != node_id and is_inactive(node)},
+    )
+    if lean_blockers:
+        print("error: Lean files still import inactive nodes:")
+        for line in lean_blockers:
+            print(f"  {line}")
         return False
 
     path = everything[node_id]["_dir"] / "formalization.yaml"
