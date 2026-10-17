@@ -10,7 +10,7 @@ node:
   family: Erdos392
   version: v1
   kind: paper
-  status: awaiting-verification
+  status: active
 
 project:
   name: "Erdos problem 392: decomposing a factorial into few factors of size at most n^2"
@@ -48,11 +48,10 @@ conclusions:
       Chebyshev.eventually_primeCounting_le supplies it. PrimeNumberTheoremAnd uses the Prime Number
       Theorem here instead, which is more than the argument needs and which its own blueprint note
       says is optional.
-  designated: unjustified
-  progress:
-    solution: Solutions/Erdos392.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/39056626510'
+  designated: comparator
 - id: factors_le_n_sq
   declaration: Erdos392.v1.factors_le_n_sq
   challenge: Erdos392.v1.challenge_factors_le_n_sq
@@ -65,11 +64,10 @@ conclusions:
       A Lean proof is in Solutions/Erdos392.v1, awaiting a Comparator receipt. The upper half of the
       asymptotic the problem asks about, obtained from factors_le_n by pairing factors. Imports
       nothing.
-  designated: unjustified
-  progress:
-    solution: Solutions/Erdos392.v1/
-    state: in-progress
-    remaining_holes: 0
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/39056626510'
+  designated: comparator
 - id: factors_le_n_sq_lower
   declaration: Erdos392.v1.factors_le_n_sq_lower
   challenge: Erdos392.v1.challenge_factors_le_n_sq_lower
@@ -84,12 +82,11 @@ conclusions:
       stating half of a two-sided asymptotic invites exactly the misreading this network exists to
       prevent. The proof is four lines of counting on top of Mathlib's effective Stirling bound
       Stirling.le_log_factorial_stirling, and is stated for every n >= 2 rather than eventually.
-  designated: unjustified
+  - id: comparator
+    kind: lean-comparator
+    note: 'Comparator accepted the solution. Run: https://github.com/teorth/IEANTN/actions/runs/39056626510'
+  designated: comparator
 
-  progress:
-    solution: Solutions/Erdos392.v1/
-    state: in-progress
-    remaining_holes: 0
 sources:
 - title: "Erdos problem 392, forum thread"
   authors: ["folklore"]
