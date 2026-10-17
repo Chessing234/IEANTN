@@ -327,6 +327,42 @@ def load_nodes(include_inactive: bool = False) -> dict[str, dict]:
     return nodes
 
 
+def duplicate_keys(text: str) -> list[tuple[str, str, int]]:
+    """Every key written twice in one mapping: `(containing path, key, line)`.
+
+    A duplicate key is the one metadata error that reads as success. PyYAML keeps the last
+    occurrence, so an edit that adds a key some later duplicate overrides changes nothing at all
+    and every check here goes on passing -- which is how `imports_status: traced` sat unapplied on
+    `FKS.v1` from one pull request to the next. ruamel, which every mutating command goes through,
+    refuses such a file outright with a `DuplicateKeyError`, so the same duplicate also breaks
+    `new-version`, `deprecate`, `deactivate`, `progress --write` and the step that records a
+    receipt. Neither half of that is visible from reading the file, and the two halves disagree
+    about what the file even says.
+
+    Composed rather than constructed: the node graph keeps the source positions, and nothing has
+    to be built to find a repeat.
+    """
+    found: list[tuple[str, str, int]] = []
+
+    def walk(node: yaml.Node, path: str) -> None:
+        if isinstance(node, yaml.MappingNode):
+            seen: set[str] = set()
+            for key, value in node.value:
+                name = str(getattr(key, "value", key))
+                if name in seen:
+                    found.append((path or "the document", name, key.start_mark.line + 1))
+                seen.add(name)
+                walk(value, f"{path}.{name}" if path else name)
+        elif isinstance(node, yaml.SequenceNode):
+            for index, item in enumerate(node.value):
+                walk(item, f"{path}[{index}]")
+
+    root = yaml.compose(text, Loader=yaml.SafeLoader)
+    if root is not None:
+        walk(root, "")
+    return found
+
+
 def inactive_nodes() -> dict[str, dict]:
     return {k: v for k, v in load_nodes(include_inactive=True).items() if is_inactive(v)}
 
@@ -1273,6 +1309,19 @@ def check_graph() -> bool:
                 rel(node["_dir"] / "formalization.yaml"),
                 f"`{node_id}` is inactive but gives no `node.inactive_reason`. Say why it was "
                 "retired, so whoever finds the directory can tell whether to reactivate it.",
+            )
+
+    # Checked for every node, active or not, and before the early return below: a duplicate in an
+    # inactive node's metadata is what would stop `reactivate` from writing it back.
+    for node_id, node in sorted({**inactive, **nodes}.items()):
+        path = node["_dir"] / "formalization.yaml"
+        for container, key, line in duplicate_keys(path.read_text(encoding="utf-8")):
+            problems.add(
+                rel(path),
+                f"line {line}: `{key}` is given twice in `{container}`. PyYAML keeps the last, so "
+                "one of the two does nothing and every check here passes while the file says "
+                "something nobody wrote; ruamel refuses the file, so the node-editing commands "
+                "fail on it instead. Delete whichever is wrong.",
             )
 
     if not nodes:
