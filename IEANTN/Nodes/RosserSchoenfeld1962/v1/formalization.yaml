@@ -32,18 +32,36 @@ conclusions:
   challenge: RosserSchoenfeld1962.v1.challenge_equation_3_35
   imports: []
   imports_status: none
+  issue: 164
   justifications:
+  - id: rs12-port
+    kind: lean-noncompliant
+    note: >-
+      The proof is complete and in this repository, at Solutions/RosserSchoenfeld1962.v1.
+      Its progress.yaml records the solution building on the core toolchain, the compared
+      theorem auditing to exactly propext, Classical.choice and Quot.sound, every closed
+      computation done by `decide +kernel` rather than `native_decide`, and identical
+      `pp.all` types in separate challenge and solution environments. What is absent is a
+      receipt, for two reasons, neither of them about the mathematics. Its finite
+      certificates come from LeanCert at alerad/leancert@6b11513512c9d27183fb4725bfc291ab38b4a6d7,
+      the first third-party package any solution here has required, and the network has not
+      decided whether a verification run may fetch one; and its 32 certificate shards need
+      the sequential build in the solution's scripts/build_sequential.py to fit in memory,
+      where scripts/verify-comparator.sh runs an ordinary `lake build`. Both are tracked in
+      issue 164. ROADMAP's tier A argument holds that a certificate re-checked inside Lean
+      leaves the trusted base entirely and should earn an ordinary lean-comparator receipt,
+      so this is expected to be a wait rather than a verdict.
   - id: rs1962-paper
     kind: literature
     source: "https://doi.org/10.1215/ijm/1255631807"
     locator: "Theorem 12, equation (3.35), p. 71; proof on pp. 77-80"
     note: >-
-      The bound is recorded on the authority of the 1962 paper until the IEANTN
-      verification workflow accepts the solution. The port proves an unconditional
-      theorem with no node hypotheses: its finite arithmetic and logarithm bounds
-      are checked in Lean, and it needs no numerical or zero-verification assumption.
-      No Comparator justification or receipt is supplied by the author.
-  designated: rs1962-paper
+      The spare: the 1962 paper proves the bound, and the claim stands on its authority
+      whatever becomes of the port. The port itself proves an unconditional theorem with no
+      node hypotheses: its finite arithmetic and logarithm bounds are checked in Lean, and
+      it needs no numerical or zero-verification assumption. No Comparator justification or
+      receipt is supplied by the author.
+  designated: rs12-port
 
   progress:
     solution: Solutions/RosserSchoenfeld1962.v1/
