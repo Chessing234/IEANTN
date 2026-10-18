@@ -170,6 +170,39 @@ def eq_6_2 : Prop :=
 
 > A finite check rather than an argument, so `numerical`. Buthe records -0.8 <= R_psi(t) <= 0.81 for 100 <= t <= 5e10, "calculated using the Eratosthenes sieve". Together with Table 1 this implies Theorem 2's (1.5); the remaining 11 < t < 100 is a direct check. Transcribed from arXiv:1511.02032v2, including the asymmetric constants and the closed interval. Imports `none`: a bounded-range sieve consumes no other result in the network. This is the sieve bound of Section 6 that Buthe.v1's limitations list as unstated; it lives on this node because it is a computation, not an analytic claim.
 
+### `li_minus_riemann_pi_below_1e7`
+
+**Theorem 2's equation (1.8), on the range the paper checks directly.**
+
+`|li(x) − π*(x)| < √x / log x` for `2 ≤ x ≤ 10⁷`.
+
+The paper obtains (1.8) for `x ≥ 10⁷` from Table 2 together with Lemma 2, and says the remaining
+values "can again be checked by a direct computation". That direct check is the twin of
+`li_minus_pi_below_1e7` for (1.9), and is stated here so (1.8)'s inputs are fully named.
+
+Carries a `margin 0` factor — see `IEANTN.margin`.
+
+```lean
+noncomputable def li_minus_riemann_pi_below_1e7 : Prop :=
+  ∀ x : ℝ, 2 ≤ x → x ≤ 10 ^ (7 : ℕ) →
+    |li x - riemannPrimeCounting x| <
+      margin 0 * (Real.sqrt x / Real.log x)
+```
+
+| | |
+|---|---|
+| Lean name | `ButheNumerics.v1.li_minus_riemann_pi_below_1e7` |
+| Challenge | `ButheNumerics.v1.challenge_li_minus_riemann_pi_below_1e7` |
+| Source | [Conclusions.lean](https://github.com/teorth/IEANTN/blob/main/IEANTN/Nodes/ButheNumerics/v1/Conclusions.lean#L146) |
+| Evidence | computation (`numerical`) |
+| Sources traced | none |
+| Assumes | nothing recorded |
+| Assumed by | nothing yet |
+
+**Justification `buthe-computation`** — **designated** — numerical, Proof of Theorem 2, equation (1.8) -- direct check below 10^7
+
+> A finite check rather than an argument, so `numerical`. Buthe obtains (1.8) for x >= 10^7 from Table 2 and Lemma 2, and says the remaining values can again be checked by a direct computation. That direct check is stated here, the twin of li_minus_pi_below_1e7 for (1.9). Imports `none`: a bounded-range computation consumes no other result in the network.
+
 ## Limitations
 
 Recorded by the node itself, not derived.
@@ -178,7 +211,7 @@ Recorded by the node itself, not derived.
 - `lemma_3_constant_nonpos` is inferred from the paper's use of Lemma 3 rather than displayed by the paper. If Buthe's proof of (1.9) turns out to handle the A term some other way, this conclusion is still true but stops being the right hypothesis, and the derivation recorded on Buthe.v1.theorem_2_li_minus_pi would need revising.
 - `li_minus_pi_below_1e7` carries an `IEANTN.margin` factor at index 0, where the factor is 1. It says exactly what it says without it; the site marks a number whose provenance is a computation. `lemma_3_constant_nonpos` deliberately carries no such site, because its bound is 0 and a multiplicative margin cannot loosen 0.
 - Both `lemma_3_constant_nonpos` and `lemma_3_constant_gt_at_10` are the same functional A(a) = pi(a) - li(a) + (a - theta(a))/log a at two different points, asserted with opposite signs. That is correct -- A varies with a -- but it is the kind of pair that invites a misreading, so they are stated separately rather than as one parameterised claim.
-- The paper's Table 2, and the direct checks behind (1.5), (1.6), (1.7) and (1.8), are not stated. They are equally computational, but nothing yet needs them separated: those four equations are consumed as stated on Buthe.v1 rather than derived from anything.
+- The direct check behind (1.8) below 10^7 is stated here as li_minus_riemann_pi_below_1e7. The paper's Table 2 (the input to (1.8) above 10^7) and the direct checks behind (1.5), (1.6) and (1.7) remain elsewhere or unstated: those equations are consumed as stated on Buthe.v1 rather than derived here.
 - No novelty is claimed. The results are Buthe's.
 
 ## How this node was made
