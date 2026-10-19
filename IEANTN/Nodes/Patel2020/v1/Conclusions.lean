@@ -39,7 +39,7 @@ claim. -/
 def zeta_one_bound : Prop :=
   ∀ t : ℝ, 3 ≤ t →
     ‖riemannZeta (1 + t * I)‖ ≤
-      min (log t) (min (log t / 2 + 1.93) (log t / 5 + 44.02))
+      min (Real.log t) (min (Real.log t / 2 + 1.93) (Real.log t / 5 + 44.02))
 
 /-- **Corrected Cheng–Graham Lemma 2.** If `f` is continuously differentiable on `(a, b]`, `f'`
 is monotonic, and `‖f'‖ ≥ 1/U` there for some `U > 0`, then the exponential sum over the integers
