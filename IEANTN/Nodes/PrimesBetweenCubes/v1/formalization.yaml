@@ -28,7 +28,9 @@ conclusions:
 - id: prime_between_successive_cubes
   declaration: PrimesBetweenCubes.v1.prime_between_successive_cubes
   challenge: PrimesBetweenCubes.v1.challenge_prime_between_successive_cubes
-  imports: []
+  imports:
+  - node: MTY.v1
+    conclusion: korobov_vinogradov_region
   imports_status: traced
   justifications:
   - id: mty-application
@@ -39,9 +41,9 @@ conclusions:
       Read from arXiv:2212.06867. Dudek used Ford's region to get n >= exp(exp(33.3)). Cully-Hugill
       improved that to exp(exp(32.892)). MTY writes that substituting their Theorem Main into
       Cully-Hugill section 4 with alpha = 1/3 + 10^{-13} gives n >= exp(exp(32.76)). Asserted on
-      that calculation as printed. The zero-free region it consumes is MTY.v1's Korobov-Vinogradov
-      theorem, which is not drawn as an edge because this node was split out so the application
-      can be reviewed on its own; the dependency is this note.
+      that calculation as printed. The zero-free region it consumes is drawn as
+      MTY.v1.korobov_vinogradov_region. The status stays traced: Cully-Hugill's section 4 is the
+      other input, and that argument is not a node. The substitution itself was not re-run.
   designated: mty-application
 
 sources:
