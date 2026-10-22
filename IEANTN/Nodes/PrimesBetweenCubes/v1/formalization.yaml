@@ -57,6 +57,15 @@ sources:
     The threshold is MTY's. The underlying prime-between-cubes argument is Cully-Hugill's, as
     cited there.
 
+automation:
+  methods:
+  - method: agent
+    models: ["Claude Opus 5 (Anthropic)"]
+    framework: "Claude Code"
+    role: >-
+      Transcribed the prime-between-cubes threshold from the MTY preprint and recorded its
+      dependence on the Korobov-Vinogradov region.
+
 review:
   status: self-assessed
   reviewers: ["Terence Tao"]

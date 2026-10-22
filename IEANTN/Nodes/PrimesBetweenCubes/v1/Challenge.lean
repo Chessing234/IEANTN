@@ -3,6 +3,7 @@ Copyright (c) 2026 IEANTN contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Terence Tao
 -/
+import IEANTN.Nodes.MTY.v1.Conclusions
 import IEANTN.Nodes.PrimesBetweenCubes.v1.Conclusions
 
 /-!
@@ -16,5 +17,7 @@ Each `sorry` below is deliberate and permanent: a challenge *states*, it does no
 How each conclusion is justified is recorded in `formalization.yaml`, not here.
 -/
 
-theorem PrimesBetweenCubes.v1.challenge_prime_between_successive_cubes : PrimesBetweenCubes.v1.prime_between_successive_cubes := by
+theorem PrimesBetweenCubes.v1.challenge_prime_between_successive_cubes
+    (mty_v1_korobov_vinogradov_region : MTY.v1.korobov_vinogradov_region) :
+    PrimesBetweenCubes.v1.prime_between_successive_cubes := by
   sorry
