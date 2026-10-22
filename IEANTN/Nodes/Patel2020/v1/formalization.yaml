@@ -86,6 +86,15 @@ sources:
   note: >-
     Read from the arXiv source mainbound.tex. The published venue, if any, was not checked.
 
+automation:
+  methods:
+  - method: agent
+    models: ["Claude Opus 5 (Anthropic)"]
+    framework: "Claude Code"
+    role: >-
+      Transcribed Patel's zeta(1+it) bound and the corrected Cheng-Graham lemmas from the arXiv
+      source.
+
 review:
   status: self-assessed
   reviewers: ["Terence Tao"]
