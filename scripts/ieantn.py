@@ -4222,8 +4222,10 @@ def plan_composition(index: dict, key: str) -> tuple[dict | None, str | None]:
                     return error
         elif current_kind == "bridged":
             relative = justification.get("bridge")
-            bridge_path = ROOT / relative if isinstance(relative, str) else None
-            if bridge_path is None or not bridge_path.is_file():
+            if not isinstance(relative, str):
+                return f"error: `{current}` names no bridge file that exists."
+            bridge_path = ROOT / relative
+            if not bridge_path.is_file():
                 return f"error: `{current}` names no bridge file that exists."
             target_decl = current_conclusion.get("declaration")
             if not isinstance(target_decl, str):
